@@ -4,7 +4,7 @@ require('dotenv').config();
 let currentFFmpegProcess = null;
 const BASE_URL = process.env.BASE_URL;
 
-function startFFmpeg(channelId) {
+function startFFmpeg(channelId, startNumber) {
     if (currentFFmpegProcess) {
         console.log('Terminate previous ffmpeg-Prozess...');
         currentFFmpegProcess.kill('SIGTERM');
@@ -15,14 +15,13 @@ function startFFmpeg(channelId) {
 
     currentFFmpegProcess = spawn('ffmpeg', [
         '-i', streamUrl,
-        '-c:v', 'libx264',
-        '-c:a', 'aac',
-        '-preset', 'veryfast',
+        '-c', 'copy',
         '-f', 'hls',
         '-hls_time', '8',
         '-hls_list_size', '5',
         '-hls_flags', 'delete_segments',
-        '/mnt/streams/playlist.m3u8'
+        '-start_number', startNumber,
+        '/mnt/streams/recordings/playlist.m3u8'
     ]);
 
     currentFFmpegProcess.stdout.on('data', (data) => {

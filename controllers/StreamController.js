@@ -1,17 +1,21 @@
 const ffmpegService = require('../services/FFmpegService');
+const storageService = require('../services/StorageService');
 
 let currentChannelId = process.env.DEFAULT_CHANNEL_ID;
 
 function setChannel(req, res) {
     const { id: channelId } = req.params;
-    if (channelId) {
+    if (channelId && currentChannelId != channelId) {
+        const segmentNumber = storageService.getNextSegmentNumber();
+        storageService.clearStorage();
         currentChannelId = channelId;
-        ffmpegService.startFFmpeg(channelId);
+        ffmpegService.startFFmpeg(channelId, segmentNumber);
         res.status(200).json({ status: 'success', channelId: currentChannelId });
     } else {
         res.status(400).json({ status: 'error', message: 'No channel set' });
     }
 }
+
 
 function getChannel(_, res) {
     if (currentChannelId) {
