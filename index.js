@@ -1,21 +1,27 @@
 const express = require('express');
 const dotenv = require('dotenv');
+
+const channelController = require('./controllers/ChannelController');
 const streamController = require('./controllers/StreamController');
 
 dotenv.config();
 
 const app = express();
+app.use(express.json());
+
+
 const apiRouter = express.Router();
 
+apiRouter.post('/current', channelController.setCurrent);
+apiRouter.get('/current', channelController.getCurrent);
 
-apiRouter.post('/set-channel/:id', streamController.setChannel);
-apiRouter.get('/get-channel', streamController.getChannel);
-apiRouter.post('/stop', streamController.stop);
+apiRouter.get('/', channelController.getChannels);
+apiRouter.post('/add', channelController.addChannel);
 
-app.use('/api', apiRouter);
+app.use('/channels', apiRouter);
 
 const PORT = 5000;
 app.listen(PORT, () => {
     console.log(`Server listening on Port ${PORT}`);
-    streamController.setChannel({ params: { id: process.env.DEFAULT_CHANNEL_ID } }, { status: () => ({ json: () => {} }) });
+    streamController.start();
 });
