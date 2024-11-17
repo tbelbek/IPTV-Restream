@@ -25,7 +25,7 @@ function ChannelList({ channels, selectedChannel, onSelectChannel }: ChannelList
             <img
               src={channel.avatar}
               alt={channel.name}
-              className="w-full h-full object-cover rounded-lg transition-transform group-hover:scale-105"
+              className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105"
             />
             
           </div>

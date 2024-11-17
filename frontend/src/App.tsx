@@ -13,14 +13,14 @@ function App() {
       name: 'Das Erste',
       url: 'https://mcdn.daserste.de/daserste/de/master1080p5000.m3u8',
       isLive: true,
-      avatar: 'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=64&h=64&fit=crop&crop=faces'
+      avatar: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Das_Erste-Logo_klein.svg/768px-Das_Erste-Logo_klein.svg.png'
     },
     {
       id: 2,
       name: 'ZDF',
       url: 'https://mcdn.daserste.de/daserste/de/master1080p5000.m3u8',
       isLive: true,
-      avatar: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=64&h=64&fit=crop&crop=faces'
+      avatar: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/ZDF_logo.svg/2560px-ZDF_logo.svg.png'
     },
     {
       id: 3,
