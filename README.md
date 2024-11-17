@@ -2,9 +2,16 @@
 
 A simple IPTV restream and synchronization application with web frontend.
 
+### Frontend
+A simple React webpage that can stream iptv streams in hls-format. Provides synchronized playback by using a constant delay. Also supports multiple IPTV streams (channel selection) and a chat if using together with the backend.
+
+### Backend
+A simple NodeJS web server that retrieves your IPTV stream, caches it, and converts it into an HLS stream, making it accessible via the web. Also supports multiple IPTV streams (channel selection).
+
 ## Use Cases
 - Connect with multiple Devices to 1 IPTV Stream, if your provider limits current devices.
 - Proxy all Requests through one IP.
+  - Helps with CORS issues.
 - Synchronize IPTV streaming with multiple devices: Synchronized playback and channel selection.
 
 ## Running
