@@ -1,13 +1,17 @@
 import React from 'react';
 import { Channel } from '../types';
+import socketService from '../services/SocketService';
 
 interface ChannelListProps {
   channels: Channel[];
   selectedChannel: Channel;
-  onSelectChannel: (channel: Channel) => void;
 }
 
-function ChannelList({ channels, selectedChannel, onSelectChannel }: ChannelListProps) {
+function ChannelList({ channels, selectedChannel}: ChannelListProps) {
+
+  const onSelectChannel = (channel: Channel) => {
+    socketService.setCurrentChannel(channel.id);
+  };
 
   return (
     <div className="flex space-x-3 hover:overflow-x-auto overflow-hidden pb-2 px-1 pt-1 scroll-container">
@@ -21,17 +25,14 @@ function ChannelList({ channels, selectedChannel, onSelectChannel }: ChannelList
               : 'hover:bg-gray-700'
           }`}
         >
-          <div className="h-20  w-20 mb-2 flex items-center justify-center rounded-lg overflow-hidden mx-auto">
+          <div className="h-20 w-20 mb-2 flex items-center justify-center rounded-lg overflow-hidden mx-auto">
             <img
               src={channel.avatar}
               alt={channel.name}
               className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105"
             />
-            
           </div>
-          <p className="text-sm font-medium truncate text-center">
-            {channel.name}
-          </p>
+          <p className="text-sm font-medium truncate text-center">{channel.name}</p>
         </button>
       ))}
     </div>

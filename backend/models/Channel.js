@@ -1,5 +1,5 @@
 class Channel {
-    static nextId = 1;
+    static nextId = 0;
     constructor(name, url, avatar) {
         this.id = Channel.nextId++;
         this.name = name;

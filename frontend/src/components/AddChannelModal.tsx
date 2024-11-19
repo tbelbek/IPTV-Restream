@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import { Channel } from '../types';
+import socketService from '../services/SocketService';
 
 interface AddChannelModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (channel: Omit<Channel, 'id'>) => void;
 }
 
-function AddChannelModal({ isOpen, onClose, onAdd }: AddChannelModalProps) {
+function AddChannelModal({ isOpen, onClose}: AddChannelModalProps) {
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
 
@@ -16,11 +15,7 @@ function AddChannelModal({ isOpen, onClose, onAdd }: AddChannelModalProps) {
     e.preventDefault();
     if (!name.trim() || !url.trim()) return;
 
-    onAdd({
-      name: name.trim(),
-      url: url.trim(),
-      isLive: true,
-    });
+    socketService.addChannel(name.trim(), url.trim(), `https://images.unsplash.com/photo-${Math.floor(Math.random() * 1000)}?w=64&h=64&fit=crop&crop=faces`);
 
     setName('');
     setUrl('');
