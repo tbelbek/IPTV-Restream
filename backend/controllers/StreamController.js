@@ -1,5 +1,5 @@
-const ffmpegService = require('../services/FFmpegService');
-const storageService = require('../services/StorageService');
+const ffmpegService = require('../services/streaming/FFmpegService');
+const storageService = require('../services/streaming/StorageService');
 
 function start() {
     if (!ffmpegService.isFFmpegRunning()) {
