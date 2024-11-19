@@ -2,9 +2,9 @@ const ChannelService = require('../services/ChannelService');
 
 module.exports = (io, socket) => {
 
-    socket.on('add-channel', ({ name, url }) => {
+    socket.on('add-channel', ({ name, url, avatar }) => {
         try {
-            const newChannel = ChannelService.addChannel(name, url);
+            const newChannel = ChannelService.addChannel(name, url, avatar);
             io.emit('channel-added', newChannel); // Broadcast to all clients
         } catch (err) {
             socket.emit('error', { message: err.message });
@@ -12,10 +12,10 @@ module.exports = (io, socket) => {
     });
 
 
-    socket.on('set-current-channel', (name) => {
+    socket.on('set-current-channel', (id) => {
         try {
-            const currentChannel = ChannelService.setCurrentChannel(name);
-            io.emit('channel-selected', currentChannel); // Broadcast to all clients
+            ChannelService.setCurrentChannel(id);
+            io.emit('channel-selected', id); // Broadcast to all clients
         } catch (err) {
             socket.emit('error', { message: err.message });
         }

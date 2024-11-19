@@ -1,5 +1,3 @@
-const ChatMessage = require('../models/ChatMessage');
-
 
 // At the moment, this service is not used! It is only a placeholder for future development for a persistent chat.
 class ChatService {
@@ -7,10 +5,10 @@ class ChatService {
         this.messages = [];
     }
 
-    addMessage(user, message) {
-        const newMessage = new ChatMessage(user, message);
-        this.messages.push(newMessage);
-        return newMessage;
+    addMessage(userId, message, timestamp) {
+        const newChatMessage = new ChatMessage(userId, message, timestamp);
+        this.messages.push(newChatMessage);
+        return newChatMessage;
     }
 
     getMessages() {

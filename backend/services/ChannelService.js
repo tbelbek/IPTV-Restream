@@ -12,19 +12,19 @@ class ChannelService {
         return this.channels;
     }
 
-    addChannel(name, url) {
+    addChannel(name, url, avatar) {
         const existing = this.channels.some(channel => channel.url === url);
         if (existing) {
             throw new Error('Channel already exists');
         }
-        const newChannel = new Channel(name, url);
+        const newChannel = new Channel(name, url, avatar);
         this.channels.push(newChannel);
         
         return newChannel;
     }
 
-    setCurrentChannel(name) {
-        const nextChannel = this.channels.find(channel => channel.name === name);
+    setCurrentChannel(id) {
+        const nextChannel = this.channels.find(channel => channel.id === id);
         if (!nextChannel) {
             throw new Error('Channel does not exist');
         }

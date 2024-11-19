@@ -1,8 +1,10 @@
 const ChatService = require('../services/ChatService');
+const ChatMessage = require('../models/ChatMessage');
 
 module.exports = (io, socket) => {
-    socket.on('send-message', ({ user, message }) => {
-        ChatService.addMessage(user, message);
-        socket.broadcast.emit('chat-message', { message: message, name: user }) // Broadcast to all clients except sender
+    socket.on('send-message', ({ userId, message, timestamp }) => {
+
+        const chatMessage = ChatService.addMessage(userId, message, timestamp);
+        socket.broadcast.emit('chat-message', chatMessage) // Broadcast to all clients except sender
     });
 };

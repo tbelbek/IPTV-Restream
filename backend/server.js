@@ -30,9 +30,9 @@ const connectedUsers = {}
 
 io.on('connection', socket => {
 
-  socket.on('new-user', name => {
-    connectedUsers[socket.id] = name
-    socket.broadcast.emit('user-connected', name)
+  socket.on('new-user', userId => {
+    connectedUsers[socket.id] = userId
+    socket.broadcast.emit('user-connected', userId)
   })
 
   socket.on('disconnect', () => {
