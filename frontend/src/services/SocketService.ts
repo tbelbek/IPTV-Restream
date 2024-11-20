@@ -1,11 +1,16 @@
 import { io, Socket } from 'socket.io-client';
+import { Channel, ChatMessage } from '../types';
 
 class SocketService {
   private socket: Socket | null = null;
 
+  private listeners: Map<string, ((data: any) => void)[]> = new Map();
+
   // Initialize
   connect() {
-    this.socket = io("http://34.159.173.219/");
+    if (this.socket?.connected) return;
+
+    this.socket = io("http://34.159.173.219");
 
     this.socket.on('connect', () => {
       console.log('Connected to WebSocket server');
@@ -14,16 +19,42 @@ class SocketService {
     this.socket.on('disconnect', () => {
       console.log('Disconnected from WebSocket server');
     });
+
+
+    // Listen for incoming custom events
+    this.socket.onAny((event: string, data: any) => {
+      const eventListeners = this.listeners.get(event);
+      if (eventListeners) {
+        eventListeners.forEach((listener) => listener(data));
+      }
+    });
   }
 
-  // Registriert Event-Listener
-  subscribeToEvents(events) {
-    if (!this.socket) throw new Error('Socket is not connected.');
-
-    for (const [event, callback] of Object.entries(events)) {
-      this.socket.on(event, callback);
+  disconnect() {
+    if (this.socket) {
+      this.socket.disconnect();
+      this.socket = null;
     }
   }
+
+  subscribeToEvent<T>(event: string, listener: (data: T) => void) {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, []);
+    }
+    this.listeners.get(event)?.push(listener);
+  }
+
+  // Event abbestellen
+  unsubscribeFromEvent<T>(event: string, listener: (data: T) => void) {
+    const eventListeners = this.listeners.get(event);
+    if (eventListeners) {
+      this.listeners.set(
+        event,
+        eventListeners.filter((existingListener) => existingListener !== listener)
+      );
+    }
+  }
+
 
   // Nachricht senden
   sendMessage(userId, message, timestamp) {

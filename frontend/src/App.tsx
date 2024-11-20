@@ -42,10 +42,18 @@ function App() {
   useEffect(() => {
     socketService.connect();
 
-    socketService.subscribeToEvents({
-      'channel-added': (newChannel) => setChannels((prev) => [...prev, newChannel]),
-      'channel-selected': (selectedChannel) => setSelectedChannel(selectedChannel),
-    });
+    console.log('Subscribing to events');
+    const channelAddedListener = (channel: Channel) => {
+      setChannels((prevChannels) => [...prevChannels, channel]);
+    };
+
+    const channelSelectedListener = (channelId: number) => {
+      console.log('Channel selected:', channelId);
+      setSelectedChannel(channels.find((channel) => channel.id === channelId)!);
+    };
+
+    socketService.subscribeToEvent('channel-added', channelAddedListener);
+    socketService.subscribeToEvent('channel-selected', channelSelectedListener);
 
     const systemMessage = {
       id: Date.now(),

@@ -1,5 +1,9 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const { Server } = require('socket.io');
+
+const ChatSocketHandler = require('./socket/ChatSocketHandler');
+const ChannelSocketHandler = require('./socket/ChannelSocketHandler');
 
 const channelController = require('./controllers/ChannelController');
 const streamController = require('./controllers/StreamController');
@@ -19,25 +23,26 @@ app.use('/channels', apiRouter);
 const PORT = 5000;
 const server = app.listen(PORT, () => {
     console.log(`Server listening on Port ${PORT}`);
-    streamController.start();
+    //streamController.start();
 });
 
 
 // Web Sockets
-const io = require('socket.io')(server)
+const io = new Server(server);
 
-const connectedUsers = {}
+const connectedUsers = {};
 
 io.on('connection', socket => {
+  console.log('New client connected');
 
   socket.on('new-user', userId => {
-    connectedUsers[socket.id] = userId
-    socket.broadcast.emit('user-connected', userId)
+    connectedUsers[socket.id] = userId;
+    socket.broadcast.emit('user-connected', userId);
   })
 
   socket.on('disconnect', () => {
-    socket.broadcast.emit('user-disconnected', connectedUsers[socket.id])
-    delete connectedUsers[socket.id]
+    socket.broadcast.emit('user-disconnected', connectedUsers[socket.id]);
+    delete connectedUsers[socket.id];
   })
 
   ChannelSocketHandler(io, socket);

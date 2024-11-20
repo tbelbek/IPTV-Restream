@@ -9,9 +9,15 @@ function Chat() {
   const [userName] = useState('You');
 
   useEffect(() => {
-    socketService.subscribeToEvents({
-      'chat-message': (message: ChatMessage) => setMessages((prev) => [...prev, message]),
-    });
+    const messageListener = (message: ChatMessage) => {
+      setMessages((prevMessages) => [...prevMessages, message]);
+    };
+
+    socketService.subscribeToEvent('chat-message', messageListener);
+
+    return () => {
+      socketService.unsubscribeFromEvent('chat-message', messageListener);
+    };
   }, []);
 
   const handleSendMessage = (e: React.FormEvent) => {
