@@ -18,3 +18,15 @@ Before running, make sure you have `ffmpeg` installed on your system.
 node index.js
 ```
 Be aware, that this application is designed for Linux systems!
+
+## Architecture
+
+### API
+
+- Endpoints to add a channel, get all channels, get selected channel and set selected channel
+
+### WebSockets
+
+- `channel-added` and `channel-selected` events will be send to all connected clients
+- chat messages: `send-chat-message` and `chat-message`
+- users: `user-connected` and `user-disconnected`

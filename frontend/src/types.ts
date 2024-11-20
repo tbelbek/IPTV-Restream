@@ -1,3 +1,4 @@
+// Not used
 export interface User {
   name: string;
   avatar: string;
@@ -7,13 +8,11 @@ export interface Channel {
   id: number;
   name: string;
   url: string;
-  isLive: boolean;
   avatar: string;
 }
 
 export interface ChatMessage {
-  id: number;
-  user: User;
+  userId: string;
   message: string;
   timestamp: string;
 }
