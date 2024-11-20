@@ -3,7 +3,7 @@ import Hls from 'hls.js';
 import { Channel } from '../types';
 
 interface VideoPlayerProps {
-  channel: Channel;
+  channel: Channel | null;
 }
 
 function VideoPlayer({ channel }: VideoPlayerProps) {
@@ -11,7 +11,7 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
   const hlsRef = useRef<Hls | null>(null);
 
   useEffect(() => {
-    if (!videoRef.current) return;
+    if (!videoRef.current || !channel?.url) return;
     const video = videoRef.current;
 
     if (Hls.isSupported()) {
@@ -84,7 +84,7 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
         hlsRef.current.destroy();
       }
     };
-  }, [channel.url]);
+  }, [channel?.url]);
 
   const handleVideoClick = (event: React.MouseEvent<HTMLVideoElement>) => {
     if (videoRef.current?.muted) {

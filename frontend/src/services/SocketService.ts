@@ -11,7 +11,7 @@ class SocketService {
     if (this.socket?.connected) return;
 
     console.log('Connecting to WebSocket server');
-    this.socket = io(import.meta.env.BACKEND_WS_URL);
+    this.socket = io(import.meta.env.ITE_BACKEND_URL);
 
     this.socket.on('connect', () => {
       console.log('Connected to WebSocket server');

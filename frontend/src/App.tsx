@@ -6,41 +6,28 @@ import Chat from './components/chat/Chat';
 import AddChannelModal from './components/AddChannelModal';
 import { Channel } from './types';
 import socketService from './services/SocketService';
+import apiService from './services/ApiService';
 
 function App() {
-  const [channels, setChannels] = useState<Channel[]>([
-    {
-      id: 100,
-      name: 'Das Erste',
-      url: 'https://mcdn.daserste.de/daserste/de/master1080p5000.m3u8',
-      avatar: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Das_Erste-Logo_klein.svg/768px-Das_Erste-Logo_klein.svg.png'
-    },
-    {
-      id: 200,
-      name: 'ZDF',
-      url: 'https://mcdn.daserste.de/daserste/de/master1080p5000.m3u8',
-      avatar: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/ZDF_logo.svg/2560px-ZDF_logo.svg.png'
-    },
-    {
-      id: 300,
-      name: 'Creative Studio',
-      url: 'https://mcdn.daserste.de/daserste/de/master1080p5000.m3u8',
-      avatar: 'https://images.unsplash.com/photo-1534308143481-c55f00be8bd7?w=64&h=64&fit=crop&crop=faces'
-    },
-    {
-      id: 400,
-      name: 'Creative Studio',
-      url: 'https://mcdn.daserste.de/daserste/de/master1080p5000.m3u8',
-      avatar: 'https://images.unsplash.com/photo-1534308143481-c55f00be8bd7?w=64&h=64&fit=crop&crop=faces'
-    },
-  ]);
-  const [selectedChannel, setSelectedChannel] = useState<Channel>(channels[0]);
+  const [channels, setChannels] = useState<Channel[]>([]);
+  const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
 
   useEffect(() => {
+
+    apiService
+      .request<Channel[]>('/channels/', 'GET')
+      .then((data) => setChannels(data))
+      .catch((error) => console.error('Error loading channels:', error));
+
+    apiService
+      .request<Channel | null>('/channels/current', 'GET')
+      .then((data) => setSelectedChannel(data))
+      .catch((error) => console.error('Error loading current channel:', error));
+
 
     socketService.connect();
 
