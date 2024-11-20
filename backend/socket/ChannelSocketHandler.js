@@ -7,7 +7,7 @@ module.exports = (io, socket) => {
             const newChannel = ChannelService.addChannel(name, url, avatar);
             io.emit('channel-added', newChannel); // Broadcast to all clients
         } catch (err) {
-            socket.emit('error', { message: err.message });
+            socket.emit('app-error', { message: err.message });
         }
     });
 
@@ -18,7 +18,7 @@ module.exports = (io, socket) => {
             io.emit('channel-selected', id); // Broadcast to all clients
         } catch (err) {
             console.error(err);
-            socket.emit('error', { message: err.message });
+            socket.emit('app-error', { message: err.message });
         }
     });
 };

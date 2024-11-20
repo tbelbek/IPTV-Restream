@@ -20,6 +20,10 @@ class SocketService {
       console.log('Disconnected from WebSocket server');
     });
 
+    this.socket.on('app-error', (error) => {
+      console.error('Failed:', error);
+    });
+
 
     // Listen for incoming custom events
     this.socket.onAny((event: string, data: any) => {
