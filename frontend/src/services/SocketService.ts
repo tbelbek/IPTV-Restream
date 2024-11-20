@@ -10,6 +10,7 @@ class SocketService {
   connect() {
     if (this.socket?.connected) return;
 
+    console.log('Connecting to WebSocket server');
     this.socket = io("http://34.159.173.219");
 
     this.socket.on('connect', () => {

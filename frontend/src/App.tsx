@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Search, Plus, Settings, Users, Radio, MessageSquare, Tv2 } from 'lucide-react';
 import VideoPlayer from './components/VideoPlayer';
 import ChannelList from './components/ChannelList';
@@ -10,25 +10,25 @@ import socketService from './services/SocketService';
 function App() {
   const [channels, setChannels] = useState<Channel[]>([
     {
-      id: 1,
+      id: 100,
       name: 'Das Erste',
       url: 'https://mcdn.daserste.de/daserste/de/master1080p5000.m3u8',
       avatar: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Das_Erste-Logo_klein.svg/768px-Das_Erste-Logo_klein.svg.png'
     },
     {
-      id: 2,
+      id: 200,
       name: 'ZDF',
       url: 'https://mcdn.daserste.de/daserste/de/master1080p5000.m3u8',
       avatar: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/ZDF_logo.svg/2560px-ZDF_logo.svg.png'
     },
     {
-      id: 3,
+      id: 300,
       name: 'Creative Studio',
       url: 'https://mcdn.daserste.de/daserste/de/master1080p5000.m3u8',
       avatar: 'https://images.unsplash.com/photo-1534308143481-c55f00be8bd7?w=64&h=64&fit=crop&crop=faces'
     },
     {
-      id: 4,
+      id: 400,
       name: 'Creative Studio',
       url: 'https://mcdn.daserste.de/daserste/de/master1080p5000.m3u8',
       avatar: 'https://images.unsplash.com/photo-1534308143481-c55f00be8bd7?w=64&h=64&fit=crop&crop=faces'
@@ -39,33 +39,40 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
+
   useEffect(() => {
+
     socketService.connect();
 
     console.log('Subscribing to events');
     const channelAddedListener = (channel: Channel) => {
       setChannels((prevChannels) => [...prevChannels, channel]);
-    };
-
-    const channelSelectedListener = (channelId: number) => {
-      console.log('Channel selected:', channelId);
-      setSelectedChannel(channels.find((channel) => channel.id === channelId)!);
+    };  
+  
+    const channelSelectedListener = (nextChannel: Channel) => {
+      setSelectedChannel(nextChannel);
     };
 
     socketService.subscribeToEvent('channel-added', channelAddedListener);
     socketService.subscribeToEvent('channel-selected', channelSelectedListener);
 
-    const systemMessage = {
-      id: Date.now(),
-      user: {
-        name: 'System',
-        avatar: ''
-      },
-      message: `Switched to ${selectedChannel.name}'s stream`,
-      timestamp: new Date().toISOString()
+    // const systemMessage = {
+    //   id: Date.now(),
+    //   user: {
+    //     name: 'System',
+    //     avatar: ''
+    //   },
+    //   message: `Switched to ${selectedChannel.name}'s stream`,
+    //   timestamp: new Date().toISOString()
+    // };
+    // window.dispatchEvent(new CustomEvent('newChatMessage', { detail: systemMessage }));
+    return () => {
+      socketService.unsubscribeFromEvent('channel-added', channelAddedListener);
+      socketService.unsubscribeFromEvent('channel-selected', channelSelectedListener);
+      socketService.disconnect();
+      console.log('WebSocket connection closed');
     };
-    window.dispatchEvent(new CustomEvent('newChatMessage', { detail: systemMessage }));
-  }, [selectedChannel]);
+  }, []);
 
   const filteredChannels = channels.filter(channel =>
     channel.name.toLowerCase().includes(searchQuery.toLowerCase())

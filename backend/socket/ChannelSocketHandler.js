@@ -14,8 +14,8 @@ module.exports = (io, socket) => {
 
     socket.on('set-current-channel', (id) => {
         try {
-            ChannelService.setCurrentChannel(id);
-            io.emit('channel-selected', id); // Broadcast to all clients
+            const nextChannel = ChannelService.setCurrentChannel(id);
+            io.emit('channel-selected', nextChannel); // Broadcast to all clients
         } catch (err) {
             console.error(err);
             socket.emit('app-error', { message: err.message });

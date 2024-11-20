@@ -4,7 +4,7 @@ const Channel = require('../models/Channel');
 
 class ChannelService {
     constructor() {
-        this.channels = [new Channel('DEFAULT_CHANNEL', process.env.DEFAULT_CHANNEL_URL)];
+        this.channels = [new Channel('DEFAULT_CHANNEL', process.env.DEFAULT_CHANNEL_URL, "https://images.unsplash.com/photo-1534308143481-c55f00be8bd7?w=64&h=64&fit=crop&crop=faces")];
         this.currentChannel = this.channels[0];
     }
 
@@ -28,10 +28,10 @@ class ChannelService {
         if (!nextChannel) {
             throw new Error('Channel does not exist');
         }
-        if (currentChannel !== nextChannel) {
+        if (this.currentChannel !== nextChannel) {
             const segmentNumber = storageService.getNextSegmentNumber();
             storageService.clearStorage();
-            currentChannel = nextChannel;
+            this.currentChannel = nextChannel;
             ffmpegService.startFFmpeg(nextChannel.url, segmentNumber);
         }
         return nextChannel;
