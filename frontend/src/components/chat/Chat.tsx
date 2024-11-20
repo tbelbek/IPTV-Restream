@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Send, MessageSquare } from 'lucide-react';
-import socketService from '../services/SocketService';
-import { ChatMessage } from '../types';
+import socketService from '../../services/SocketService';
+import { Channel, ChatMessage } from '../../types';
+import { SendMessage } from './SendMessage';
+import { SystemMessage } from './SystemMessage';
+import { ReceivedMessage } from './ReceivedMessage';
 
 function Chat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -12,11 +15,21 @@ function Chat() {
     const messageListener = (message: ChatMessage) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     };
-
     socketService.subscribeToEvent('chat-message', messageListener);
+
+    const channelSelectedListener = (selectedChannel: Channel) => {
+      const systemMessage = {
+        message: `Switched to ${selectedChannel.name}'s stream`,
+        timestamp: new Date().toISOString(),
+        userId: 'System',
+      };
+      setMessages((prevMessages) => [...prevMessages, systemMessage]);
+    }
+    socketService.subscribeToEvent('channel-selected', channelSelectedListener);
 
     return () => {
       socketService.unsubscribeFromEvent('chat-message', messageListener);
+      socketService.unsubscribeFromEvent('channel-selected', channelSelectedListener);
     };
   }, []);
 
@@ -24,7 +37,7 @@ function Chat() {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
-    socketService.sendMessage(userName, newMessage, new Date().toISOString()); 
+    socketService.sendMessage(userName, newMessage, new Date().toISOString());
 
     setMessages((prev) => [
       ...prev,
@@ -45,21 +58,15 @@ function Chat() {
       </div>
 
       <div className="h-[calc(100vh-13rem)] overflow-y-auto p-4 space-y-4 scroll-container vertical-scroll-container">
-        {messages.map((msg) => (
-          <div className="flex items-start space-x-3">
-            {/* TODO: fetch random images */}
-            <img src={`https://images.unsplash.com/photo-${Math.floor(Math.random() * 1000)}?w=64&h=64&fit=crop&crop=faces`} alt={msg.userId} className="w-8 h-8 rounded-full" />
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="font-medium">{msg.userId}</span>
-                <span className="text-xs text-gray-400">
-                  {new Date(msg.timestamp).toLocaleTimeString()}
-                </span>
-              </div>
-              <p className="text-gray-300">{msg.message}</p>
-            </div>
-          </div>
-        ))}
+        {messages.map((msg) => {
+          if(msg.userId === userName) {
+            return <SendMessage msg={msg}></SendMessage>;
+          } else if(msg.userId === 'System') {
+            return <SystemMessage msg={msg}></SystemMessage>;
+          } else {
+            return <ReceivedMessage msg={msg}></ReceivedMessage>;
+          }      
+        })}
       </div>
 
       <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-700">

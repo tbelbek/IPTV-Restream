@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, Plus, Settings, Users, Radio, MessageSquare, Tv2 } from 'lucide-react';
 import VideoPlayer from './components/VideoPlayer';
 import ChannelList from './components/ChannelList';
-import Chat from './components/Chat';
+import Chat from './components/chat/Chat';
 import AddChannelModal from './components/AddChannelModal';
 import { Channel } from './types';
 import socketService from './services/SocketService';
@@ -47,8 +47,8 @@ function App() {
     console.log('Subscribing to events');
     const channelAddedListener = (channel: Channel) => {
       setChannels((prevChannels) => [...prevChannels, channel]);
-    };  
-  
+    };
+
     const channelSelectedListener = (nextChannel: Channel) => {
       setSelectedChannel(nextChannel);
     };
@@ -56,16 +56,6 @@ function App() {
     socketService.subscribeToEvent('channel-added', channelAddedListener);
     socketService.subscribeToEvent('channel-selected', channelSelectedListener);
 
-    // const systemMessage = {
-    //   id: Date.now(),
-    //   user: {
-    //     name: 'System',
-    //     avatar: ''
-    //   },
-    //   message: `Switched to ${selectedChannel.name}'s stream`,
-    //   timestamp: new Date().toISOString()
-    // };
-    // window.dispatchEvent(new CustomEvent('newChatMessage', { detail: systemMessage }));
     return () => {
       socketService.unsubscribeFromEvent('channel-added', channelAddedListener);
       socketService.unsubscribeFromEvent('channel-selected', channelSelectedListener);
