@@ -25,7 +25,7 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
       });
 
       hlsRef.current = hls;
-      hls.loadSource(channel.url);
+      hls.loadSource(channel.restream ? import.meta.env.VITE_BACKEND_URL + import.meta.env.VITE_BACKEND_STREAMS_PATH : channel.url);
       hls.attachMedia(video);
 
       hls.on(Hls.Events.MANIFEST_PARSED, function(event, data) {
@@ -43,7 +43,7 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
         }
         const timeDiff = (now - lastFragment.programDateTime) / 1000;          
         
-        hls.config.liveSyncDuration = 40 - timeDiff;
+        hls.config.liveSyncDuration = import.meta.env.VITE_STREAM_DELAY - timeDiff;
         //hls.startLoad(timeDiff);
 
         video.play();
@@ -59,7 +59,7 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
         const videoDiff = newFrag.end - video.currentTime;
         const delay = timeDiff + videoDiff;
         
-        const targetDelay = 40;
+        const targetDelay = import.meta.env.VITE_STREAM_DELAY;
         const tolerance = 1;
         const maxDeviation = 5;
 

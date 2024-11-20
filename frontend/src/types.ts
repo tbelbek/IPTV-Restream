@@ -9,6 +9,7 @@ export interface Channel {
   name: string;
   url: string;
   avatar: string;
+  restream: boolean;
 }
 
 export interface ChatMessage {

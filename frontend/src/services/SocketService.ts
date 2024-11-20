@@ -11,7 +11,7 @@ class SocketService {
     if (this.socket?.connected) return;
 
     console.log('Connecting to WebSocket server');
-    this.socket = io(import.meta.env.ITE_BACKEND_URL);
+    this.socket = io(import.meta.env.VITE_BACKEND_URL);
 
     this.socket.on('connect', () => {
       console.log('Connected to WebSocket server');
@@ -69,10 +69,10 @@ class SocketService {
   }
 
   // Channel hinzufügen
-  addChannel(name, url, avatar) {
+  addChannel(name, url, avatar, restream) {
     if (!this.socket) throw new Error('Socket is not connected.');
 
-    this.socket.emit('add-channel', { name, url, avatar });
+    this.socket.emit('add-channel', { name, url, avatar, restream });
   }
 
   // Aktuellen Channel setzen

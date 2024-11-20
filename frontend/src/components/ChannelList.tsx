@@ -5,11 +5,13 @@ import socketService from '../services/SocketService';
 interface ChannelListProps {
   channels: Channel[];
   selectedChannel: Channel | null;
+  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
 }
 
-function ChannelList({ channels, selectedChannel}: ChannelListProps) {
+function ChannelList({ channels, selectedChannel, setSearchQuery }: ChannelListProps) {
 
   const onSelectChannel = (channel: Channel) => {
+    setSearchQuery('');
     socketService.setCurrentChannel(channel.id);
   };
 

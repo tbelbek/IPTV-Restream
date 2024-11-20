@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.ITE_BACKEND_URL || '';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 

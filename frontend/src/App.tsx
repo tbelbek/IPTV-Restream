@@ -24,7 +24,7 @@ function App() {
       .catch((error) => console.error('Error loading channels:', error));
 
     apiService
-      .request<Channel | null>('/channels/current', 'GET')
+      .request<Channel>('/channels/current', 'GET')
       .then((data) => setSelectedChannel(data))
       .catch((error) => console.error('Error loading current channel:', error));
 
@@ -98,6 +98,7 @@ function App() {
               <ChannelList
                 channels={filteredChannels}
                 selectedChannel={selectedChannel}
+                setSearchQuery={setSearchQuery}
               />
             </div>
 
