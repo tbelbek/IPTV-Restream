@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, Plus, Settings, Users, Radio, MessageSquare, Tv2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Plus, Settings, Users, Radio, Tv2 } from 'lucide-react';
 import VideoPlayer from './components/VideoPlayer';
 import ChannelList from './components/ChannelList';
 import Chat from './components/chat/Chat';

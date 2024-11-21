@@ -22,13 +22,37 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
       const hls = new Hls({
         autoStartLoad: true,
         liveDurationInfinity: true,
+        manifestLoadPolicy: {
+          default: {
+            maxTimeToFirstByteMs: Infinity,
+            maxLoadTimeMs: 20000,
+            timeoutRetry: {
+              maxNumRetry: 3,
+              retryDelayMs: 0,
+              maxRetryDelayMs: 0,
+            },
+            errorRetry: {
+              maxNumRetry: 20,
+              retryDelayMs: 1500,
+              maxRetryDelayMs: 8000,
+              backoff: 'linear',
+              shouldRetry: (
+                retryConfig,
+                retryCount,
+                _isTimeout,
+                _loaderResponse,
+              ) => retryCount < retryConfig!.maxNumRetry
+            },
+          },
+        },
       });
+      
 
       hlsRef.current = hls;
       hls.loadSource(channel.restream ? import.meta.env.VITE_BACKEND_URL + import.meta.env.VITE_BACKEND_STREAMS_PATH : channel.url);
       hls.attachMedia(video);
 
-      hls.on(Hls.Events.MANIFEST_PARSED, function(event, data) {
+      hls.on(Hls.Events.MANIFEST_PARSED, function(_event, data) {
         const now = new Date().getTime();
 
         const fragments = data.levels[0].details?.fragments;
@@ -49,7 +73,7 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
         video.play();
       });
 
-      hls.on(Hls.Events.FRAG_CHANGED, (event, data) => {
+      hls.on(Hls.Events.FRAG_CHANGED, (_event, data) => {
 
         const now = new Date().getTime();
         const newFrag = data.frag;
@@ -61,7 +85,7 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
         
         const targetDelay = import.meta.env.VITE_STREAM_DELAY;
         const tolerance = 1;
-        const maxDeviation = 5;
+        const maxDeviation = 4;
 
         const deviation = delay - targetDelay;
 

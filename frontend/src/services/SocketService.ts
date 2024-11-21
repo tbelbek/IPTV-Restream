@@ -1,5 +1,4 @@
 import { io, Socket } from 'socket.io-client';
-import { Channel, ChatMessage } from '../types';
 
 class SocketService {
   private socket: Socket | null = null;
@@ -62,21 +61,21 @@ class SocketService {
 
 
   // Nachricht senden
-  sendMessage(userId, message, timestamp) {
+  sendMessage(userId: string, message: string, timestamp: string) {
     if (!this.socket) throw new Error('Socket is not connected.');
 
     this.socket.emit('send-message', { userId, message, timestamp });
   }
 
   // Channel hinzufügen
-  addChannel(name, url, avatar, restream) {
+  addChannel(name: string, url: string, avatar: string, restream: boolean) {
     if (!this.socket) throw new Error('Socket is not connected.');
 
     this.socket.emit('add-channel', { name, url, avatar, restream });
   }
 
   // Aktuellen Channel setzen
-  setCurrentChannel(id) {
+  setCurrentChannel(id: number) {
     if (!this.socket) throw new Error('Socket is not connected.');
 
     this.socket.emit('set-current-channel', id);
