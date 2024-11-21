@@ -4,12 +4,14 @@ import socketService from '../services/SocketService';
 
 interface ChannelListProps {
   channels: Channel[];
-  selectedChannel: Channel;
+  selectedChannel: Channel | null;
+  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
 }
 
-function ChannelList({ channels, selectedChannel}: ChannelListProps) {
+function ChannelList({ channels, selectedChannel, setSearchQuery }: ChannelListProps) {
 
   const onSelectChannel = (channel: Channel) => {
+    setSearchQuery('');
     socketService.setCurrentChannel(channel.id);
   };
 
@@ -20,7 +22,7 @@ function ChannelList({ channels, selectedChannel}: ChannelListProps) {
           key={channel.id}
           onClick={() => onSelectChannel(channel)}
           className={`group relative p-2 rounded-lg transition-all ${
-            selectedChannel.id === channel.id
+            selectedChannel?.id === channel.id
               ? 'bg-blue-500 bg-opacity-20 ring-2 ring-blue-500'
               : 'hover:bg-gray-700'
           }`}
