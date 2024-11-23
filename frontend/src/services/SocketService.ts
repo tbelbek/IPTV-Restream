@@ -61,10 +61,10 @@ class SocketService {
 
 
   // Nachricht senden
-  sendMessage(userId: string, message: string, timestamp: string) {
+  sendMessage(userName: string, userAvatar: string, message: string, timestamp: string) {
     if (!this.socket) throw new Error('Socket is not connected.');
 
-    this.socket.emit('send-message', { userId, message, timestamp });
+    this.socket.emit('send-message', { userName, userAvatar, message, timestamp });
   }
 
   // Channel hinzufügen

@@ -10,7 +10,7 @@ const apiService = {
    * @param body - The request body (e.g. POST)
    * @returns Ein Promise with the parsed JSON response to class T
    */
-  async request<T>(path: string, method: HttpMethod = 'GET', body?: unknown): Promise<T> {
+  async request<T>(path: string, method: HttpMethod = 'GET', api_url: string = API_BASE_URL, body?: unknown): Promise<T> {
     try {
       const options: RequestInit = {
         method,
@@ -23,7 +23,7 @@ const apiService = {
         options.body = JSON.stringify(body);
       }
 
-      const response = await fetch(`${API_BASE_URL}${path}`, options);
+      const response = await fetch(`${api_url}${path}`, options);
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);

@@ -1,29 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import { Send, MessageSquare } from 'lucide-react';
 import socketService from '../../services/SocketService';
-import { Channel, ChatMessage } from '../../types';
+import { Channel, ChatMessage, RandomUser, User } from '../../types';
 import { SendMessage } from './SendMessage';
 import { SystemMessage } from './SystemMessage';
 import { ReceivedMessage } from './ReceivedMessage';
+import apiService from '../../services/ApiService';
 
 function Chat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [userName] = useState('You');
+  const [user, setUser] = useState<User>();
 
   useEffect(() => {
+
+    apiService
+      .request<RandomUser>('/api', 'GET', 'https://randomuser.me')
+      .then((randomUser) => {
+        const name = randomUser.results[0].name;
+        const picture = randomUser.results[0].picture;
+        setUser({
+          name: `${name.first} ${name.last}`,
+          avatar: picture.medium,
+        });
+      })
+      .catch((error) => console.error('Error fetching random user:', error));
+
     const messageListener = (message: ChatMessage) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     };
     socketService.subscribeToEvent('chat-message', messageListener);
 
     const channelSelectedListener = (selectedChannel: Channel) => {
-      const systemMessage = {
-        message: `Switched to ${selectedChannel.name}'s stream`,
-        timestamp: new Date().toISOString(),
-        userId: 'System',
-      };
-      setMessages((prevMessages) => [...prevMessages, systemMessage]);
+      setMessages((prev) => [
+        ...prev, 
+        {
+          id: prev.length ? prev[prev.length -1].id + 1 : 1,
+          user: {
+            name: 'System',
+            avatar: '',
+          },
+          message: `Switched to ${selectedChannel.name}'s stream`,
+          timestamp: new Date().toISOString(),
+          userId: 'System',
+        }
+      ]);
     }
     socketService.subscribeToEvent('channel-selected', channelSelectedListener);
 
@@ -35,14 +56,15 @@ function Chat() {
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() || !user) return;
 
-    socketService.sendMessage(userName, newMessage, new Date().toISOString());
+    socketService.sendMessage(user.name, user.avatar, newMessage, new Date().toISOString());
 
     setMessages((prev) => [
       ...prev,
       {
-        userId: userName,
+        id: prev.length ? prev[prev.length -1].id + 1 : 1,
+        user: user,
         message: newMessage,
         timestamp: new Date().toISOString(),
       },
@@ -59,12 +81,12 @@ function Chat() {
 
       <div className="h-[calc(100vh-13rem)] overflow-y-auto p-4 space-y-4 scroll-container vertical-scroll-container">
         {messages.map((msg) => {
-          if(msg.userId === userName) {
-            return <SendMessage msg={msg}></SendMessage>;
-          } else if(msg.userId === 'System') {
-            return <SystemMessage msg={msg}></SystemMessage>;
+          if(msg.user.name === user?.name) {
+            return <SendMessage key={msg.id} msg={msg}></SendMessage>;
+          } else if(msg.user.name === 'System') {
+            return <SystemMessage key={msg.id} msg={msg}></SystemMessage>;
           } else {
-            return <ReceivedMessage msg={msg}></ReceivedMessage>;
+            return <ReceivedMessage key={msg.id} msg={msg}></ReceivedMessage>;
           }      
         })}
       </div>
