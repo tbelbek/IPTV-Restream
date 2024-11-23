@@ -4,13 +4,12 @@ require('dotenv').config();
 let currentFFmpegProcess = null;
 const STORAGE_PATH = process.env.STORAGE_PATH;
 
-function startFFmpeg(channelUrl, startNumber) {
+function startFFmpeg(channelUrl) {
     if (currentFFmpegProcess) {
         console.log('Terminate previous ffmpeg-Prozess...');
         currentFFmpegProcess.kill('SIGTERM');
     }
 
-    console.log(`Start ffmpeg with URL: ${channelUrl}`);
 
     currentFFmpegProcess = spawn('ffmpeg', [
         '-i', channelUrl,
@@ -19,7 +18,7 @@ function startFFmpeg(channelUrl, startNumber) {
         '-hls_time', '8',
         '-hls_list_size', '5',
         '-hls_flags', 'delete_segments+program_date_time',
-        '-start_number', startNumber,
+        '-start_number', Math.floor(Date.now() / 1000),
         `${STORAGE_PATH}/playlist.m3u8`
     ]);
 

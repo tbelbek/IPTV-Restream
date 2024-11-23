@@ -32,7 +32,7 @@ const apiService = {
       const data = (await response.json()) as T;
       return data;
     } catch (error) {
-      console.error(`Error in API request to ${path}:`, error);
+      console.error(`Error in API request to ${api_url}${path}:`, error);
       throw error; 
     }
   },
