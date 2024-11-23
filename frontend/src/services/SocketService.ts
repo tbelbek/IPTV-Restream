@@ -9,7 +9,8 @@ class SocketService {
   connect() {
     if (this.socket?.connected) return;
 
-    console.log('Connecting to WebSocket server');
+    console.log('Connecting to WebSocket server: ');
+    // Default Behavior: If 'VITE_BACKEND_URL' is not set, the app will use the same host name as the frontend
     this.socket = io(import.meta.env.VITE_BACKEND_URL);
 
     this.socket.on('connect', () => {

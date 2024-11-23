@@ -10,7 +10,7 @@ const apiService = {
    * @param body - The request body (e.g. POST)
    * @returns Ein Promise with the parsed JSON response to class T
    */
-  async request<T>(path: string, method: HttpMethod = 'GET', api_url: string = API_BASE_URL, body?: unknown): Promise<T> {
+  async request<T>(path: string, method: HttpMethod = 'GET', api_url: string = API_BASE_URL + '/api', body?: unknown): Promise<T> {
     try {
       const options: RequestInit = {
         method,

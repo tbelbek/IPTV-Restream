@@ -19,7 +19,7 @@ const apiRouter = express.Router();
 apiRouter.get('/', channelController.getChannels);
 apiRouter.get('/current', channelController.getCurrentChannel);
 
-app.use('/channels', apiRouter);
+app.use('/api/channels', apiRouter);
 
 const PORT = 5000;
 const server = app.listen(PORT, () => {
@@ -51,5 +51,4 @@ io.on('connection', socket => {
   ChannelSocketHandler(io, socket);
 
   ChatSocketHandler(io, socket);
-
 })

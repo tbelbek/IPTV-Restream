@@ -1,6 +1,5 @@
 const { ChatMessage, User } = require('../models/ChatMessage');
 
-// At the moment, this service is not used! It is only a placeholder for future development for a persistent chat.
 class ChatService {
     constructor() {
         this.messages = [];
