@@ -29,8 +29,6 @@ function App() {
       .catch((error) => console.error('Error loading current channel:', error));
 
 
-    socketService.connect();
-
     console.log('Subscribing to events');
     const channelAddedListener = (channel: Channel) => {
       setChannels((prevChannels) => [...prevChannels, channel]);
@@ -42,6 +40,8 @@ function App() {
 
     socketService.subscribeToEvent('channel-added', channelAddedListener);
     socketService.subscribeToEvent('channel-selected', channelSelectedListener);
+
+    socketService.connect();
 
     return () => {
       socketService.unsubscribeFromEvent('channel-added', channelAddedListener);

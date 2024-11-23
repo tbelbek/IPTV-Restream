@@ -27,7 +27,7 @@ function ChannelList({ channels, selectedChannel, setSearchQuery }: ChannelListP
               : 'hover:bg-gray-700'
           }`}
         >
-          <div className="h-20 w-20 mb-2 flex items-center justify-center rounded-lg overflow-hidden mx-auto">
+          <div className="h-20 w-20 mb-2 flex items-center justify-center rounded-lg mx-auto">
             <img
               src={channel.avatar}
               alt={channel.name}

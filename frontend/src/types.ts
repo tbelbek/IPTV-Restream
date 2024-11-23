@@ -4,6 +4,20 @@ export interface User {
   avatar: string;
 }
 
+export interface RandomUser {
+  results: {
+    name: {
+      first: string;
+      last: string;
+    },
+    picture: {
+      large: string;
+      medium: string;
+      thumbnail: string;
+    }
+  }[];
+};
+
 export interface Channel {
   id: number;
   name: string;
@@ -13,7 +27,8 @@ export interface Channel {
 }
 
 export interface ChatMessage {
-  userId: string;
+  id: number;
+  user: User;
   message: string;
   timestamp: string;
 }
