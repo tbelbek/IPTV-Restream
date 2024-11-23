@@ -1,6 +1,7 @@
+import { memo } from "react";
 import { ChatMessage } from "../../types";
 
-export function SendMessage({ msg }: { 
+export default memo(function SendMessage({ msg }: { 
     msg: ChatMessage 
 }) {
   return (
@@ -17,4 +18,4 @@ export function SendMessage({ msg }: {
       </div>
     </div>
   );
-}
+});

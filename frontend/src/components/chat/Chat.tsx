@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Send, MessageSquare } from 'lucide-react';
 import socketService from '../../services/SocketService';
 import { Channel, ChatMessage, RandomUser, User } from '../../types';
-import { SendMessage } from './SendMessage';
-import { SystemMessage } from './SystemMessage';
-import { ReceivedMessage } from './ReceivedMessage';
+import SendMessage from './SendMessage';
+import SystemMessage from './SystemMessage';
+import ReceivedMessage from './ReceivedMessage';
 import apiService from '../../services/ApiService';
 
 function Chat() {
@@ -14,6 +14,7 @@ function Chat() {
 
   useEffect(() => {
 
+    // Use your own auth service instead of using randomized user
     apiService
       .request<RandomUser>('/api', 'GET', 'https://randomuser.me')
       .then((randomUser) => {
