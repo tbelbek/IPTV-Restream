@@ -1,7 +1,7 @@
+# Node.js modules und Abhängigkeiten (werden durch npm install oder yarn installiert)
 node_modules
 npm-debug.log
 yarn-error.log
-pnpm-debug.log
 
 .DS_Store
 dist
@@ -13,7 +13,7 @@ build
 
 .env
 .env.local
-.env.development
+.env.test
 .env.production
 
 .dockerignore
@@ -30,9 +30,3 @@ build
 coverage
 *.test.js
 *.spec.js
-
-.tailwindcss
-
-.vite
-*.cache
-.vite-cache
