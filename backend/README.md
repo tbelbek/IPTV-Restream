@@ -1,7 +1,6 @@
 # Frontend
-⚠️ The Application is currently under active development. A dockerized solution will be provided in the near future! ⚠️
 
-## Run
+## 🚀 Run
 
 Setup a `.env` file or 
 equivalent environment variables:
@@ -19,7 +18,9 @@ node index.js
 ```
 Be aware, that this application is designed for Linux systems!
 
-## Architecture
+To use together with the frontend, [run with docker](../README.md#run-with-docker-preferred).
+
+## 🛠️ Architecture
 
 ### API
 
