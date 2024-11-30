@@ -20,7 +20,7 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
       }
 
       const hls = new Hls({
-        autoStartLoad: true,
+        autoStartLoad: false,
         liveDurationInfinity: true,
         manifestLoadPolicy: {
           default: {
@@ -52,26 +52,45 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
       hls.loadSource(channel.restream ? import.meta.env.VITE_BACKEND_URL + import.meta.env.VITE_BACKEND_STREAMS_PATH : channel.url);
       hls.attachMedia(video);
 
-      hls.on(Hls.Events.MANIFEST_PARSED, function(_event, data) {
-        const now = new Date().getTime();
+      // Synchronization settings
+      //TODO: extract to config
+      const tolerance = 0.8;
+      const maxDeviation = 4;
 
-        const fragments = data.levels[0].details?.fragments;
-        if(!fragments || !fragments.length) {
-          console.error("Could not parse manifest details or fragments are missing.");
-          return;
-        }
-        const lastFragment = fragments[fragments.length - 1];
-        if(!lastFragment.programDateTime) {
-          console.warn("No programDateTime found in fragment. Can't sync video playback.");
-          return;
-        }
-        const timeDiff = (now - lastFragment.programDateTime) / 1000;          
+  
+      hls.on(Hls.Events.MANIFEST_PARSED, (_event, _data) => {
         
-        hls.config.liveSyncDuration = import.meta.env.VITE_STREAM_DELAY - timeDiff;
-        //hls.startLoad(timeDiff);
+        if(channel.restream) {
+          // Wait for the stream to load and play
+          const interval = setInterval(() => {
+            const now = new Date().getTime();
+  
+            const fragments = hls.levels[0]?.details?.fragments;
+            const lastFragment = fragments?.[fragments.length - 1];
+            if (!lastFragment || !lastFragment.programDateTime) return;
+      
+            const timeDiff = (now - lastFragment.programDateTime) / 1000;
+            const videoLength = fragments.reduce((acc, fragment) => {
+              return acc + fragment.duration;
+            }, 0);
+            const targetDelay = import.meta.env.VITE_STREAM_DELAY;
+  
+            // It takes some time for the stream to load and play. Estimated here: 1s
+            const timeTolerance = tolerance + 1; 
+  
+            if (videoLength + timeDiff + timeTolerance >= targetDelay) {
+              hls.startLoad();
+              video.play();
+              clearInterval(interval);
+            }
+          }, 1000);
+        } else {
+          hls.startLoad();
+          video.play();
+        }
 
-        video.play();
       });
+      
 
       hls.on(Hls.Events.FRAG_LOADED, (_event, data) => {
 
@@ -86,15 +105,13 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
         
         const targetDelay = import.meta.env.VITE_STREAM_DELAY;
         console.log("Delay: ", delay, "Target Delay: ", targetDelay);
-        const tolerance = 1;
-        const maxDeviation = 4;
 
         const deviation = delay - targetDelay;
 
         if (Math.abs(deviation) > maxDeviation) {
           video.currentTime += deviation;
           video.playbackRate = 1.0;
-          console.warn("Significant deviation detected. Adjusting current time.");
+          console.log("Significant deviation detected. Adjusting current time.");
         } else if (Math.abs(deviation) > tolerance) {
           const adjustmentFactor = 0.08;
           const speedAdjustment = 1 + adjustmentFactor * deviation;
