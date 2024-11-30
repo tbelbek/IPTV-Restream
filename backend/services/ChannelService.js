@@ -1,5 +1,4 @@
-const ffmpegService = require('./streaming/FFmpegService');
-const storageService = require('./streaming/StorageService');
+const streamController = require('./streaming/StreamController');
 const Channel = require('../models/Channel');
 
 class ChannelService {
@@ -30,13 +29,10 @@ class ChannelService {
         }
 
         if (this.currentChannel !== nextChannel) {
-            console.log(nextChannel.restream);
             if(nextChannel.restream) {
-                const segmentNumber = storageService.getNextSegmentNumber();
-                storageService.clearStorage();
-                ffmpegService.startFFmpeg(nextChannel.url, segmentNumber);
-            } else if (ffmpegService.isFFmpegRunning()) {
-                ffmpegService.stopFFmpeg();
+                streamController.start(nextChannel.url);
+            } else {
+                streamController.stop();
             }
             this.currentChannel = nextChannel;
         }

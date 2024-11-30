@@ -6,7 +6,7 @@ const ChatSocketHandler = require('./socket/ChatSocketHandler');
 const ChannelSocketHandler = require('./socket/ChannelSocketHandler');
 
 const channelController = require('./controllers/ChannelController');
-const streamController = require('./controllers/StreamController');
+const streamController = require('./services/streaming/StreamController');
 const ChannelService = require('./services/ChannelService');
 
 dotenv.config();
@@ -19,14 +19,14 @@ const apiRouter = express.Router();
 apiRouter.get('/', channelController.getChannels);
 apiRouter.get('/current', channelController.getCurrentChannel);
 
-app.use('/channels', apiRouter);
+app.use('/api/channels', apiRouter);
 
 const PORT = 5000;
 const server = app.listen(PORT, () => {
-    console.log(`Server listening on Port ${PORT}`);
-    if(ChannelService.getCurrentChannel().restream) {
-        streamController.start();
-    }
+  console.log(`Server listening on Port ${PORT}`);
+  if (ChannelService.getCurrentChannel().restream) {
+    streamController.start(process.env.DEFAULT_CHANNEL_URL);
+  }
 });
 
 
@@ -51,5 +51,4 @@ io.on('connection', socket => {
   ChannelSocketHandler(io, socket);
 
   ChatSocketHandler(io, socket);
-
 })
