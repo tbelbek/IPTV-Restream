@@ -15,7 +15,7 @@ function startFFmpeg(channelUrl) {
         '-i', channelUrl,
         '-c', 'copy',
         '-f', 'hls',
-        '-hls_time', '8',
+        '-hls_time', '6',
         '-hls_list_size', '5',
         '-hls_flags', 'delete_segments+program_date_time',
         '-start_number', Math.floor(Date.now() / 1000),

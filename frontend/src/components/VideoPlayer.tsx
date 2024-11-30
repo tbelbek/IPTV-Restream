@@ -73,7 +73,7 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
         video.play();
       });
 
-      hls.on(Hls.Events.FRAG_CHANGED, (_event, data) => {
+      hls.on(Hls.Events.FRAG_LOADED, (_event, data) => {
 
         const now = new Date().getTime();
         const newFrag = data.frag;
@@ -81,9 +81,11 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
         if(!newFrag.programDateTime) return;
         const timeDiff = (now - newFrag.programDateTime) / 1000;
         const videoDiff = newFrag.end - video.currentTime;
+        console.log("Time Diff: ", timeDiff, "Video Diff: ", videoDiff);
         const delay = timeDiff + videoDiff;
         
         const targetDelay = import.meta.env.VITE_STREAM_DELAY;
+        console.log("Delay: ", delay, "Target Delay: ", targetDelay);
         const tolerance = 1;
         const maxDeviation = 4;
 
