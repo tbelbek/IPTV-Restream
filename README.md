@@ -66,3 +66,4 @@ Feel free to open discussions and issues for any type of requests. Don't hesitat
 
 
 If you like the project and want to support future development, please leave a ⭐.
+[![Stargazers repo roster for @antebrl/IPTV-Restream](https://reporoster.com/stars/dark/antebrl/IPTV-Restream)](https://github.com/antebrl/IPTV-Restream/stargazers)
