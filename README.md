@@ -45,8 +45,10 @@ docker compose up -d
 ```
 Open http://localhost
 
+⚠️ Be aware that a restreamed synchonized channel (also some of the preview channels) may take some time to load (20-25s) ⚠️ -> A option to restream without synchronization is in development!
 
-You can configure the project by editing the [docker-compose](docker-compose.yml).
+
+You can configure the settings in [docker-compose](docker-compose.yml).
 
 ### Run components seperately
 
