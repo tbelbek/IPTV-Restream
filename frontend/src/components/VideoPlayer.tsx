@@ -57,9 +57,9 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
       );
       hls.attachMedia(video);
 
-      const tolerance = import.meta.env.VITE_SYNCHRONIZATION_TOLERANCE ?? 0.8;
-      const maxDeviation = import.meta.env.VITE_SYNCHRONIZATION_MAX_DEVIATION ?? 4;
-
+      const tolerance = import.meta.env.VITE_SYNCHRONIZATION_TOLERANCE || 0.8;
+      const maxDeviation = import.meta.env.VITE_SYNCHRONIZATION_MAX_DEVIATION || 4;
+      
   
       hls.on(Hls.Events.MANIFEST_PARSED, (_event, _data) => {
         
@@ -122,8 +122,8 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
           video.playbackRate = 1.0;
           console.log("Significant deviation detected. Adjusting current time.");
         } else if (Math.abs(deviation) > tolerance) {
-          const adjustmentFactor = 0.08;
-          const speedAdjustment = 1 + adjustmentFactor * deviation;
+          const adjustmentFactor = import.meta.env.VITE_SYNCHRONIZATION_ADJUSTMENT || 0.06;
+          const speedAdjustment = 1 +  Math.sign(deviation) * Math.min(Math.abs(adjustmentFactor * deviation), import.meta.env.VITE_SYNCHRONIZATION_MAX_ADJUSTMENT || 0.16);
           video.playbackRate = speedAdjustment;
         } else {
           video.playbackRate = 1.0;

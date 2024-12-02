@@ -9,8 +9,11 @@ services:
         #VITE_BACKEND_URL: http://123.123.123.123:5000
         VITE_BACKEND_STREAMS_PATH: /streams/
         VITE_STREAM_DELAY: 18
-        VITE_SYNCHRONIZATION_TOLERANCE: 0.8
-        VITE_SYNCHRONIZATION_MAX_DEVIATION: 4
+        # Optional settings for synchronization
+        #VITE_SYNCHRONIZATION_TOLERANCE: 0.8
+        #VITE_SYNCHRONIZATION_MAX_DEVIATION: 4
+        #VITE_SYNCHRONIZATION_ADJUSTMENT: 0.06
+        #VITE_SYNCHRONIZATION_MAX_ADJUSTMENT: 0.16
 
     networks:
       - app-network
