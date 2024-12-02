@@ -1,10 +1,10 @@
 const ffmpegService = require('./FFmpegService');
 const storageService = require('./StorageService');
 
-function start(channelUrl) {
+function start(channelUrl, channelId) {
     stop();
     if (!ffmpegService.isFFmpegRunning()) {
-        ffmpegService.startFFmpeg(channelUrl);
+        ffmpegService.startFFmpeg(channelUrl, channelId);
     }
 }
 

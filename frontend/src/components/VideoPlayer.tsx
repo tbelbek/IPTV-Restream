@@ -33,7 +33,7 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
             },
             errorRetry: {
               maxNumRetry: 20,
-              retryDelayMs: 1500,
+              retryDelayMs: 1000,
               maxRetryDelayMs: 8000,
               backoff: 'linear',
               shouldRetry: (
@@ -49,13 +49,15 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
       
 
       hlsRef.current = hls;
-      hls.loadSource(channel.restream ? import.meta.env.VITE_BACKEND_URL + import.meta.env.VITE_BACKEND_STREAMS_PATH : channel.url);
+      hls.loadSource(
+        channel.restream ? 
+          import.meta.env.VITE_BACKEND_URL + import.meta.env.VITE_BACKEND_STREAMS_PATH + channel.id + ".m3u8" 
+          : channel.url
+      );
       hls.attachMedia(video);
 
-      // Synchronization settings
-      //TODO: extract to config
-      const tolerance = 0.8;
-      const maxDeviation = 4;
+      const tolerance = import.meta.env.VITE_SYNCHRONIZATION_TOLERANCE ?? 0.8;
+      const maxDeviation = import.meta.env.VITE_SYNCHRONIZATION_MAX_DEVIATION ?? 4;
 
   
       hls.on(Hls.Events.MANIFEST_PARSED, (_event, _data) => {
@@ -67,7 +69,10 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
   
             const fragments = hls.levels[0]?.details?.fragments;
             const lastFragment = fragments?.[fragments.length - 1];
-            if (!lastFragment || !lastFragment.programDateTime) return;
+            if (!lastFragment || !lastFragment.programDateTime) {
+              console.warn("No program date time found in fragment. Cannot synchronize.");
+              return;
+            }
       
             const timeDiff = (now - lastFragment.programDateTime) / 1000;
             const videoLength = fragments.reduce((acc, fragment) => {
@@ -77,11 +82,14 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
   
             // It takes some time for the stream to load and play. Estimated here: 1s
             const timeTolerance = tolerance + 1; 
-  
+            
             if (videoLength + timeDiff + timeTolerance >= targetDelay) {
               hls.startLoad();
               video.play();
               clearInterval(interval);
+              console.log("Starting stream");
+            } else {
+              console.log("Waiting for stream to load: ", videoLength + timeDiff + timeTolerance, " < ", targetDelay);
             }
           }, 1000);
         } else {
