@@ -5,7 +5,7 @@ Setup a `.env` file or
 equivalent environment variables:
 ```env
 #VITE_BACKEND_URL: http://123.123.123.123:5000
-VITE_BACKEND_STREAMS_PATH: /streams/playlist.m3u8
+VITE_BACKEND_STREAMS_PATH: /streams/
 VITE_STREAM_DELAY: 18
 ```
 

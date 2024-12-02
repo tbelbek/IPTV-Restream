@@ -7,8 +7,14 @@ services:
       args:
         # Set this to the server ip/domain, if your backend is deployed on a different server
         #VITE_BACKEND_URL: http://123.123.123.123:5000
-        VITE_BACKEND_STREAMS_PATH: /streams/playlist.m3u8
+        VITE_BACKEND_STREAMS_PATH: /streams/
         VITE_STREAM_DELAY: 18
+        # Optional settings for synchronization
+        #VITE_SYNCHRONIZATION_TOLERANCE: 0.8
+        #VITE_SYNCHRONIZATION_MAX_DEVIATION: 4
+        #VITE_SYNCHRONIZATION_ADJUSTMENT: 0.06
+        #VITE_SYNCHRONIZATION_MAX_ADJUSTMENT: 0.16
+
     networks:
       - app-network
 
@@ -20,7 +26,7 @@ services:
       - streams_data:/streams
     environment:
       DEFAULT_CHANNEL_URL: https://mcdn.daserste.de/daserste/de/master.m3u8
-      STORAGE_PATH: /streams
+      STORAGE_PATH: /streams/
     networks:
       - app-network
 
@@ -37,6 +43,10 @@ services:
 
 volumes:
   streams_data:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 
 # Internal docker network
 networks:

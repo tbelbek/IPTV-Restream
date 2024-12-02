@@ -30,9 +30,11 @@ class ChannelService {
 
         if (this.currentChannel !== nextChannel) {
             if(nextChannel.restream) {
-                streamController.start(nextChannel.url);
+                streamController.stop(this.currentChannel.id);
+                streamController.stop(nextChannel.id);
+                streamController.start(nextChannel.url, nextChannel.id);
             } else {
-                streamController.stop();
+                streamController.stop(this.currentChannel.id);
             }
             this.currentChannel = nextChannel;
         }

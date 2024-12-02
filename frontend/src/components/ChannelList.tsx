@@ -12,6 +12,7 @@ function ChannelList({ channels, selectedChannel, setSearchQuery }: ChannelListP
 
   const onSelectChannel = (channel: Channel) => {
     setSearchQuery('');
+    if(channel.id === selectedChannel?.id) return;
     socketService.setCurrentChannel(channel.id);
   };
 
