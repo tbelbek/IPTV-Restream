@@ -2,18 +2,18 @@ const ffmpegService = require('./FFmpegService');
 const storageService = require('./StorageService');
 
 function start(channelUrl, channelId) {
-    stop();
+    storageService.createChannelStorage(channelId);
     if (!ffmpegService.isFFmpegRunning()) {
         ffmpegService.startFFmpeg(channelUrl, channelId);
     }
 }
 
 
-function stop() {
+function stop(channelId) {
     if (ffmpegService.isFFmpegRunning()) {
         ffmpegService.stopFFmpeg();
     }
-    storageService.clearStorage();
+    storageService.deleteChannelStorage(channelId);
 }
 
 module.exports = {

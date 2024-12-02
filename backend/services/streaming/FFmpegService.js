@@ -22,7 +22,7 @@ function startFFmpeg(channelUrl, channelId) {
         '-hls_list_size', '5',
         '-hls_flags', 'delete_segments+program_date_time',
         '-start_number', Math.floor(Date.now() / 1000),
-        `${STORAGE_PATH}/${channelId}.m3u8`
+        `${STORAGE_PATH}${channelId}/${channelId}.m3u8`
     ]);
 
     currentFFmpegProcess.stdout.on('data', (data) => {

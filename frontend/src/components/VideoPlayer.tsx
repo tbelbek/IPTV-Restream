@@ -51,7 +51,8 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
       hlsRef.current = hls;
       hls.loadSource(
         channel.restream ? 
-          import.meta.env.VITE_BACKEND_URL + import.meta.env.VITE_BACKEND_STREAMS_PATH + channel.id + ".m3u8" 
+          //e.g. http://backend:3000/streams/1/1.m3u8
+          import.meta.env.VITE_BACKEND_URL + import.meta.env.VITE_BACKEND_STREAMS_PATH + channel.id + "/" + channel.id + ".m3u8" 
           : channel.url
       );
       hls.attachMedia(video);
@@ -80,9 +81,9 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
             }, 0);
             const targetDelay = import.meta.env.VITE_STREAM_DELAY;
   
-            // It takes some time for the stream to load and play. Estimated here: 1s
-            const timeTolerance = tolerance + 1; 
-            
+            // It takes some time for the stream to load and play. Estimated here: 0.5s
+            const timeTolerance = tolerance + 0.5; 
+            console.log("Time Diff: ", timeDiff, "Video Length: ", videoLength, "Target Delay: ", targetDelay, "Time Tolerance: ", timeTolerance);
             if (videoLength + timeDiff + timeTolerance >= targetDelay) {
               hls.startLoad();
               video.play();

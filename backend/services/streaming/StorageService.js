@@ -1,21 +1,17 @@
 const fs = require('fs');
-const path = require("path");
 
 const STORAGE_PATH = process.env.STORAGE_PATH;
 
-function clearStorage() {
-
-    fs.readdir(STORAGE_PATH, (err, files) => {
-        if (err) throw err;
-        
-        for (const file of files) {
-            fs.unlink(path.join(STORAGE_PATH, file), (err) => {
-            if (err) throw err;
-            });
-        }
-    });
+function createChannelStorage(channelId) {
+    fs.mkdirSync(STORAGE_PATH + channelId);
 }
 
+function deleteChannelStorage(channelId) {
+    fs.rmSync(STORAGE_PATH + channelId, { recursive: true, force: true  });
+}
+
+
 module.exports = {
-    clearStorage
+    deleteChannelStorage,
+    createChannelStorage
 };
