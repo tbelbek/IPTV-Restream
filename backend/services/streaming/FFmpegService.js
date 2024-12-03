@@ -4,17 +4,19 @@ require('dotenv').config();
 let currentFFmpegProcess = null;
 const STORAGE_PATH = process.env.STORAGE_PATH;
 
-function startFFmpeg(channelUrl, channelId) {
+function startFFmpeg(nextChannel) {
     if (currentFFmpegProcess) {
         console.log('Terminate previous ffmpeg-Prozess...');
         currentFFmpegProcess.kill('SIGTERM');
     }
 
+    const channelUrl = nextChannel.url;
+    const channelId = nextChannel.id;
+    const headers = nextChannel.headers;
+
 
     currentFFmpegProcess = spawn('ffmpeg', [
-        '-headers', 'Origin: https://cookiewebplay.xyz',
-        '-user_agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
-        '-referer', 'https://cookiewebplay.xyz/',
+        ...headers.flatMap(header => ['-headers', `${header.key}: ${header.value}`]),
         '-i', channelUrl,
         '-c', 'copy',
         '-f', 'hls',
