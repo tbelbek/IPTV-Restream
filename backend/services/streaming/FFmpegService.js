@@ -16,7 +16,7 @@ function startFFmpeg(nextChannel) {
 
 
     currentFFmpegProcess = spawn('ffmpeg', [
-        ...headers.flatMap(header => ['-headers', `${header.key}: ${header.value}`]),
+        '-headers', headers.map(header => `${header.key}: ${header.value}`).join('\r\n'),
         '-i', channelUrl,
         '-c', 'copy',
         '-f', 'hls',

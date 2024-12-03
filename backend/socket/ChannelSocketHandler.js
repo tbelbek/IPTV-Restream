@@ -2,9 +2,9 @@ const ChannelService = require('../services/ChannelService');
 
 module.exports = (io, socket) => {
 
-    socket.on('add-channel', ({ name, url, avatar, restream }) => {
+    socket.on('add-channel', ({ name, url, avatar, restream, headersJson}) => {
         try {
-            const newChannel = ChannelService.addChannel(name, url, avatar, restream);
+            const newChannel = ChannelService.addChannel(name, url, avatar, restream, headersJson);
             io.emit('channel-added', newChannel); // Broadcast to all clients
         } catch (err) {
             socket.emit('app-error', { message: err.message });
