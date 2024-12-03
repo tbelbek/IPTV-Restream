@@ -69,10 +69,10 @@ class SocketService {
   }
 
   // Channel hinzufügen
-  addChannel(name: string, url: string, avatar: string, restream: boolean) {
+  addChannel(name: string, url: string, avatar: string, restream: boolean, headersJson: string) {
     if (!this.socket) throw new Error('Socket is not connected.');
 
-    this.socket.emit('add-channel', { name, url, avatar, restream });
+    this.socket.emit('add-channel', { name, url, avatar, restream, headersJson });
   }
 
   // Aktuellen Channel setzen
