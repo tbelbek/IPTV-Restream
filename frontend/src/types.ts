@@ -24,6 +24,7 @@ export interface Channel {
   url: string;
   avatar: string;
   restream: boolean;
+  headers: CustomHeader[];
 }
 
 export interface ChatMessage {
@@ -31,4 +32,10 @@ export interface ChatMessage {
   user: User;
   message: string;
   timestamp: string;
+}
+
+
+export interface CustomHeader {
+  key: string;
+  value: string;
 }

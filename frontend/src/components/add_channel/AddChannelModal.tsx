@@ -1,28 +1,51 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
-import socketService from '../services/SocketService';
+import { Plus, Trash2, X } from 'lucide-react';
+import socketService from '../../services/SocketService';
+import { CustomHeader } from '../../types';
+import CustomHeaderInput from './CustomHeaderInput';
 
 interface AddChannelModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-function AddChannelModal({ isOpen, onClose}: AddChannelModalProps) {
+function AddChannelModal({ isOpen, onClose }: AddChannelModalProps) {
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [avatar, setAvatar] = useState('');
   const [restream, setRestream] = useState(false);
+  const [headers, setHeaders] = useState<CustomHeader[]>([]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !url.trim()) return;
 
-    socketService.addChannel(name.trim(), url.trim(), avatar.trim() || 'https://via.placeholder.com/64', restream);
+    socketService.addChannel(
+      name.trim(), 
+      url.trim(), 
+      avatar.trim() || 'https://via.placeholder.com/64', 
+      restream,
+      JSON.stringify(headers)
+    );
 
     setName('');
     setUrl('');
     setAvatar('');
     onClose();
+  };
+
+  const addHeader = () => {
+    setHeaders([...headers, { key: '', value: '' }]);
+  };
+
+  const removeHeader = (index: number) => {
+    setHeaders(headers.filter((_, i) => i !== index));
+  };
+
+  const updateHeader = (index: number, field: 'key' | 'value', value: string) => {
+    const newHeaders = [...headers];
+    newHeaders[index] = { ...newHeaders[index], [field]: value };
+    setHeaders(newHeaders);
   };
 
   if (!isOpen) return null;
@@ -110,6 +133,42 @@ function AddChannelModal({ isOpen, onClose}: AddChannelModalProps) {
               </label>
             </div>
           </div>
+
+          {restream && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-medium">
+                  Custom Headers
+                </label>
+                <button
+                  type="button"
+                  onClick={addHeader}
+                  className="flex items-center space-x-1 text-sm text-blue-400 hover:text-blue-300"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Header</span>
+                </button>
+              </div>
+              <div className="space-y-2">
+                {headers.map((header, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <CustomHeaderInput
+                      header={header}
+                      onKeyChange={(value) => updateHeader(index, 'key', value)}
+                      onValueChange={(value) => updateHeader(index, 'value', value)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeHeader(index)}
+                      className="p-2 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="flex justify-end space-x-3">
             <button

@@ -3,7 +3,7 @@ import { Search, Plus, Settings, Users, Radio, Tv2 } from 'lucide-react';
 import VideoPlayer from './components/VideoPlayer';
 import ChannelList from './components/ChannelList';
 import Chat from './components/chat/Chat';
-import AddChannelModal from './components/AddChannelModal';
+import AddChannelModal from './components/add_channel/AddChannelModal';
 import { Channel } from './types';
 import socketService from './services/SocketService';
 import apiService from './services/ApiService';
