@@ -15,7 +15,10 @@ function App() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [syncEnabled, setSyncEnabled] = useState(false); //TODO: store in browser cache
+  const [syncEnabled, setSyncEnabled] = useState(() => {
+    const savedValue = localStorage.getItem('syncEnabled');
+    return savedValue !== null ? JSON.parse(savedValue) : true;
+  });
   const [searchQuery, setSearchQuery] = useState('');
 
 
@@ -53,6 +56,7 @@ function App() {
       console.log('WebSocket connection closed');
     };
   }, []);
+
 
   const filteredChannels = channels.filter(channel =>
     channel.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -125,7 +129,10 @@ function App() {
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         syncEnabled={syncEnabled}
-        onSyncChange={setSyncEnabled}
+        onSyncChange={(enabled) => {
+          setSyncEnabled(enabled);
+          localStorage.setItem('syncEnabled', JSON.stringify(enabled));
+        }}
       />
     </div>
   );

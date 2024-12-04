@@ -110,11 +110,11 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
         if(!newFrag.programDateTime) return;
         const timeDiff = (now - newFrag.programDateTime) / 1000;
         const videoDiff = newFrag.end - video.currentTime;
-        console.log("Time Diff: ", timeDiff, "Video Diff: ", videoDiff);
+        //console.log("Time Diff: ", timeDiff, "Video Diff: ", videoDiff);
         const delay = timeDiff + videoDiff;
         
         const targetDelay = import.meta.env.VITE_STREAM_DELAY;
-        console.log("Delay: ", delay, "Target Delay: ", targetDelay);
+        //console.log("Delay: ", delay, "Target Delay: ", targetDelay);
 
         const deviation = delay - targetDelay;
 
