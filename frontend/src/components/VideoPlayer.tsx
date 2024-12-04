@@ -4,9 +4,10 @@ import { Channel } from '../types';
 
 interface VideoPlayerProps {
   channel: Channel | null;
+  syncEnabled: boolean;
 }
 
-function VideoPlayer({ channel }: VideoPlayerProps) {
+function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
 
@@ -20,7 +21,7 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
       }
 
       const hls = new Hls({
-        autoStartLoad: false,
+        autoStartLoad: syncEnabled ? false : true,
         liveDurationInfinity: true,
         manifestLoadPolicy: {
           default: {
@@ -56,6 +57,8 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
           : channel.url
       );
       hls.attachMedia(video);
+
+      if(!syncEnabled) return;
 
       const tolerance = import.meta.env.VITE_SYNCHRONIZATION_TOLERANCE || 0.8;
       const maxDeviation = import.meta.env.VITE_SYNCHRONIZATION_MAX_DEVIATION || 4;
@@ -107,11 +110,11 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
         if(!newFrag.programDateTime) return;
         const timeDiff = (now - newFrag.programDateTime) / 1000;
         const videoDiff = newFrag.end - video.currentTime;
-        console.log("Time Diff: ", timeDiff, "Video Diff: ", videoDiff);
+        //console.log("Time Diff: ", timeDiff, "Video Diff: ", videoDiff);
         const delay = timeDiff + videoDiff;
         
         const targetDelay = import.meta.env.VITE_STREAM_DELAY;
-        console.log("Delay: ", delay, "Target Delay: ", targetDelay);
+        //console.log("Delay: ", delay, "Target Delay: ", targetDelay);
 
         const deviation = delay - targetDelay;
 
@@ -134,7 +137,7 @@ function VideoPlayer({ channel }: VideoPlayerProps) {
         hlsRef.current.destroy();
       }
     };
-  }, [channel?.url]);
+  }, [channel?.url, syncEnabled]);
 
   const handleVideoClick = (event: React.MouseEvent<HTMLVideoElement>) => {
     if (videoRef.current?.muted) {

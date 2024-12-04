@@ -7,12 +7,18 @@ import AddChannelModal from './components/add_channel/AddChannelModal';
 import { Channel } from './types';
 import socketService from './services/SocketService';
 import apiService from './services/ApiService';
+import SettingsModal from './components/SettingsModal';
 
 function App() {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [syncEnabled, setSyncEnabled] = useState(() => {
+    const savedValue = localStorage.getItem('syncEnabled');
+    return savedValue !== null ? JSON.parse(savedValue) : true;
+  });
   const [searchQuery, setSearchQuery] = useState('');
 
 
@@ -51,6 +57,7 @@ function App() {
     };
   }, []);
 
+
   const filteredChannels = channels.filter(channel =>
     channel.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -75,7 +82,9 @@ function App() {
           </div>
           <div className="flex items-center space-x-4">
             <Users className="w-6 h-6 text-blue-500" />
-            <Settings className="w-6 h-6 text-blue-500" />
+            <button onClick={() => setIsSettingsOpen(true)} className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
+                <Settings className="w-6 h-6 text-blue-500" />
+            </button>
           </div>
         </header>
 
@@ -102,7 +111,7 @@ function App() {
               />
             </div>
 
-            <VideoPlayer channel={selectedChannel} />
+            <VideoPlayer channel={selectedChannel} syncEnabled={syncEnabled}/>
           </div>
 
           <div className="col-span-12 lg:col-span-4">
@@ -114,6 +123,16 @@ function App() {
       <AddChannelModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+      />
+
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        syncEnabled={syncEnabled}
+        onSyncChange={(enabled) => {
+          setSyncEnabled(enabled);
+          localStorage.setItem('syncEnabled', JSON.stringify(enabled));
+        }}
       />
     </div>
   );
