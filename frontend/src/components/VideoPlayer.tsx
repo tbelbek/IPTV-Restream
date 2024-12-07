@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import Hls from 'hls.js';
 import { Channel } from '../types';
+import { ToastContext } from './notifications/ToastContext';
 
 interface VideoPlayerProps {
   channel: Channel | null;
@@ -10,6 +11,7 @@ interface VideoPlayerProps {
 function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
+  const { addToast, removeToast } = useContext(ToastContext);
 
   useEffect(() => {
     if (!videoRef.current || !channel?.url) return;
@@ -18,6 +20,16 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
     if (Hls.isSupported()) {
       if (hlsRef.current) {
         hlsRef.current.destroy();
+      }
+
+      let toastStartId = null;
+      if (channel.restream) {
+        toastStartId = addToast({
+          type: 'loading',
+          title: 'Starting Restream',
+          message: 'This may take a few moments...',
+          duration: 0,
+        });
       }
 
       const hls = new Hls({
@@ -33,7 +45,7 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
               maxRetryDelayMs: 0,
             },
             errorRetry: {
-              maxNumRetry: 20,
+              maxNumRetry: 12,
               retryDelayMs: 1000,
               maxRetryDelayMs: 8000,
               backoff: 'linear',
@@ -86,6 +98,9 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
             hls.startLoad();
             video.play();
             console.log("Starting stream");
+            if (toastStartId) {
+              removeToast(toastStartId);
+            }
           } else {
             console.log("Waiting for stream to load: ", videoLength + timeDiff + timeTolerance, " < ", targetDelay);
       
@@ -128,6 +143,27 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
           video.playbackRate = speedAdjustment;
         } else {
           video.playbackRate = 1.0;
+        }
+      });
+
+      hls.on(Hls.Events.ERROR, (_, data) => {
+        if (data.fatal) {
+
+          if (toastStartId) {
+            removeToast(toastStartId);
+          }
+          
+          const is403 = data.response?.code === 403;
+          addToast({
+            type: 'error',
+            title: 'Stream Error',
+            message: is403 && !channel.restream
+              ? 'Access denied. Try with restream option for this channel.'
+              : 'The stream is not working. Check the source.',
+            duration: 5000,
+          });
+          return;
+          
         }
       });
     }
