@@ -39,3 +39,13 @@ export interface CustomHeader {
   key: string;
   value: string;
 }
+
+export type ToastType = 'info' | 'success' | 'error' | 'loading';
+
+export interface ToastNotification {
+  id: string;
+  type: ToastType;
+  title: string;
+  message?: string;
+  duration: number;
+}
