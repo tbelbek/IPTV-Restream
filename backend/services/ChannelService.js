@@ -64,6 +64,54 @@ class ChannelService {
     getCurrentChannel() {
         return this.currentChannel;
     }
+
+    deleteChannel(id) {
+        const channelIndex = this.channels.findIndex(channel => channel.id === id);
+        if (channelIndex === -1) {
+            throw new Error('Channel does not exist');
+        }
+
+        const [deletedChannel] = this.channels.splice(channelIndex, 1);
+
+        if (this.currentChannel.id === id) {
+            if (deletedChannel.restream) {
+                streamController.stop(deletedChannel.id);
+            }
+
+            this.currentChannel = this.channels.length > 0 ? this.channels[0] : null;
+            if(this.currentChannel?.restream) {
+                streamController.start(this.currentChannel);
+            }
+        }
+
+
+        return this.currentChannel;
+    }
+
+    updateChannel(id, updatedAttributes) {
+        const channelIndex = this.channels.findIndex(channel => channel.id === id);
+        if (channelIndex === -1) {
+            throw new Error('Channel does not exist');
+        }
+
+        const streamChanged = updatedAttributes.url != this.currentChannel.url || 
+                              updatedAttributes.headers != this.currentChannel.headers || 
+                              updatedAttributes.restream != this.currentChannel.restream;
+
+        const channel = this.channels[channelIndex];
+        Object.assign(channel, updatedAttributes);
+
+        if(this.currentChannel.id == id) {
+            if(streamChanged) {
+                streamController.stop(channel.id);
+                if(channel.restream) {
+                    streamController.start(channel);
+                }
+            }
+        }
+
+        return channel;
+    }
 }
 
 module.exports = new ChannelService();

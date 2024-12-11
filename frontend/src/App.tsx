@@ -14,7 +14,6 @@ import ToastContainer from './components/notifications/ToastContainer';
 function App() {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [syncEnabled, setSyncEnabled] = useState(() => {
@@ -22,9 +21,9 @@ function App() {
     return savedValue !== null ? JSON.parse(savedValue) : true;
   });
   const [searchQuery, setSearchQuery] = useState('');
+  const [editChannel, setEditChannel] = useState<Channel | null>(null);
 
   useEffect(() => {
-
     apiService
       .request<Channel[]>('/channels/', 'GET')
       .then((data) => setChannels(data))
@@ -35,7 +34,6 @@ function App() {
       .then((data) => setSelectedChannel(data))
       .catch((error) => console.error('Error loading current channel:', error));
 
-
     console.log('Subscribing to events');
     const channelAddedListener = (channel: Channel) => {
       setChannels((prevChannels) => [...prevChannels, channel]);
@@ -45,23 +43,62 @@ function App() {
       setSelectedChannel(nextChannel);
     };
 
+    const channelUpdatedListener = (updatedChannel: Channel) => {
+      setChannels((prevChannels) =>
+        prevChannels.map((channel) =>
+          channel.id === updatedChannel.id ? updatedChannel : channel
+        )
+      );
+
+      setSelectedChannel((selectedChannel: Channel) => {
+
+          if(selectedChannel?.id === updatedChannel.id) {
+
+            if((selectedChannel?.url != updatedChannel.url || JSON.stringify(selectedChannel?.headers) != JSON.stringify(updatedChannel.headers)) && selectedChannel?.restream == updatedChannel.restream){ 
+              setTimeout(() => {
+                window.location.reload(); 
+              }, 3000);
+            }
+
+            return updatedChannel;
+          }
+          return;
+        }
+      ); 
+
+    };
+
+    const channelDeletedListener = (deletedChannel: number) => {
+      setChannels((prevChannels) =>
+        prevChannels.filter((channel) => channel.id !== deletedChannel)
+      );
+    };
+
     socketService.subscribeToEvent('channel-added', channelAddedListener);
     socketService.subscribeToEvent('channel-selected', channelSelectedListener);
+    socketService.subscribeToEvent('channel-updated', channelUpdatedListener);
+    socketService.subscribeToEvent('channel-deleted', channelDeletedListener);
 
     socketService.connect();
 
     return () => {
       socketService.unsubscribeFromEvent('channel-added', channelAddedListener);
       socketService.unsubscribeFromEvent('channel-selected', channelSelectedListener);
+      socketService.unsubscribeFromEvent('channel-updated', channelUpdatedListener);
+      socketService.unsubscribeFromEvent('channel-deleted', channelDeletedListener);
       socketService.disconnect();
       console.log('WebSocket connection closed');
     };
   }, []);
 
-
-  const filteredChannels = channels.filter(channel =>
+  const filteredChannels = channels.filter((channel) =>
     channel.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleEditChannel = (channel: Channel) => {
+    setEditChannel(channel);
+    setIsModalOpen(true);
+  };
 
   return (
     <ToastProvider>
@@ -84,8 +121,11 @@ function App() {
             </div>
             <div className="flex items-center space-x-4">
               <Users className="w-6 h-6 text-blue-500" />
-              <button onClick={() => setIsSettingsOpen(true)} className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
-                  <Settings className="w-6 h-6 text-blue-500" />
+              <button
+                onClick={() => setIsSettingsOpen(true)}
+                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                <Settings className="w-6 h-6 text-blue-500" />
               </button>
             </div>
           </header>
@@ -110,10 +150,11 @@ function App() {
                   channels={filteredChannels}
                   selectedChannel={selectedChannel}
                   setSearchQuery={setSearchQuery}
+                  onEditChannel={handleEditChannel}
                 />
               </div>
 
-              <VideoPlayer channel={selectedChannel} syncEnabled={syncEnabled}/>
+              <VideoPlayer channel={selectedChannel} syncEnabled={syncEnabled} />
             </div>
 
             <div className="col-span-12 lg:col-span-4">
@@ -124,7 +165,11 @@ function App() {
 
         <AddChannelModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => {
+            setIsModalOpen(false)
+            setEditChannel(null);
+          }}
+          channel={editChannel}
         />
 
         <SettingsModal
