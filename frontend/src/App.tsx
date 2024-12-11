@@ -3,7 +3,7 @@ import { Search, Plus, Settings, Users, Radio, Tv2 } from 'lucide-react';
 import VideoPlayer from './components/VideoPlayer';
 import ChannelList from './components/ChannelList';
 import Chat from './components/chat/Chat';
-import AddChannelModal from './components/add_channel/AddChannelModal';
+import ChannelModal from './components/add_channel/ChannelModal';
 import { Channel } from './types';
 import socketService from './services/SocketService';
 import apiService from './services/ApiService';
@@ -54,7 +54,9 @@ function App() {
 
           if(selectedChannel?.id === updatedChannel.id) {
 
+            // Reload stream if the stream attributes (url, headers) have changed
             if((selectedChannel?.url != updatedChannel.url || JSON.stringify(selectedChannel?.headers) != JSON.stringify(updatedChannel.headers)) && selectedChannel?.restream == updatedChannel.restream){ 
+              //TODO: find a better solution instead of reloading (problem is m3u8 needs time to refresh server-side)
               setTimeout(() => {
                 window.location.reload(); 
               }, 3000);
@@ -163,7 +165,7 @@ function App() {
           </div>
         </div>
 
-        <AddChannelModal
+        <ChannelModal
           isOpen={isModalOpen}
           onClose={() => {
             setIsModalOpen(false)

@@ -4,13 +4,13 @@ import socketService from '../../services/SocketService';
 import { CustomHeader, Channel } from '../../types';
 import CustomHeaderInput from './CustomHeaderInput';
 
-interface AddChannelModalProps {
+interface ChannelModalProps {
   isOpen: boolean;
   onClose: () => void;
   channel?: Channel | null;
 }
 
-function AddChannelModal({ isOpen, onClose, channel }: AddChannelModalProps) {
+function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [avatar, setAvatar] = useState('');
@@ -239,4 +239,4 @@ function AddChannelModal({ isOpen, onClose, channel }: AddChannelModalProps) {
   );
 }
 
-export default AddChannelModal;
+export default ChannelModal;

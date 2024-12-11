@@ -173,7 +173,7 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
         hlsRef.current.destroy();
       }
     };
-  }, [channel?.url, channel?.restream, channel?.headers, syncEnabled]);
+  }, [channel?.url, channel?.restream, syncEnabled]);
 
   const handleVideoClick = (event: React.MouseEvent<HTMLVideoElement>) => {
     if (videoRef.current?.muted) {

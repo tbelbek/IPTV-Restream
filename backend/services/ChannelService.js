@@ -95,7 +95,7 @@ class ChannelService {
         }
 
         const streamChanged = updatedAttributes.url != this.currentChannel.url || 
-                              updatedAttributes.headers != this.currentChannel.headers || 
+                              JSON.stringify(updatedAttributes.headers) != JSON.stringify(this.currentChannel.headers) || 
                               updatedAttributes.restream != this.currentChannel.restream;
 
         const channel = this.channels[channelIndex];
