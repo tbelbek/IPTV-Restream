@@ -81,6 +81,20 @@ class SocketService {
 
     this.socket.emit('set-current-channel', id);
   }
+
+  // Channel löschen
+  deleteChannel(id: number) {
+    if (!this.socket) throw new Error('Socket is not connected.');
+
+    this.socket.emit('delete-channel', id);
+  }
+
+  // Channel aktualisieren
+  updateChannel(id: number, updatedAttributes: any) {
+    if (!this.socket) throw new Error('Socket is not connected.');
+
+    this.socket.emit('update-channel', { id, updatedAttributes });
+  }
 }
 
 const socketService = new SocketService();

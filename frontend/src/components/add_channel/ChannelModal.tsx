@@ -1,36 +1,75 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, X } from 'lucide-react';
 import socketService from '../../services/SocketService';
-import { CustomHeader } from '../../types';
+import { CustomHeader, Channel } from '../../types';
 import CustomHeaderInput from './CustomHeaderInput';
 
-interface AddChannelModalProps {
+interface ChannelModalProps {
   isOpen: boolean;
   onClose: () => void;
+  channel?: Channel | null;
 }
 
-function AddChannelModal({ isOpen, onClose }: AddChannelModalProps) {
+function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [avatar, setAvatar] = useState('');
   const [restream, setRestream] = useState(false);
   const [headers, setHeaders] = useState<CustomHeader[]>([]);
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  useEffect(() => {
+    if (channel) {
+      setName(channel.name);
+      setUrl(channel.url);
+      setAvatar(channel.avatar);
+      setRestream(channel.restream);
+      setHeaders(channel.headers);
+      setIsEditMode(true);
+    } else {
+      setName('');
+      setUrl('');
+      setAvatar('');
+      setRestream(false);
+      setHeaders([]);
+      setIsEditMode(false);
+    }
+  }, [channel]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !url.trim()) return;
 
-    socketService.addChannel(
-      name.trim(), 
-      url.trim(), 
-      avatar.trim() || 'https://via.placeholder.com/64', 
-      restream,
-      JSON.stringify(headers)
-    );
+    if (isEditMode && channel) {
+      handleUpdate(channel.id);
+    } else {
+      socketService.addChannel(
+        name.trim(),
+        url.trim(),
+        avatar.trim() || 'https://via.placeholder.com/64',
+        restream,
+        JSON.stringify(headers)
+      );
+    }
 
-    setName('');
-    setUrl('');
-    setAvatar('');
+    onClose();
+  };
+
+  const handleDelete = () => {
+    if (channel) {
+      socketService.deleteChannel(channel.id);
+      onClose();
+    }
+  };
+
+  const handleUpdate = (id: number) => {
+    socketService.updateChannel(id, {
+      name: name.trim(),
+      url: url.trim(),
+      avatar: avatar.trim() || 'https://via.placeholder.com/64',
+      restream,
+      headers: headers,
+    });
     onClose();
   };
 
@@ -54,7 +93,7 @@ function AddChannelModal({ isOpen, onClose }: AddChannelModalProps) {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
       <div className="bg-gray-800 rounded-lg w-full max-w-md">
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
-          <h2 className="text-xl font-semibold">Add New Channel</h2>
+          <h2 className="text-xl font-semibold">{isEditMode ? 'Edit Channel' : 'Add New Channel'}</h2>
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-700 rounded-full transition-colors"
@@ -171,6 +210,15 @@ function AddChannelModal({ isOpen, onClose }: AddChannelModalProps) {
           )}
 
           <div className="flex justify-end space-x-3">
+            {isEditMode && (
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="px-4 py-2 bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Delete
+              </button>
+            )}
             <button
               type="button"
               onClick={onClose}
@@ -182,7 +230,7 @@ function AddChannelModal({ isOpen, onClose }: AddChannelModalProps) {
               type="submit"
               className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Add Channel
+              {isEditMode ? 'Update Channel' : 'Add Channel'}
             </button>
           </div>
         </form>
@@ -191,4 +239,4 @@ function AddChannelModal({ isOpen, onClose }: AddChannelModalProps) {
   );
 }
 
-export default AddChannelModal;
+export default ChannelModal;

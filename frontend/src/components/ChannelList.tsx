@@ -6,14 +6,20 @@ interface ChannelListProps {
   channels: Channel[];
   selectedChannel: Channel | null;
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
+  onEditChannel: (channel: Channel) => void;
 }
 
-function ChannelList({ channels, selectedChannel, setSearchQuery }: ChannelListProps) {
+function ChannelList({ channels, selectedChannel, setSearchQuery, onEditChannel }: ChannelListProps) {
 
   const onSelectChannel = (channel: Channel) => {
     setSearchQuery('');
     if(channel.id === selectedChannel?.id) return;
     socketService.setCurrentChannel(channel.id);
+  };
+
+  const onRightClickChannel = (event: React.MouseEvent, channel: Channel) => {
+    event.preventDefault();
+    onEditChannel(channel);
   };
 
   return (
@@ -22,6 +28,7 @@ function ChannelList({ channels, selectedChannel, setSearchQuery }: ChannelListP
         <button
           key={channel.id}
           onClick={() => onSelectChannel(channel)}
+          onContextMenu={(event) => onRightClickChannel(event, channel)}
           className={`group relative p-2 rounded-lg transition-all ${
             selectedChannel?.id === channel.id
               ? 'bg-blue-500 bg-opacity-20 ring-2 ring-blue-500'

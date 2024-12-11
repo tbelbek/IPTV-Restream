@@ -159,7 +159,7 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
             title: 'Stream Error',
             message: is403 && !channel.restream
               ? 'Access denied. Try with restream option for this channel.'
-              : 'The stream is not working. Check the source.',
+              : `The stream is not working. Check the source. ${data.response?.text}`,
             duration: 5000,
           });
           return;
@@ -173,7 +173,7 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
         hlsRef.current.destroy();
       }
     };
-  }, [channel?.url, syncEnabled]);
+  }, [channel?.url, channel?.restream, syncEnabled]);
 
   const handleVideoClick = (event: React.MouseEvent<HTMLVideoElement>) => {
     if (videoRef.current?.muted) {
