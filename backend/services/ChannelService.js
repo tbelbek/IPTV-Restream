@@ -1,7 +1,7 @@
 const streamController = require('./streaming/StreamController');
 const Channel = require('../models/Channel');
-const fs = require('fs');
 const m3uParser = require('@pawanpaudel93/m3u-parse');
+const fetch = require('node-fetch');
 
 class ChannelService {
     constructor() {
@@ -115,8 +115,9 @@ class ChannelService {
         return channel;
     }
 
-    addChannelsFromPlaylist(playlistUrl) {
-        const playlistContent = fs.readFileSync(playlistUrl, 'utf8');
+    async addChannelsFromPlaylist(playlistUrl) {
+        const response = await fetch(playlistUrl);
+        const playlistContent = await response.text();
         const parser = new m3uParser.Parser();
         parser.push(playlistContent);
         parser.end();
