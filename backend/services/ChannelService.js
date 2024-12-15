@@ -12,6 +12,12 @@ class ChannelService {
             { "key": "Referer", "value": "https://cookiewebplay.xyz/" }
         ];
 
+        const streamedSuHeaders = [
+            { "key": "Origin", "value": "https://embedme.top" },
+            { "key": "User-Agent", "value": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36" },
+            { "key": "Referer", "value": "https://embedme.top/" }
+        ];
+
         this.channels = [
             //Some Test-channels to get started
             new Channel('Das Erste', process.env.DEFAULT_CHANNEL_URL, "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Das_Erste-Logo_klein.svg/768px-Das_Erste-Logo_klein.svg.png", false, []),
