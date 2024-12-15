@@ -42,4 +42,27 @@ module.exports = (io, socket) => {
             socket.emit('app-error', { message: err.message });
         }
     });
+
+    socket.on('upload-playlist', async (data) => {
+        try {
+            let channels;
+            if (data.playlistUrl) {
+                channels = await ChannelService.addChannelsFromPlaylist(data.playlistUrl);
+            } else if (data instanceof FormData) {
+                const playlistFile = data.get('playlistFile');
+                if (playlistFile) {
+                    const playlistContent = await playlistFile.text();
+                    channels = await ChannelService.addChannelsFromPlaylist(playlistContent);
+                }
+            }
+            if (channels) {
+                channels.forEach(channel => {
+                    io.emit('channel-added', channel);
+                });
+            }
+        } catch (err) {
+            console.error(err);
+            socket.emit('app-error', { message: err.message });
+        }
+    });
 };
