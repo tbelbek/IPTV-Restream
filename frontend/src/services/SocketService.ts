@@ -97,10 +97,10 @@ class SocketService {
   }
 
   // Playlist hochladen
-  uploadPlaylist(data: FormData | { playlistUrl: string }) {
+  uploadPlaylist(playlistUrl: string, restream: boolean, headersJson: string ) {
     if (!this.socket) throw new Error('Socket is not connected.');
 
-    this.socket.emit('upload-playlist', data);
+    this.socket.emit('upload-playlist', { playlistUrl, restream, headersJson });
   }
 }
 

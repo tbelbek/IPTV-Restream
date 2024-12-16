@@ -4,7 +4,7 @@ module.exports = (io, socket) => {
 
     socket.on('add-channel', ({ name, url, avatar, restream, headersJson}) => {
         try {
-            const newChannel = ChannelService.addChannel(name, url, avatar, restream, headersJson);
+            const newChannel = ChannelService.addChannel(name, url, avatar, restream, headersJson, null);
             io.emit('channel-added', newChannel); // Broadcast to all clients
         } catch (err) {
             socket.emit('app-error', { message: err.message });
@@ -43,18 +43,10 @@ module.exports = (io, socket) => {
         }
     });
 
-    socket.on('upload-playlist', async (data) => {
+    socket.on('upload-playlist', async ({ playlistUrl, restream, headersJson }) => {
         try {
-            let channels;
-            if (data.playlistUrl) {
-                channels = await ChannelService.addChannelsFromPlaylist(data.playlistUrl);
-            } else if (data instanceof FormData) {
-                const playlistFile = data.get('playlistFile');
-                if (playlistFile) {
-                    const playlistContent = await playlistFile.text();
-                    channels = await ChannelService.addChannelsFromPlaylist(playlistContent);
-                }
-            }
+
+            channels = await ChannelService.addChannelsFromPlaylist(playlistUrl, restream, headersJson);
             if (channels) {
                 channels.forEach(channel => {
                     io.emit('channel-added', channel);

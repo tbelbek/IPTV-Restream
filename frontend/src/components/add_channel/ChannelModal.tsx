@@ -11,14 +11,16 @@ interface ChannelModalProps {
 }
 
 function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
+  const [mode, setMode] = useState<'channel' | 'playlist'>('channel');
+  const [isEditMode, setIsEditMode] = useState(false);
+
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [avatar, setAvatar] = useState('');
   const [restream, setRestream] = useState(false);
   const [headers, setHeaders] = useState<CustomHeader[]>([]);
-  const [isEditMode, setIsEditMode] = useState(false);
+
   const [playlistUrl, setPlaylistUrl] = useState('');
-  const [playlistFile, setPlaylistFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (channel) {
@@ -28,50 +30,46 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
       setRestream(channel.restream);
       setHeaders(channel.headers);
       setIsEditMode(true);
-    } else {
-      setName('');
-      setUrl('');
-      setAvatar('');
-      setRestream(false);
-      setHeaders([]);
-      setIsEditMode(false);
+      setMode('channel'); // Default to "channel" if a channel object exists
     }
   }, [channel]);
 
+
+  const addHeader = () => {
+    setHeaders([...headers, { key: '', value: '' }]);
+  };
+  const removeHeader = (index: number) => {
+    setHeaders(headers.filter((_, i) => i !== index));
+  };
+  const updateHeader = (index: number, field: 'key' | 'value', value: string) => {
+    const newHeaders = [...headers];
+    newHeaders[index] = { ...newHeaders[index], [field]: value };
+    setHeaders(newHeaders);
+  };
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !url.trim()) return;
 
-    if (isEditMode && channel) {
-      handleUpdate(channel.id);
-    } else {
-      socketService.addChannel(
-        name.trim(),
-        url.trim(),
-        avatar.trim() || 'https://via.placeholder.com/64',
-        restream,
-        JSON.stringify(headers)
-      );
-    }
-
-    if (playlistUrl.trim()) {
-      socketService.uploadPlaylist({ playlistUrl: playlistUrl.trim() });
-    }
-
-    if (playlistFile) {
-      const formData = new FormData();
-      formData.append('playlistFile', playlistFile);
-      socketService.uploadPlaylist(formData);
+    if (mode === 'channel') {
+      if (!name.trim() || !url.trim()) return;
+      if (isEditMode && channel) {
+        handleUpdate(channel.id);
+      } else {
+        socketService.addChannel(
+          name.trim(),
+          url.trim(),
+          avatar.trim() || 'https://via.placeholder.com/64',
+          restream,
+          JSON.stringify(headers)
+        );
+      }
+    } else if (mode === 'playlist') {
+      if (!playlistUrl.trim()) return;
+      socketService.uploadPlaylist(playlistUrl.trim(), restream, JSON.stringify(headers));
     }
 
     onClose();
-  };
-
-  const handleDelete = () => {
-    if (channel) {
-      socketService.deleteChannel(channel.id);
-      onClose();
-    }
   };
 
   const handleUpdate = (id: number) => {
@@ -85,37 +83,16 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
     onClose();
   };
 
-  const addHeader = () => {
-    setHeaders([...headers, { key: '', value: '' }]);
-  };
-
-  const removeHeader = (index: number) => {
-    setHeaders(headers.filter((_, i) => i !== index));
-  };
-
-  const updateHeader = (index: number, field: 'key' | 'value', value: string) => {
-    const newHeaders = [...headers];
-    newHeaders[index] = { ...newHeaders[index], [field]: value };
-    setHeaders(newHeaders);
-  };
-
-  const handlePlaylistUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPlaylistUrl(e.target.value);
-  };
-
-  const handlePlaylistFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setPlaylistFile(e.target.files[0]);
-    }
-  };
-
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
       <div className="bg-gray-800 rounded-lg w-full max-w-md">
+        {/* Header mit Slider */}
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
-          <h2 className="text-xl font-semibold">{isEditMode ? 'Edit Channel' : 'Add New Channel'}</h2>
+          <h2 className="text-xl font-semibold">
+            {isEditMode ? (mode === 'channel' ? 'Edit Channel' : 'Edit Playlist') : mode === 'channel' ? 'Add New Channel' : 'Add New Playlist'}
+          </h2>
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-700 rounded-full transition-colors"
@@ -124,77 +101,151 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium mb-1">
-              Channel Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter channel name"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="url" className="block text-sm font-medium mb-1">
-              Stream URL
-            </label>
-            <input
-              type="url"
-              id="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              className="w-full bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter stream URL"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="url" className="block text-sm font-medium mb-1">
-              Avatar URL
-            </label>
-            <input
-              type="url"
-              id="avatar"
-              value={avatar}
-              onChange={(e) => setAvatar(e.target.value)}
-              className="w-full bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter channel avatar URL"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Restream through backend</label>
-            <div className="flex items-center space-x-4">
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="restream"
-                  value="yes"
-                  checked={restream}
-                  className="form-radio text-blue-600"
-                  onChange={() => setRestream(true)}
-                />
-                <span className="ml-2">Yes</span>
-              </label>
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="restream"
-                  value="no"
-                  className="form-radio text-blue-600"
-                  checked={!restream}
-                  onChange={() => setRestream(false)}
-                />
-                <span className="ml-2">No</span>
-              </label>
+        {/* Slider */}
+        {!isEditMode && (
+          <div className="p-4 pb-0">
+            <div className="flex space-x-4 justify-center">
+              <button
+                onClick={() => setMode('channel')}
+                className={`px-4 py-2 rounded-lg border-2 ${
+                  mode === 'channel' ? 'border-blue-600' : 'border-transparent'
+                } hover:border-blue-600 transition-colors`}
+              >
+                Channel
+              </button>
+              <button
+                onClick={() => setMode('playlist')}
+                className={`px-4 py-2 rounded-lg border-2 ${
+                  mode === 'playlist' ? 'border-blue-600' : 'border-transparent'
+                } hover:border-blue-600 transition-colors`}
+              >
+                Playlist
+              </button>
             </div>
           </div>
+        )}
 
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+          {mode === 'channel' && (
+            <>
+              {/* Channel fields */}
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium mb-1">
+                  Channel Name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter channel name"
+                />
+              </div>
+              <div>
+                <label htmlFor="url" className="block text-sm font-medium mb-1">
+                  Stream URL
+                </label>
+                <input
+                  type="url"
+                  id="url"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  className="w-full bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter stream URL"
+                />
+              </div>
+              <div>
+                <label htmlFor="avatar" className="block text-sm font-medium mb-1">
+                  Avatar URL
+                </label>
+                <input
+                  type="url"
+                  id="avatar"
+                  value={avatar}
+                  onChange={(e) => setAvatar(e.target.value)}
+                  className="w-full bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter channel avatar URL"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Restream through backend</label>
+                <div className="flex items-center space-x-4">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="restream"
+                      value="yes"
+                      checked={restream}
+                      className="form-radio text-blue-600"
+                      onChange={() => setRestream(true)}
+                    />
+                    <span className="ml-2">Yes</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="restream"
+                      value="no"
+                      className="form-radio text-blue-600"
+                      checked={!restream}
+                      onChange={() => setRestream(false)}
+                    />
+                    <span className="ml-2">No</span>
+                  </label>
+                </div>
+              </div>
+            </>
+          )}
+
+          {mode === 'playlist' && (
+            <>
+              {/* Playlist fields */}
+              <div>
+                <label htmlFor="playlistUrl" className="block text-sm font-medium mb-1">
+                  M3U Playlist URL
+                </label>
+                <input
+                  type="url"
+                  id="playlistUrl"
+                  value={playlistUrl}
+                  onChange={(e) => setPlaylistUrl(e.target.value)}
+                  className="w-full bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter M3U playlist URL"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Restream through backend</label>
+                <div className="flex items-center space-x-4">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="restream"
+                      value="yes"
+                      checked={restream}
+                      className="form-radio text-blue-600"
+                      onChange={() => setRestream(true)}
+                    />
+                    <span className="ml-2">Yes</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="restream"
+                      value="no"
+                      className="form-radio text-blue-600"
+                      checked={!restream}
+                      onChange={() => setRestream(false)}
+                    />
+                    <span className="ml-2">No</span>
+                  </label>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Custom Headers */}
           {restream && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -231,38 +282,12 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
             </div>
           )}
 
-          <div>
-            <label htmlFor="playlistUrl" className="block text-sm font-medium mb-1">
-              M3U Playlist URL
-            </label>
-            <input
-              type="url"
-              id="playlistUrl"
-              value={playlistUrl}
-              onChange={handlePlaylistUrlChange}
-              className="w-full bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter M3U playlist URL"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="playlistFile" className="block text-sm font-medium mb-1">
-              M3U Playlist File
-            </label>
-            <input
-              type="file"
-              id="playlistFile"
-              onChange={handlePlaylistFileChange}
-              className="w-full bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              accept=".m3u"
-            />
-          </div>
-
+          {/* Buttons */}
           <div className="flex justify-end space-x-3">
             {isEditMode && (
               <button
                 type="button"
-                onClick={handleDelete}
+                onClick={() => channel && handleUpdate(channel.id)}
                 className="px-4 py-2 bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
               >
                 Delete
@@ -279,7 +304,7 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
               type="submit"
               className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
             >
-              {isEditMode ? 'Update Channel' : 'Add Channel'}
+              {isEditMode ? 'Update' : 'Add'}
             </button>
           </div>
         </form>
