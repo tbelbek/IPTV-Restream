@@ -34,6 +34,14 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
       setHeaders(channel.headers);
       setIsEditMode(true);
       setMode('channel'); // Default to "channel" if a channel object exists
+    } else {
+      setName('');
+      setUrl('');
+      setAvatar('');
+      setRestream(false);
+      setHeaders([]);
+      setIsEditMode(false);
+      setMode('channel'); // Default to "channel" if a channel object exists
     }
   }, [channel]);
 
@@ -96,6 +104,13 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
       duration: 3000,
     });
 
+    onClose();
+  };
+
+  const handleDelete = () => {
+    if (channel) {
+      socketService.deleteChannel(channel.id);
+    }
     onClose();
   };
 
@@ -306,7 +321,7 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
             {isEditMode && (
               <button
                 type="button"
-                onClick={() => channel && handleUpdate(channel.id)}
+                onClick={handleDelete}
                 className="px-4 py-2 bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
               >
                 Delete
