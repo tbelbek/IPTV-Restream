@@ -38,7 +38,7 @@ class ChannelService {
     addChannel(name, url, avatar, restream, headersJson, group) {
         const existing = this.channels.find(channel => channel.url === url);
 
-        if (existing && restream == existing.restream) {
+        if (existing) {
             throw new Error('Channel already exists');
         }
 
@@ -128,10 +128,16 @@ class ChannelService {
         const parsedPlaylist = m3uParser.parse(content);        
 
         // list of added channels
-        const channels = parsedPlaylist.items.map(channel => 
+        const channels = parsedPlaylist.items.map(channel => {
             //TODO: add channel.http if not '' to headers
-            this.addChannel(channel.name, channel.url, channel.tvg.logo, restream, headersJson, channel.group.title)
-        );
+            try {
+                return this.addChannel(channel.name, channel.url, channel.tvg.logo, restream, headersJson, channel.group.title);
+            } catch (error) {
+                console.error(error);
+                return null;
+            }
+        })
+        .filter(result => result !== null);
 
         return channels;
     }
