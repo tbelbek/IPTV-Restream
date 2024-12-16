@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Plus, Trash2, X } from 'lucide-react';
 import socketService from '../../services/SocketService';
 import { CustomHeader, Channel } from '../../types';
 import CustomHeaderInput from './CustomHeaderInput';
+import { ToastContext } from '../notifications/ToastContext';
 
 interface ChannelModalProps {
   isOpen: boolean;
@@ -21,6 +22,8 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
   const [headers, setHeaders] = useState<CustomHeader[]>([]);
 
   const [playlistUrl, setPlaylistUrl] = useState('');
+
+  const { addToast } = useContext(ToastContext);
 
   useEffect(() => {
     if (channel) {
@@ -51,23 +54,30 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (isEditMode && channel) {
+      handleUpdate(channel.id);
+      return;
+    }
+
     if (mode === 'channel') {
       if (!name.trim() || !url.trim()) return;
-      if (isEditMode && channel) {
-        handleUpdate(channel.id);
-      } else {
-        socketService.addChannel(
-          name.trim(),
-          url.trim(),
-          avatar.trim() || 'https://via.placeholder.com/64',
-          restream,
-          JSON.stringify(headers)
-        );
-      }
+      socketService.addChannel(
+        name.trim(),
+        url.trim(),
+        avatar.trim() || 'https://via.placeholder.com/64',
+        restream,
+        JSON.stringify(headers)
+      );
     } else if (mode === 'playlist') {
       if (!playlistUrl.trim()) return;
       socketService.uploadPlaylist(playlistUrl.trim(), restream, JSON.stringify(headers));
     }
+
+    addToast({
+      type: 'success',
+      title: `${mode} added`,
+      duration: 3000,
+    });
 
     onClose();
   };
@@ -80,6 +90,12 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
       restream,
       headers: headers,
     });
+    addToast({
+      type: 'success',
+      title: 'Channel updated',
+      duration: 3000,
+    });
+
     onClose();
   };
 
@@ -141,6 +157,7 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
                   onChange={(e) => setName(e.target.value)}
                   className="w-full bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter channel name"
+                  required
                 />
               </div>
               <div>
@@ -154,6 +171,7 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
                   onChange={(e) => setUrl(e.target.value)}
                   className="w-full bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter stream URL"
+                  required
                 />
               </div>
               <div>
@@ -213,6 +231,7 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
                   onChange={(e) => setPlaylistUrl(e.target.value)}
                   className="w-full bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter M3U playlist URL"
+                  required
                 />
               </div>
               <div>
