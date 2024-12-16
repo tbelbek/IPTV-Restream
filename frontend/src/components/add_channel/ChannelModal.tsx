@@ -111,6 +111,11 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
     if (channel) {
       socketService.deleteChannel(channel.id);
     }
+    addToast({
+      type: 'error',
+      title: 'Channel deleted',
+      duration: 3000,
+    });
     onClose();
   };
 

@@ -18,7 +18,7 @@ class ChannelService {
         ];
 
         this.channels = [
-            //Some Test-channels to get started
+            //Some Test-channels to get started, remove this when using your own playlist
             new Channel('Das Erste', process.env.DEFAULT_CHANNEL_URL, "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Das_Erste-Logo_klein.svg/768px-Das_Erste-Logo_klein.svg.png", false, [], null),
             new Channel('DAZN 1 DE', "https://xyzdddd.mizhls.ru/lb/premium426/index.m3u8", "https://upload.wikimedia.org/wikipedia/commons/4/49/DAZN_1.svg", true, daddyHeaders, null),
             new Channel('beIN Sports 1', "https://xyzdddd.mizhls.ru/lb/premium61/index.m3u8","https://www.thesportsdb.com/images/media/channel/logo/BeIn_Sports_1_Australia.png", true, daddyHeaders, null),
