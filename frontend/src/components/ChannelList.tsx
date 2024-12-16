@@ -27,6 +27,7 @@ function ChannelList({ channels, selectedChannel, setSearchQuery, onEditChannel 
       {channels.map((channel) => (
         <button
           key={channel.id}
+          title={channel.name.length > 28 ? channel.name : ''}
           onClick={() => onSelectChannel(channel)}
           onContextMenu={(event) => onRightClickChannel(event, channel)}
           className={`group relative p-2 rounded-lg transition-all ${
@@ -42,7 +43,9 @@ function ChannelList({ channels, selectedChannel, setSearchQuery, onEditChannel 
               className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105"
             />
           </div>
-          <p className="text-sm font-medium truncate text-center">{channel.name}</p>
+          <p className="text-sm font-medium truncate text-center">
+            {channel.name.length > 28 ? `${channel.name.substring(0, 28)}...` : channel.name}
+          </p>
         </button>
       ))}
     </div>
