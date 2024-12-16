@@ -50,8 +50,7 @@ function App() {
         )
       );
 
-      setSelectedChannel((selectedChannel: Channel) => {
-
+      setSelectedChannel((selectedChannel: Channel | null) => {
           if(selectedChannel?.id === updatedChannel.id) {
 
             // Reload stream if the stream attributes (url, headers) have changed
@@ -61,10 +60,9 @@ function App() {
                 window.location.reload(); 
               }, 3000);
             }
-
             return updatedChannel;
           }
-          return;
+          return selectedChannel;
         }
       ); 
 

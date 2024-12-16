@@ -95,6 +95,13 @@ class SocketService {
 
     this.socket.emit('update-channel', { id, updatedAttributes });
   }
+
+  // Playlist hochladen
+  uploadPlaylist(playlistUrl: string, restream: boolean, headersJson: string ) {
+    if (!this.socket) throw new Error('Socket is not connected.');
+
+    this.socket.emit('upload-playlist', { playlistUrl, restream, headersJson });
+  }
 }
 
 const socketService = new SocketService();

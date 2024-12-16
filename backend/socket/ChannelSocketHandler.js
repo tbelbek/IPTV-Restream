@@ -4,7 +4,7 @@ module.exports = (io, socket) => {
 
     socket.on('add-channel', ({ name, url, avatar, restream, headersJson}) => {
         try {
-            const newChannel = ChannelService.addChannel(name, url, avatar, restream, headersJson);
+            const newChannel = ChannelService.addChannel(name, url, avatar, restream, headersJson, null);
             io.emit('channel-added', newChannel); // Broadcast to all clients
         } catch (err) {
             socket.emit('app-error', { message: err.message });
@@ -37,6 +37,21 @@ module.exports = (io, socket) => {
         try {
             const updatedChannel = ChannelService.updateChannel(id, updatedAttributes);
             io.emit('channel-updated', updatedChannel); // Broadcast to all clients
+        } catch (err) {
+            console.error(err);
+            socket.emit('app-error', { message: err.message });
+        }
+    });
+
+    socket.on('upload-playlist', async ({ playlistUrl, restream, headersJson }) => {
+        try {
+
+            channels = await ChannelService.addChannelsFromPlaylist(playlistUrl, restream, headersJson);
+            if (channels) {
+                channels.forEach(channel => {
+                    io.emit('channel-added', channel);
+                });
+            }
         } catch (err) {
             console.error(err);
             socket.emit('app-error', { message: err.message });

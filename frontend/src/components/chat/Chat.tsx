@@ -74,7 +74,7 @@ function Chat() {
   };
 
   return (
-    <div className="bg-gray-800 rounded-lg h-full">
+    <div className="bg-gray-800 rounded-lg">
       <div className="flex items-center space-x-2 p-4 border-b border-gray-700">
         <MessageSquare className="w-5 h-5 text-blue-500" />
         <h2 className="text-xl font-semibold">Live Chat</h2>

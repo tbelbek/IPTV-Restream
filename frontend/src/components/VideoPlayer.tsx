@@ -195,6 +195,14 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
         controls
         onClick={handleVideoClick}
       />
+      <div className="flex items-center p-4 bg-gray-900 text-white">
+        <img 
+          src={channel?.avatar} 
+          alt={`${channel?.name} avatar`} 
+          className="w-10 h-10 object-contain mr-3" 
+        />
+        <span className="font-medium">{channel?.name}</span>
+      </div>
     </div>
   );
 }
