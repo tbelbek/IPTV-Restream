@@ -1,10 +1,10 @@
 # IPTV StreamHub
 
-A simple IPTV `restream` and `synchronization` application with web frontend.
+A simple IPTV `restream` and `synchronization` application with web frontend. Share your iptv playlist and watch it together with your friends.
 
 
 ## ✨ Features 
-**Restreaming** - Proxy your iptv stream through the backend.
+**Restreaming** - Proxy your iptv streams through the backend.
 
 **Synchronization** - The playback of the stream is perfectly synchronized for all viewers.
 
@@ -45,10 +45,8 @@ docker compose up -d
 ```
 Open http://localhost
 
-⚠️ Be aware that a restreamed synchonized channel (also some of the preview channels) may take some time to load (20-25s) ⚠️ -> A option to restream without synchronization is in development!
+⚠️ Be aware that a restreamed synchonized channel (also some of the preview channels) may take some time to load (20-25s) ⚠️ -> To reduce loading time deactivate synchronization in the ⚙️ or edit the delay in the [config]((docker-compose.yml))!
 
-
-You can configure the settings in [docker-compose](docker-compose.yml).
 
 ### Run components seperately
 
