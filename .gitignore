@@ -1,7 +1,8 @@
 # Node Modules
 node_modules/
 
-prod/
+deployment/data/
+deployment/letsencrypt/
 
 /build/
 /dist/
