@@ -1,7 +1,8 @@
 # Node Modules
 node_modules/
 
-prod/
+deployment/*
+!deployment/docker-compose.yml
 
 /build/
 /dist/
