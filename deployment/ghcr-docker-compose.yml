@@ -1,0 +1,39 @@
+version: "3.9"
+services:
+  frontend:
+    image: ghcr.io/antebrl/iptv-restream/frontend:v1
+    networks:
+      - app-network
+
+  backend:
+    image: ghcr.io/antebrl/iptv-restream/backend:v1
+    volumes:
+      - streams_data:/streams
+    environment:
+      DEFAULT_CHANNEL_URL: https://mcdn.daserste.de/daserste/de/master.m3u8
+      STORAGE_PATH: /streams/
+    networks:
+      - app-network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ../nginx.conf:/etc/nginx/nginx.conf
+      - streams_data:/streams
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+
+volumes:
+  streams_data:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+
+# Internal docker network
+networks:
+  app-network:
+    driver: bridge
