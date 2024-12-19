@@ -31,8 +31,8 @@ module.exports = {
 
     addChannel(req, res) {
         try {
-            const { name, url, avatar, restream, headersJson, group } = req.body;
-            const newChannel = ChannelService.addChannel(name, url, avatar, restream, headersJson, group);
+            //const { name, url, avatar, restream, headersJson, group, playlist } = req.body;
+            const newChannel = ChannelService.addChannel(req.body);
             res.status(201).json(newChannel);
         } catch (error) {
             res.status(500).json({ error: error.message });

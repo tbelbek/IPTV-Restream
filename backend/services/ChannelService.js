@@ -1,6 +1,5 @@
 const streamController = require('./streaming/StreamController');
 const Channel = require('../models/Channel');
-const m3uParser = require('iptv-playlist-parser');
 
 class ChannelService {
     constructor() {
@@ -19,14 +18,14 @@ class ChannelService {
 
         this.channels = [
             //Some Test-channels to get started, remove this when using your own playlist
-            new Channel('Das Erste', process.env.DEFAULT_CHANNEL_URL, "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Das_Erste-Logo_klein.svg/768px-Das_Erste-Logo_klein.svg.png", false, [], null),
-            new Channel('DAZN 1 DE', "https://xyzdddd.mizhls.ru/lb/premium426/index.m3u8", "https://upload.wikimedia.org/wikipedia/commons/4/49/DAZN_1.svg", true, daddyHeaders, null),
-            new Channel('beIN Sports 1', "https://xyzdddd.mizhls.ru/lb/premium61/index.m3u8","https://www.thesportsdb.com/images/media/channel/logo/BeIn_Sports_1_Australia.png", true, daddyHeaders, null),
-            new Channel('beIN Sports 2', "https://xyzdddd.mizhls.ru/lb/premium92/index.m3u8", "https://www.thesportsdb.com/images/media/channel/logo/BeIn_Sports_HD_2_France.png", true, daddyHeaders, null),
-            new Channel('Sky Sport Football', "https://xyzdddd.mizhls.ru/lb/premium35/index.m3u8", "https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-kingdom/sky-sports-football-uk.png", true, daddyHeaders, null),
-            new Channel('Sky Sports Premier League', "https://xyzdddd.mizhls.ru/lb/premium130/index.m3u8", "https://github.com/tv-logo/tv-logos/blob/main/countries/united-kingdom/sky-sports-premier-league-uk.png?raw=true", true, daddyHeaders, null),
-            new Channel('SuperSport Premier League', 'https://xyzdddd.mizhls.ru/lb/premium414/index.m3u8', "https://github.com/tv-logo/tv-logos/blob/8d25ddd79ca2f9cd033b808c45cccd2b3da563ee/countries/south-africa/supersport-premier-league-za.png?raw=true", true, daddyHeaders, null),
-            new Channel('NBA', "https://v14.thetvapp.to/hls/NBA28/index.m3u8?token=bFFITmZCbllna21WRUJra0xjN0JPN0w1VlBmSkNUcTl4Zml3a2tQSg==", "https://raw.githubusercontent.com/tv-logo/tv-logos/635e715cb2f2c6d28e9691861d3d331dd040285b/countries/united-states/nba-tv-icon-us.png", false, [], null),
+            new Channel('Das Erste', process.env.DEFAULT_CHANNEL_URL, "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Das_Erste-Logo_klein.svg/768px-Das_Erste-Logo_klein.svg.png", false),
+            new Channel('DAZN 1 DE', "https://xyzdddd.mizhls.ru/lb/premium426/index.m3u8", "https://upload.wikimedia.org/wikipedia/commons/4/49/DAZN_1.svg", true, daddyHeaders),
+            new Channel('beIN Sports 1', "https://xyzdddd.mizhls.ru/lb/premium61/index.m3u8","https://www.thesportsdb.com/images/media/channel/logo/BeIn_Sports_1_Australia.png", true, daddyHeaders),
+            new Channel('beIN Sports 2', "https://xyzdddd.mizhls.ru/lb/premium92/index.m3u8", "https://www.thesportsdb.com/images/media/channel/logo/BeIn_Sports_HD_2_France.png", true, daddyHeaders),
+            new Channel('Sky Sport Football', "https://xyzdddd.mizhls.ru/lb/premium35/index.m3u8", "https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-kingdom/sky-sports-football-uk.png", true, daddyHeaders),
+            new Channel('Sky Sports Premier League', "https://xyzdddd.mizhls.ru/lb/premium130/index.m3u8", "https://github.com/tv-logo/tv-logos/blob/main/countries/united-kingdom/sky-sports-premier-league-uk.png?raw=true", true, daddyHeaders),
+            new Channel('SuperSport Premier League', 'https://xyzdddd.mizhls.ru/lb/premium414/index.m3u8', "https://github.com/tv-logo/tv-logos/blob/8d25ddd79ca2f9cd033b808c45cccd2b3da563ee/countries/south-africa/supersport-premier-league-za.png?raw=true", true, daddyHeaders),
+            new Channel('NBA', "https://v14.thetvapp.to/hls/NBA28/index.m3u8?token=bFFITmZCbllna21WRUJra0xjN0JPN0w1VlBmSkNUcTl4Zml3a2tQSg==", "https://raw.githubusercontent.com/tv-logo/tv-logos/635e715cb2f2c6d28e9691861d3d331dd040285b/countries/united-states/nba-tv-icon-us.png", false),
         ];
         this.currentChannel = this.channels[0];
     }
@@ -35,7 +34,7 @@ class ChannelService {
         return this.channels;
     }
 
-    addChannel(name, url, avatar, restream, headersJson, group) {
+    addChannel({name, url, avatar, restream, headersJson, group = false, playlist = false}) {
         const existing = this.channels.find(channel => channel.url === url);
 
         if (existing) {
@@ -43,7 +42,7 @@ class ChannelService {
         }
 
         const headers = JSON.parse(headersJson);
-        const newChannel = new Channel(name, url, avatar, restream, headers, group);
+        const newChannel = new Channel(name, url, avatar, restream, headers, group, playlist);
         this.channels.push(newChannel);
         
         return newChannel;
@@ -118,28 +117,6 @@ class ChannelService {
         }
 
         return channel;
-    }
-
-    async addChannelsFromPlaylist(playlistUrl, restream, headersJson) {
-
-        const response = await fetch(playlistUrl);
-        const content = await response.text();
-
-        const parsedPlaylist = m3uParser.parse(content);        
-
-        // list of added channels
-        const channels = parsedPlaylist.items.map(channel => {
-            //TODO: add channel.http if not '' to headers
-            try {
-                return this.addChannel(channel.name, channel.url, channel.tvg.logo, restream, headersJson, channel.group.title);
-            } catch (error) {
-                console.error(error);
-                return null;
-            }
-        })
-        .filter(result => result !== null);
-
-        return channels;
     }
 }
 
