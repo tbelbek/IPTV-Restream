@@ -18,7 +18,7 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [avatar, setAvatar] = useState('');
-  const [restream, setRestream] = useState(false);
+  const [restream, setRestream] = useState(true);
   const [headers, setHeaders] = useState<CustomHeader[]>([]);
 
   const [playlistUrl, setPlaylistUrl] = useState('');
@@ -32,6 +32,7 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
       setAvatar(channel.avatar);
       setRestream(channel.restream);
       setHeaders(channel.headers);
+      setPlaylistUrl(channel.playlist);
       setIsEditMode(true);
       setMode('channel'); // Default to "channel" if a channel object exists
     } else {
@@ -40,6 +41,7 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
       setAvatar('');
       setRestream(false);
       setHeaders([]);
+      setPlaylistUrl('');
       setIsEditMode(false);
       setMode('channel'); // Default to "channel" if a channel object exists
     }
@@ -78,7 +80,7 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
       );
     } else if (mode === 'playlist') {
       if (!playlistUrl.trim()) return;
-      socketService.uploadPlaylist(playlistUrl.trim(), restream, JSON.stringify(headers));
+      socketService.addPlaylist(playlistUrl.trim(), restream, JSON.stringify(headers));
     }
 
     addToast({
@@ -91,16 +93,32 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
   };
 
   const handleUpdate = (id: number) => {
-    socketService.updateChannel(id, {
-      name: name.trim(),
-      url: url.trim(),
-      avatar: avatar.trim() || 'https://via.placeholder.com/64',
-      restream,
-      headers: headers,
-    });
+    if (mode === 'channel') {
+      socketService.updateChannel(id, {
+        name: name.trim(),
+        url: url.trim(),
+        avatar: avatar.trim() || 'https://via.placeholder.com/64',
+        restream,
+        headers: headers,
+      });
+
+    } else if (mode === 'playlist') {
+      if(channel!.playlist !== playlistUrl.trim()) {
+        // If the playlist URL has changed, we need to reload the playlist (delete old channels and fetch again)
+        socketService.deletePlaylist(channel!.playlist);
+        socketService.addPlaylist(playlistUrl.trim(), restream, JSON.stringify(headers));
+      } else {
+        socketService.updatePlaylist(playlistUrl.trim(), {
+          playlist: playlistUrl.trim(),
+          restream,
+          headers: headers,
+        });
+      }
+    }
+
     addToast({
       type: 'success',
-      title: 'Channel updated',
+      title: `${mode} updated`,
       duration: 3000,
     });
 
@@ -109,11 +127,15 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
 
   const handleDelete = () => {
     if (channel) {
-      socketService.deleteChannel(channel.id);
+      if (mode === 'channel') {
+        socketService.deleteChannel(channel.id);
+      } else if (mode === 'playlist') {
+        socketService.deletePlaylist(channel.playlist);
+      }
     }
     addToast({
       type: 'error',
-      title: 'Channel deleted',
+      title: `${mode} deleted`,
       duration: 3000,
     });
     onClose();
@@ -138,22 +160,20 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
         </div>
 
         {/* Slider */}
-        {!isEditMode && (
+        {(!isEditMode || channel?.playlist) && (
           <div className="p-4 pb-0">
             <div className="flex space-x-4 justify-center">
               <button
                 onClick={() => setMode('channel')}
-                className={`px-4 py-2 rounded-lg border-2 ${
-                  mode === 'channel' ? 'border-blue-600' : 'border-transparent'
-                } hover:border-blue-600 transition-colors`}
+                className={`px-4 py-2 rounded-lg border-2 ${mode === 'channel' ? 'border-blue-600' : 'border-transparent'
+                  } hover:border-blue-600 transition-colors`}
               >
                 Channel
               </button>
               <button
                 onClick={() => setMode('playlist')}
-                className={`px-4 py-2 rounded-lg border-2 ${
-                  mode === 'playlist' ? 'border-blue-600' : 'border-transparent'
-                } hover:border-blue-600 transition-colors`}
+                className={`px-4 py-2 rounded-lg border-2 ${mode === 'playlist' ? 'border-blue-600' : 'border-transparent'
+                  } hover:border-blue-600 transition-colors`}
               >
                 Playlist
               </button>

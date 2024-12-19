@@ -49,7 +49,7 @@ class SocketService {
     this.listeners.get(event)?.push(listener);
   }
 
-  // Event abbestellen
+  // Unsubscribe from event
   unsubscribeFromEvent<T>(event: string, listener: (data: T) => void) {
     const eventListeners = this.listeners.get(event);
     if (eventListeners) {
@@ -61,47 +61,62 @@ class SocketService {
   }
 
 
-  // Nachricht senden
+  // Send chat message
   sendMessage(userName: string, userAvatar: string, message: string, timestamp: string) {
     if (!this.socket) throw new Error('Socket is not connected.');
 
     this.socket.emit('send-message', { userName, userAvatar, message, timestamp });
   }
 
-  // Channel hinzufügen
+  // Add channel
   addChannel(name: string, url: string, avatar: string, restream: boolean, headersJson: string) {
     if (!this.socket) throw new Error('Socket is not connected.');
 
     this.socket.emit('add-channel', { name, url, avatar, restream, headersJson });
   }
 
-  // Aktuellen Channel setzen
+  // Set current channel
   setCurrentChannel(id: number) {
     if (!this.socket) throw new Error('Socket is not connected.');
 
     this.socket.emit('set-current-channel', id);
   }
 
-  // Channel löschen
+  // Delete channel
   deleteChannel(id: number) {
     if (!this.socket) throw new Error('Socket is not connected.');
 
     this.socket.emit('delete-channel', id);
   }
 
-  // Channel aktualisieren
+  // Update channel
   updateChannel(id: number, updatedAttributes: any) {
     if (!this.socket) throw new Error('Socket is not connected.');
 
     this.socket.emit('update-channel', { id, updatedAttributes });
   }
 
-  // Playlist hochladen
-  uploadPlaylist(playlistUrl: string, restream: boolean, headersJson: string ) {
+  // Add playlist
+  addPlaylist(playlist: string, restream: boolean, headersJson: string) {
     if (!this.socket) throw new Error('Socket is not connected.');
 
-    this.socket.emit('upload-playlist', { playlistUrl, restream, headersJson });
+    this.socket.emit('add-playlist', { playlist, restream, headersJson });
   }
+
+  // Update playlist
+  updatePlaylist(playlist: string, updatedAttributes: any) {
+    if (!this.socket) throw new Error('Socket is not connected.');
+
+    this.socket.emit('update-playlist', { playlist, updatedAttributes });
+  }
+
+  // Delete playlist 
+  deletePlaylist(playlist: string) {
+    if (!this.socket) throw new Error('Socket is not connected.');
+
+    this.socket.emit('delete-playlist', playlist);
+  }
+
 }
 
 const socketService = new SocketService();
