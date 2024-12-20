@@ -5,8 +5,9 @@ let currentFFmpegProcess = null;
 const STORAGE_PATH = process.env.STORAGE_PATH;
 
 function startFFmpeg(nextChannel) {
+    console.log('Starting FFmpeg process...');
     if (currentFFmpegProcess) {
-        console.log('Terminate previous ffmpeg-Prozess...');
+        console.log('Gracefully terminate previous ffmpeg-Prozess...');
         currentFFmpegProcess.kill('SIGTERM');
     }
 
@@ -37,6 +38,9 @@ function startFFmpeg(nextChannel) {
 
     currentFFmpegProcess.on('close', (code) => {
         console.log(`ffmpeg-Process terminated with code: ${code}`);
+        currentFFmpegProcess = null;
+
+        //Restart if crashed
         if (code && code !== 255) {
             console.log(`Restarting FFmpeg process...`);
             startFFmpeg(nextChannel);
@@ -46,7 +50,7 @@ function startFFmpeg(nextChannel) {
 
 function stopFFmpeg() {
     if (currentFFmpegProcess) {
-        console.log('Terminate ffmpeg-Process...');
+        console.log('Gracefully terminate ffmpeg-Process...');
         currentFFmpegProcess.kill('SIGTERM');
         currentFFmpegProcess = null;
     }

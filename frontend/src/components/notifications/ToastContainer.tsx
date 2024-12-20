@@ -42,7 +42,7 @@ function ToastContainer() {
             </div>
 
             {/* Progress Bar */}
-            {toast.type !== 'loading' && (
+            {toast.duration != 0 && (
               <div className="h-1 bg-gray-700 relative">
                 <div
                   className="absolute top-0 right-0 h-full"

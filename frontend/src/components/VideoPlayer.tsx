@@ -11,7 +11,7 @@ interface VideoPlayerProps {
 function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
-  const { addToast, removeToast } = useContext(ToastContext);
+  const { addToast, removeToast, clearToasts, editToast } = useContext(ToastContext);
 
   useEffect(() => {
     if (!videoRef.current || !channel?.url) return;
@@ -22,15 +22,14 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
         hlsRef.current.destroy();
       }
 
+      clearToasts();
       let toastStartId = null;
-      if (channel.restream) {
-        toastStartId = addToast({
-          type: 'loading',
-          title: 'Starting Restream',
-          message: 'This may take a few moments...',
-          duration: 0,
-        });
-      }
+      toastStartId = addToast({
+        type: 'loading',
+        title: channel.restream ? 'Starting Restream': 'Starting Stream',
+        message: 'This might take a few moments...',
+        duration: 0,
+      });
 
       const hls = new Hls({
         autoStartLoad: syncEnabled ? false : true,
@@ -75,7 +74,7 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
       const tolerance = import.meta.env.VITE_SYNCHRONIZATION_TOLERANCE || 0.8;
       const maxDeviation = import.meta.env.VITE_SYNCHRONIZATION_MAX_DEVIATION || 4;
 
-  
+      var toastDurationSet = false;
       hls.on(Hls.Events.MANIFEST_PARSED, (_event, _data) => {
         if (channel.restream) {
           const now = new Date().getTime();
@@ -89,20 +88,26 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
       
           const timeDiff = (now - lastFragment.programDateTime) / 1000;
           const videoLength = fragments.reduce((acc, fragment) => acc + fragment.duration, 0);
-          const targetDelay = import.meta.env.VITE_STREAM_DELAY;
+          const targetDelay : number = Number(import.meta.env.VITE_STREAM_DELAY);
       
           //Load stream if it is close to the target delay
           const timeTolerance = tolerance + 1;
-      
-          if (videoLength + timeDiff + timeTolerance >= targetDelay) {
+
+          const delay : number = videoLength + timeDiff + timeTolerance;
+          if (delay >= targetDelay) {
             hls.startLoad();
             video.play();
             console.log("Starting stream");
-            if (toastStartId) {
+            if (!toastDurationSet && toastStartId) {
               removeToast(toastStartId);
             }
           } else {
-            console.log("Waiting for stream to load: ", videoLength + timeDiff + timeTolerance, " < ", targetDelay);
+            console.log("Waiting for stream to load: ", delay, " < ", targetDelay);
+
+            if(!toastDurationSet && toastStartId) {
+              editToast(toastStartId, {duration: (1 + targetDelay - delay) * 1000});
+              toastDurationSet = true;
+            }
       
             // Reload manifest
             setTimeout(() => {
@@ -112,6 +117,10 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
         } else {
           hls.startLoad();
           video.play();
+
+          if (toastStartId) {
+            removeToast(toastStartId);
+          }
         }
       });
       
@@ -153,12 +162,11 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
             removeToast(toastStartId);
           }
           
-          const is403 = data.response?.code === 403;
           addToast({
             type: 'error',
             title: 'Stream Error',
-            message: is403 && !channel.restream
-              ? 'Access denied. Try with restream option for this channel.'
+            message: !channel.restream
+              ? 'The stream is not working. Try with restream option enabled for this channel.'
               : `The stream is not working. Check the source. ${data.response?.text}`,
             duration: 5000,
           });
