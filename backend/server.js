@@ -8,6 +8,7 @@ const ChannelSocketHandler = require('./socket/ChannelSocketHandler');
 const channelController = require('./controllers/ChannelController');
 const streamController = require('./services/streaming/StreamController');
 const ChannelService = require('./services/ChannelService');
+const PlaylistSocketHandler = require('./socket/PlaylistSocketHandler');
 
 dotenv.config();
 
@@ -52,6 +53,7 @@ io.on('connection', socket => {
   })
 
   ChannelSocketHandler(io, socket);
+  PlaylistSocketHandler(io, socket);
 
   ChatSocketHandler(io, socket);
 })

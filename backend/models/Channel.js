@@ -1,6 +1,6 @@
 class Channel {
     static nextId = 0;
-    constructor(name, url, avatar, restream, headers, group) {
+    constructor(name, url, avatar, restream, headers = [], group = null, playlist = null) {
         this.id = Channel.nextId++;
         this.name = name;
         this.url = url;
@@ -8,6 +8,7 @@ class Channel {
         this.restream = restream;
         this.headers = headers;
         this.group = group;
+        this.playlist = playlist;
     }
 }
 

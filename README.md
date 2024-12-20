@@ -1,7 +1,6 @@
 # IPTV StreamHub
 
-A simple IPTV `restream` and `synchronization` application with web frontend. Share your iptv playlist and watch it together with your friends.
-
+A simple IPTV `restream` and `synchronization` (watch2gether) application with web frontend. Share your iptv playlist and watch it together with your friends.
 
 ## ✨ Features 
 **Restreaming** - Proxy your iptv streams through the backend.
@@ -19,6 +18,7 @@ A simple IPTV `restream` and `synchronization` application with web frontend. Sh
   - Helps with CORS issues.
 - Synchronize IPTV streaming with multiple devices: Synchronized playback and channel selection.
 - Share your iptv and watch together with your friends.
+  - The actual iptv stream-url is unvisible to them if you restream [upcomming feature]
 
 ## 🛠️ Architecture
 
@@ -45,7 +45,8 @@ docker compose up -d
 ```
 Open http://localhost
 
-⚠️ Be aware that a restreamed synchonized channel (also some of the preview channels) may take some time to load (20-25s) ⚠️ -> To reduce loading time deactivate synchronization in the ⚙️ or edit the delay in the [config]((docker-compose.yml))!
+> [!IMPORTANT]  
+> If a channel/playlist won't work, please try with `restream through backend` option enabled. This fixes most of the problems! It leads to longer initial loading times. If you don't need synchronization, turn it off in the ⚙️ or set the delay in the [config](docker-compose.yml).
 
 
 ### Run components seperately
@@ -60,6 +61,12 @@ Be aware, that this'll require additional configuration/adaption and won't be of
 ## Preview
 ![Frontend Preview](/frontend/ressources/frontend-preview.png)
 ![Add channel](/frontend/ressources/add-channel.png)
+
+## FAQ & Common Mistakes
+
+> Error: `Bind for 0.0.0.0:80 failed: port is already allocated`
+
+To fix this, change the [port mapping in the docker-compose](docker-compose.yml#L40) to `X:80` e.g. `8080:80`. Make also sure that port X is open in the firewall configuration if you want to expose the application.
 
 ## Contribute & Contact
 Feel free to open discussions and issues for any type of requests. Don't hesitate to contact me, if you have any problems with the setup.

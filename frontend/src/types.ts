@@ -25,6 +25,8 @@ export interface Channel {
   avatar: string;
   restream: boolean;
   headers: CustomHeader[];
+  group: string;
+  playlist: string;
 }
 
 export interface ChatMessage {
