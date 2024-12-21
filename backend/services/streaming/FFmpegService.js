@@ -2,22 +2,27 @@ const { spawn } = require('child_process');
 require('dotenv').config();
 
 let currentFFmpegProcess = null;
+let currentChannelId = null;
 const STORAGE_PATH = process.env.STORAGE_PATH;
 
 function startFFmpeg(nextChannel) {
-    console.log('Starting FFmpeg process...');
+    console.log('Starting FFmpeg process with channel:', nextChannel.id);
     if (currentFFmpegProcess) {
         console.log('Gracefully terminate previous ffmpeg-Prozess...');
         currentFFmpegProcess.kill('SIGTERM');
     }
 
     const channelUrl = nextChannel.url;
-    const channelId = nextChannel.id;
+    currentChannelId = nextChannel.id;
     const headers = nextChannel.headers;
 
 
     currentFFmpegProcess = spawn('ffmpeg', [
         '-headers', headers.map(header => `${header.key}: ${header.value}`).join('\r\n'),
+        '-reconnect', '1',
+        '-reconnect_at_eof', '1',
+        '-reconnect_streamed', '1',
+        '-reconnect_delay_max', '2',
         '-i', channelUrl,
         '-c', 'copy',
         '-f', 'hls',
@@ -25,7 +30,7 @@ function startFFmpeg(nextChannel) {
         '-hls_list_size', '5',
         '-hls_flags', 'delete_segments+program_date_time',
         '-start_number', Math.floor(Date.now() / 1000),
-        `${STORAGE_PATH}${channelId}/${channelId}.m3u8`
+        `${STORAGE_PATH}${currentChannelId}/${currentChannelId}.m3u8`
     ]);
 
     // currentFFmpegProcess.stdout.on('data', (data) => {
@@ -38,13 +43,14 @@ function startFFmpeg(nextChannel) {
 
     currentFFmpegProcess.on('close', (code) => {
         console.log(`ffmpeg-Process terminated with code: ${code}`);
-        currentFFmpegProcess = null;
 
-        //Restart if crashed
-        if (code && code !== 255) {
-            console.log(`Restarting FFmpeg process...`);
-            startFFmpeg(nextChannel);
-        }
+        // currentFFmpegProcess = null;
+        // //Restart if crashed
+        // if (code !== null && code !== 255) {
+        //     console.log(`Restarting FFmpeg process with channel: ${nextChannel.id}`);
+        //     //wait 1 second before restarting
+        //     setTimeout(() => startFFmpeg(nextChannel), 2000);
+        // }
     });
 }
 

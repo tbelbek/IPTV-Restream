@@ -158,6 +158,8 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
       hls.on(Hls.Events.ERROR, (_, data) => {
         if (data.fatal) {
 
+          console.error('HLS error:', data);
+
           if (toastStartId) {
             removeToast(toastStartId);
           }
