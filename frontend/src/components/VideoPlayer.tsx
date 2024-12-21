@@ -22,15 +22,6 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
         hlsRef.current.destroy();
       }
 
-      clearToasts();
-      let toastStartId = null;
-      toastStartId = addToast({
-        type: 'loading',
-        title: channel.restream ? 'Starting Restream': 'Starting Stream',
-        message: 'This might take a few moments...',
-        duration: 0,
-      });
-
       const hls = new Hls({
         autoStartLoad: syncEnabled ? false : true,
         liveDurationInfinity: true,
@@ -70,6 +61,15 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
       hls.attachMedia(video);
 
       if(!syncEnabled) return;
+
+      clearToasts();
+      let toastStartId = null;
+      toastStartId = addToast({
+        type: 'loading',
+        title: channel.restream ? 'Starting Restream': 'Starting Stream',
+        message: 'This might take a few moments...',
+        duration: 0,
+      });
 
       const tolerance = import.meta.env.VITE_SYNCHRONIZATION_TOLERANCE || 0.8;
       const maxDeviation = import.meta.env.VITE_SYNCHRONIZATION_MAX_DEVIATION || 4;
