@@ -4,36 +4,30 @@ const ChannelService = require('../services/ChannelService');
 
 module.exports = {
     channel(req, res) {
-        const { url } = req.query;
+        let { url, channelId, headers } = req.query;
 
-        //REMOVE, use url instead
-        const { channelId } = req.query;
-
-        console.log('ChannelId: ', channelId);
-
-        var targetUrl = null;
-        
-        if(!url) {
-            const channel = ChannelService.getChannelById(parseInt(channelId));
+        let targetUrl = null;  
+        if(url) {
+            targetUrl = url;
+        } else {
+            //Use current channel
+            const channel = channelId ? ChannelService.getChannelById(parseInt(channelId)) : ChannelService.getCurrentChannel();
             if (!channel) {
                 res.status(404).json({ error: 'Channel not found' });
                 return;
             }
             targetUrl = channel.url;
-        } else {
-            targetUrl = url;
+            headers = Buffer.from(JSON.stringify(channel.headers)).toString('base64');  
         }
         
-
-        console.log('Fetching m3u8 file from: ', targetUrl);
-
         request(targetUrl, (error, response, body) => {
             if (error) {
                 res.status(500).json({ error: 'Failed to fetch m3u8 file' });
                 return;
             }
 
-            var isMaster = true;
+            //Master => Playlist with segment list
+            let isMaster = true;
 
             if(body.indexOf('#EXT-X-STREAM-INF') != -1) {
                 isMaster = false;
@@ -41,9 +35,10 @@ module.exports = {
 
             const proxyBaseUrl = `${req.protocol}://${req.get('host')}/proxy/`;
 
-            var rewrittenBody = body.replace(
+            //Replace EXT-X-KEY URI
+            let rewrittenBody = body.replace(
                 /URI="([^"]+)"/,
-                (_, originalUrl) => `URI="${proxyBaseUrl}key?url=${encodeURIComponent(originalUrl)}"`
+                (_, originalUrl) => `URI="${proxyBaseUrl}key?url=${encodeURIComponent(originalUrl)}${headers ? `&headers=${headers}` : ''}"`
             );
 
             rewrittenBody = rewrittenBody.replace(/(https?:\/\/[^\s]+)/g, (match) => {
@@ -56,8 +51,8 @@ module.exports = {
                 if(match.indexOf('.m3u8') != -1) {
                     isMaster = false;
                 }
-                //if its master (playlist with segment list) then load segments
-                return `${proxyBaseUrl}${isMaster ? 'segment' : 'channel'}?url=${encodeURIComponent(match)}`;
+                //if its master (playlist with segment list) then load segments next
+                return `${proxyBaseUrl}${isMaster ? 'segment' : 'channel'}?url=${encodeURIComponent(match)}${headers ? `&headers=${headers}` : ''}`;
             });
 
             //res.set('Content-Type', 'application/vnd.apple.mpegurl');
@@ -68,62 +63,33 @@ module.exports = {
 
 
     segment(req, res) {
+        let { url, headers }= req.query;
 
-        const targetUrl = req.query.url;
-        console.log('Proxy request to: ', targetUrl);
-
-        if (!targetUrl) {
+        if (!url) {
             res.status(400).json({ error: 'Missing url query parameter' });
             return;
         }
 
-        const { channelId, key } = req.query;
-        
-        const channel = ChannelService.getChannelById(5);
-        if (!channel) {
-            res.status(404).json({ error: 'Channel not found' });
-            return;
+        console.log('Proxy request to: ', url);
+
+        let options = undefined;
+        if(headers) {
+            headers = JSON.parse(Buffer.from(headers, 'base64').toString('ascii'));
+
+            options = {
+                targetUrl: url,
+                headers: headers.reduce((acc, header) => {
+                    acc[header.key] = header.value;
+                    return acc;
+                }, {}),
+            };
         }
 
-        const { headers } = channel;
-        const options = {
-            targetUrl,
-            headers: headers.reduce((acc, header) => {
-                acc[header.key] = header.value;
-                return acc;
-            }, {}),
-        };
-
-        req.pipe(request(targetUrl, options)).pipe(res);
+        req.pipe(request(url, options)).pipe(res);
     },
 
     key(req, res) {
-        const targetUrl = req.query.url;
-        console.log('Proxy request to: ', targetUrl);
-
-        if (!targetUrl) {
-            res.status(400).json({ error: 'Missing url query parameter' });
-            return;
-        }
-
-        const { channelId, key } = req.query;
-        
-        const channel = ChannelService.getChannelById(5);
-        if (!channel) {
-            res.status(404).json({ error: 'Channel not found' });
-            return;
-        }
-
-        const { headers } = channel;
-        const options = {
-            targetUrl,
-            headers: headers.reduce((acc, header) => {
-                acc[header.key] = header.value;
-                return acc;
-            }, {}),
-        };
-
-        //TODO: set Content-Type header
-        req.pipe(request(targetUrl, options)).pipe(res);
+        //Just use the segment endpoint for now
+        module.exports.segment(req, res);
     }
 };

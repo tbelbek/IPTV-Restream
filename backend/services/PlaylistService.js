@@ -39,7 +39,7 @@ class PlaylistService {
                             .getChannels()
                             .filter(channel => channel.playlist === playlistUrl);
 
-        for(var channel of channels) {
+        for(let channel of channels) {
             channel = ChannelService.updateChannel(channel.id, updatedAttributes);
         }
 

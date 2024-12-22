@@ -74,7 +74,7 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
       const tolerance = import.meta.env.VITE_SYNCHRONIZATION_TOLERANCE || 0.8;
       const maxDeviation = import.meta.env.VITE_SYNCHRONIZATION_MAX_DEVIATION || 4;
 
-      var toastDurationSet = false;
+      let toastDurationSet = false;
       hls.on(Hls.Events.MANIFEST_PARSED, (_event, _data) => {
         if (channel.restream) {
           const now = new Date().getTime();
