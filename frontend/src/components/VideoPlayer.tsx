@@ -125,13 +125,25 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
       });
       
       
-
+      let timeMissingErrorShown = false;
       hls.on(Hls.Events.FRAG_LOADED, (_event, data) => {
 
         const now = new Date().getTime();
         const newFrag = data.frag;
 
-        if(!newFrag.programDateTime) return;
+        if(!newFrag.programDateTime) {
+          if(!timeMissingErrorShown) {
+            addToast({
+              type: 'error',
+              title: 'Synchronization Error',
+              message: `Playback can't be synchonized for this channel in ${channel.mode}. Change this channel to restream mode and try again.`,
+              duration: 5000,
+            });
+            console.warn("No program date time found in fragment. Cannot synchronize.");
+            timeMissingErrorShown = true;
+          }
+          return;
+        }
         const timeDiff = (now - newFrag.programDateTime) / 1000;
         const videoDiff = newFrag.end - video.currentTime;
         //console.log("Time Diff: ", timeDiff, "Video Diff: ", videoDiff);

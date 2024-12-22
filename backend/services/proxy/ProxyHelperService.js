@@ -37,7 +37,8 @@ class ProxyHelperService {
             line = line.trim();
     
             if (line.startsWith('#')) {
-                // Replace #EXT-X-KEY URI
+                const keyURI = line.startsWith('#EXT-X-KEY');
+
                 return line.replace(
                     /URI="([^"]+)"/,
                     (_, originalKeyUrl) => {
@@ -45,23 +46,20 @@ class ProxyHelperService {
                         const absoluteKeyUrl = originalKeyUrl.startsWith('http') ? 
                             originalKeyUrl : 
                             url.resolve(baseUrl, originalKeyUrl);
-                        return `URI="${proxyBaseUrl}key?url=${encodeURIComponent(absoluteKeyUrl)}${headers ? `&headers=${headers}` : ''}"`;
+                        return `URI="${proxyBaseUrl}${keyURI ? 'key' : 'channel'}?url=${encodeURIComponent(absoluteKeyUrl)}${headers ? `&headers=${headers}` : ''}"`;
                     }
                 );
             } else if (line.length > 0) {
+
+                if(line.indexOf('.m3u8') !== -1) {
+                    isMaster = false;
+                }
+
                 // Handle segment URLs
-                if (line.startsWith('http')) {
-                    // Absolute URL case
-                    if(line.indexOf(`${proxyBaseUrl}key`) !== -1) {
-                        return line;
-                    }
-                    
-                    if(line.indexOf('.m3u8') !== -1) {
-                        isMaster = false;
-                    }
-    
+                if (line.startsWith('http')) {   
                     return `${proxyBaseUrl}${isMaster ? 'segment' : 'channel'}?url=${encodeURIComponent(line)}${headers ? `&headers=${headers}` : ''}`;
-                } else {
+                } 
+                else {
                     // Relative URL case - combine with base URL
                     const absoluteUrl = url.resolve(baseUrl, line);
                     return `${proxyBaseUrl}${isMaster ? 'segment' : 'channel'}?url=${encodeURIComponent(absoluteUrl)}${headers ? `&headers=${headers}` : ''}`;
