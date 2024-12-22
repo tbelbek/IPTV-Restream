@@ -1,4 +1,4 @@
-const streamController = require('./streaming/StreamController');
+const streamController = require('./restream/StreamController');
 const Channel = require('../models/Channel');
 
 class ChannelService {
@@ -20,7 +20,7 @@ class ChannelService {
             //Some Test-channels to get started, remove this when using your own playlist
             new Channel('Das Erste', process.env.DEFAULT_CHANNEL_URL, "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Das_Erste-Logo_klein.svg/768px-Das_Erste-Logo_klein.svg.png", false),
             new Channel('DAZN 1 DE', "https://xyzdddd.mizhls.ru/lb/premium426/index.m3u8", "https://upload.wikimedia.org/wikipedia/commons/4/49/DAZN_1.svg", true, daddyHeaders),
-            new Channel('beIN Sports 1', "https://xyzdddd.mizhls.ru/lb/premium61/index.m3u8","https://www.thesportsdb.com/images/media/channel/logo/BeIn_Sports_1_Australia.png", true, daddyHeaders),
+            new Channel('beIN Sports 1', "https://xyzdddd.mizhls.ru/lb/premium61/index.m3u8", "https://www.thesportsdb.com/images/media/channel/logo/BeIn_Sports_1_Australia.png", true, daddyHeaders),
             new Channel('beIN Sports 2', "https://xyzdddd.mizhls.ru/lb/premium92/index.m3u8", "https://www.thesportsdb.com/images/media/channel/logo/BeIn_Sports_HD_2_France.png", true, daddyHeaders),
             new Channel('Sky Sport Football', "https://xyzdddd.mizhls.ru/lb/premium35/index.m3u8", "https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-kingdom/sky-sports-football-uk.png", true, daddyHeaders),
             new Channel('Sky Sports Premier League', "https://xyzdddd.mizhls.ru/lb/premium130/index.m3u8", "https://github.com/tv-logo/tv-logos/blob/main/countries/united-kingdom/sky-sports-premier-league-uk.png?raw=true", true, daddyHeaders),
@@ -34,7 +34,7 @@ class ChannelService {
         return this.channels;
     }
 
-    addChannel({name, url, avatar, restream, headersJson, group = false, playlist = false}) {
+    addChannel({ name, url, avatar, restream, headersJson, group = false, playlist = false }) {
         const existing = this.channels.find(channel => channel.url === url);
 
         if (existing) {
@@ -44,7 +44,7 @@ class ChannelService {
         const headers = JSON.parse(headersJson);
         const newChannel = new Channel(name, url, avatar, restream, headers, group, playlist);
         this.channels.push(newChannel);
-        
+
         return newChannel;
     }
 
@@ -55,7 +55,7 @@ class ChannelService {
         }
 
         if (this.currentChannel !== nextChannel) {
-            if(nextChannel.restream) {
+            if (nextChannel.restream) {
                 streamController.stop(this.currentChannel.id);
                 streamController.stop(nextChannel.id);
                 streamController.start(nextChannel);
@@ -69,6 +69,10 @@ class ChannelService {
 
     getCurrentChannel() {
         return this.currentChannel;
+    }
+
+    getChannelById(id) {
+        return this.channels.find(channel => channel.id === id);
     }
 
     deleteChannel(id) {
@@ -85,7 +89,7 @@ class ChannelService {
             }
 
             this.currentChannel = this.channels.length > 0 ? this.channels[0] : null;
-            if(this.currentChannel?.restream) {
+            if (this.currentChannel?.restream) {
                 streamController.start(this.currentChannel);
             }
         }
@@ -100,17 +104,17 @@ class ChannelService {
             throw new Error('Channel does not exist');
         }
 
-        const streamChanged = updatedAttributes.url != this.currentChannel.url || 
-                              JSON.stringify(updatedAttributes.headers) != JSON.stringify(this.currentChannel.headers) || 
-                              updatedAttributes.restream != this.currentChannel.restream;
+        const streamChanged = updatedAttributes.url != this.currentChannel.url ||
+            JSON.stringify(updatedAttributes.headers) != JSON.stringify(this.currentChannel.headers) ||
+            updatedAttributes.restream != this.currentChannel.restream;
 
         const channel = this.channels[channelIndex];
         Object.assign(channel, updatedAttributes);
 
-        if(this.currentChannel.id == id) {
-            if(streamChanged) {
+        if (this.currentChannel.id == id) {
+            if (streamChanged) {
                 streamController.stop(channel.id);
-                if(channel.restream) {
+                if (channel.restream) {
                     streamController.start(channel);
                 }
             }
