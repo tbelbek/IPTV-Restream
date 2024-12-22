@@ -4,9 +4,9 @@ const Channel = require('../models/Channel');
 
 module.exports = (io, socket) => {
 
-    socket.on('add-playlist', async ({ playlist, restream, headersJson }) => {
+    socket.on('add-playlist', async ({ playlist, mode, headersJson }) => {
         try {
-            const channels = await PlaylistService.addPlaylist(playlist, restream, headersJson);
+            const channels = await PlaylistService.addPlaylist(playlist, mode, headersJson);
             if (channels) {
                 channels.forEach(channel => {
                     io.emit('channel-added', channel);

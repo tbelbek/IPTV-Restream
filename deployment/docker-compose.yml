@@ -7,7 +7,6 @@ services:
       args:
         # Set this to the server ip/domain, if your backend is deployed on a different server
         #VITE_BACKEND_URL: http://123.123.123.123:5000
-        VITE_BACKEND_STREAMS_PATH: /streams/
         VITE_STREAM_DELAY: 18
         # Optional settings for synchronization
         #VITE_SYNCHRONIZATION_TOLERANCE: 0.8

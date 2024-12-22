@@ -3,7 +3,7 @@ const ChannelService = require('./ChannelService');
 
 class PlaylistService {
 
-    async addPlaylist(playlistUrl, restream, headersJson) {
+    async addPlaylist(playlistUrl, mode, headersJson) {
 
         const response = await fetch(playlistUrl);
         const content = await response.text();
@@ -18,7 +18,7 @@ class PlaylistService {
                     name: channel.name,
                     url: channel.url,
                     avatar: channel.tvg.logo,
-                    restream: restream,
+                    mode: mode,
                     headersJson: headersJson,
                     group: channel.group.title,
                     playlist: playlistUrl

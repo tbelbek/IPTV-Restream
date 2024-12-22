@@ -18,12 +18,14 @@ export interface RandomUser {
   }[];
 };
 
+export type ChannelMode = 'direct' | 'proxy' | 'restream';
+
 export interface Channel {
   id: number;
   name: string;
   url: string;
   avatar: string;
-  restream: boolean;
+  mode: ChannelMode;
   headers: CustomHeader[];
   group: string;
   playlist: string;

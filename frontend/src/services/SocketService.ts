@@ -1,4 +1,5 @@
 import { io, Socket } from 'socket.io-client';
+import { ChannelMode } from '../types';
 
 class SocketService {
   private socket: Socket | null = null;
@@ -69,10 +70,10 @@ class SocketService {
   }
 
   // Add channel
-  addChannel(name: string, url: string, avatar: string, restream: boolean, headersJson: string) {
+  addChannel(name: string, url: string, avatar: string, mode: ChannelMode, headersJson: string) {
     if (!this.socket) throw new Error('Socket is not connected.');
 
-    this.socket.emit('add-channel', { name, url, avatar, restream, headersJson });
+    this.socket.emit('add-channel', { name, url, avatar, mode, headersJson });
   }
 
   // Set current channel
@@ -97,10 +98,10 @@ class SocketService {
   }
 
   // Add playlist
-  addPlaylist(playlist: string, restream: boolean, headersJson: string) {
+  addPlaylist(playlist: string, mode: ChannelMode, headersJson: string) {
     if (!this.socket) throw new Error('Socket is not connected.');
 
-    this.socket.emit('add-playlist', { playlist, restream, headersJson });
+    this.socket.emit('add-playlist', { playlist, mode, headersJson });
   }
 
   // Update playlist

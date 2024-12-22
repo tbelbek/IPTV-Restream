@@ -54,7 +54,7 @@ function App() {
           if(selectedChannel?.id === updatedChannel.id) {
 
             // Reload stream if the stream attributes (url, headers) have changed
-            if((selectedChannel?.url != updatedChannel.url || JSON.stringify(selectedChannel?.headers) != JSON.stringify(updatedChannel.headers)) && selectedChannel?.restream == updatedChannel.restream){ 
+            if((selectedChannel?.url != updatedChannel.url || JSON.stringify(selectedChannel?.headers) != JSON.stringify(updatedChannel.headers)) && selectedChannel?.mode === 'restream'){ 
               //TODO: find a better solution instead of reloading (problem is m3u8 needs time to refresh server-side)
               setTimeout(() => {
                 window.location.reload(); 
