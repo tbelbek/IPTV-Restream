@@ -5,8 +5,9 @@ const { Server } = require('socket.io');
 const ChatSocketHandler = require('./socket/ChatSocketHandler');
 const ChannelSocketHandler = require('./socket/ChannelSocketHandler');
 
+const proxyController = require('./controllers/ProxyController');
 const channelController = require('./controllers/ChannelController');
-const streamController = require('./services/streaming/StreamController');
+const streamController = require('./services/restream/StreamController');
 const ChannelService = require('./services/ChannelService');
 const PlaylistSocketHandler = require('./socket/PlaylistSocketHandler');
 
@@ -25,10 +26,18 @@ apiRouter.post('/', channelController.addChannel);
 
 app.use('/api/channels', apiRouter);
 
+const proxyRouter = express.Router();
+
+proxyRouter.get('/channel', proxyController.channel);
+proxyRouter.get('/segment', proxyController.segment);
+proxyRouter.get('/key', proxyController.key);
+
+app.use('/proxy', proxyRouter);
+
 const PORT = 5000;
 const server = app.listen(PORT, () => {
   console.log(`Server listening on Port ${PORT}`);
-  if (ChannelService.getCurrentChannel().restream) {
+  if (ChannelService.getCurrentChannel().restream()) {
     streamController.start(process.env.DEFAULT_CHANNEL_URL);
   }
 });

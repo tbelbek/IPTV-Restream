@@ -1,4 +1,6 @@
-# Frontend
+# Backend
+
+A simple NodeJS web server that retrieves your IPTV stream, caches it, and converts it into an HLS stream, making it accessible via the web. Also supports multiple IPTV streams (channel selection).
 
 ## 🚀 Run
 

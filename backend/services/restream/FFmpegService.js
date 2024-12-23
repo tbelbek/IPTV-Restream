@@ -33,13 +33,13 @@ function startFFmpeg(nextChannel) {
         `${STORAGE_PATH}${currentChannelId}/${currentChannelId}.m3u8`
     ]);
 
-    // currentFFmpegProcess.stdout.on('data', (data) => {
-    //     console.log(`stdout: ${data}`);
-    // });
+    currentFFmpegProcess.stdout.on('data', (data) => {
+        console.log(`stdout: ${data}`);
+    });
 
-    // currentFFmpegProcess.stderr.on('data', (data) => {
-    //     console.error(`stderr: ${data}`);
-    // });
+    currentFFmpegProcess.stderr.on('data', (data) => {
+        console.error(`stderr: ${data}`);
+    });
 
     currentFFmpegProcess.on('close', (code) => {
         console.log(`ffmpeg-Process terminated with code: ${code}`);

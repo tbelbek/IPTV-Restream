@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Plus, Trash2, X } from 'lucide-react';
+import { Info, Plus, Trash2, X } from 'lucide-react';
 import socketService from '../../services/SocketService';
-import { CustomHeader, Channel } from '../../types';
+import { CustomHeader, Channel, ChannelMode } from '../../types';
 import CustomHeaderInput from './CustomHeaderInput';
 import { ToastContext } from '../notifications/ToastContext';
+import { ModeTooltipContent, Tooltip } from '../Tooltip';
 
 interface ChannelModalProps {
   isOpen: boolean;
@@ -12,13 +13,13 @@ interface ChannelModalProps {
 }
 
 function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
-  const [mode, setMode] = useState<'channel' | 'playlist'>('channel');
+  const [type, setType] = useState<'channel' | 'playlist'>('channel');
   const [isEditMode, setIsEditMode] = useState(false);
 
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [avatar, setAvatar] = useState('');
-  const [restream, setRestream] = useState(true);
+  const [mode, setMode] = useState<ChannelMode>('proxy');
   const [headers, setHeaders] = useState<CustomHeader[]>([]);
 
   const [playlistUrl, setPlaylistUrl] = useState('');
@@ -30,20 +31,20 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
       setName(channel.name);
       setUrl(channel.url);
       setAvatar(channel.avatar);
-      setRestream(channel.restream);
+      setMode(channel.mode);
       setHeaders(channel.headers);
       setPlaylistUrl(channel.playlist);
       setIsEditMode(true);
-      setMode('channel'); // Default to "channel" if a channel object exists
+      setType('channel'); // Default to "channel" if a channel object exists
     } else {
       setName('');
       setUrl('');
       setAvatar('');
-      setRestream(false);
+      setMode('proxy');
       setHeaders([]);
       setPlaylistUrl('');
       setIsEditMode(false);
-      setMode('channel'); // Default to "channel" if a channel object exists
+      setType('channel'); // Default to "channel" if a channel object exists
     }
   }, [channel]);
 
@@ -69,23 +70,23 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
       return;
     }
 
-    if (mode === 'channel') {
+    if (type === 'channel') {
       if (!name.trim() || !url.trim()) return;
       socketService.addChannel(
         name.trim(),
         url.trim(),
         avatar.trim() || 'https://via.placeholder.com/64',
-        restream,
+        mode,
         JSON.stringify(headers)
       );
-    } else if (mode === 'playlist') {
+    } else if (type === 'playlist') {
       if (!playlistUrl.trim()) return;
-      socketService.addPlaylist(playlistUrl.trim(), restream, JSON.stringify(headers));
+      socketService.addPlaylist(playlistUrl.trim(), mode, JSON.stringify(headers));
     }
 
     addToast({
       type: 'success',
-      title: `${mode} added`,
+      title: `${type} added`,
       duration: 3000,
     });
 
@@ -93,24 +94,24 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
   };
 
   const handleUpdate = (id: number) => {
-    if (mode === 'channel') {
+    if (type === 'channel') {
       socketService.updateChannel(id, {
         name: name.trim(),
         url: url.trim(),
         avatar: avatar.trim() || 'https://via.placeholder.com/64',
-        restream,
+        mode: mode,
         headers: headers,
       });
 
-    } else if (mode === 'playlist') {
+    } else if (type === 'playlist') {
       if(channel!.playlist !== playlistUrl.trim()) {
         // If the playlist URL has changed, we need to reload the playlist (delete old channels and fetch again)
         socketService.deletePlaylist(channel!.playlist);
-        socketService.addPlaylist(playlistUrl.trim(), restream, JSON.stringify(headers));
+        socketService.addPlaylist(playlistUrl.trim(), mode, JSON.stringify(headers));
       } else {
         socketService.updatePlaylist(playlistUrl.trim(), {
           playlist: playlistUrl.trim(),
-          restream,
+          mode: mode,
           headers: headers,
         });
       }
@@ -118,7 +119,7 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
 
     addToast({
       type: 'success',
-      title: `${mode} updated`,
+      title: `${type} updated`,
       duration: 3000,
     });
 
@@ -127,15 +128,15 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
 
   const handleDelete = () => {
     if (channel) {
-      if (mode === 'channel') {
+      if (type === 'channel') {
         socketService.deleteChannel(channel.id);
-      } else if (mode === 'playlist') {
+      } else if (type === 'playlist') {
         socketService.deletePlaylist(channel.playlist);
       }
     }
     addToast({
       type: 'error',
-      title: `${mode} deleted`,
+      title: `${type} deleted`,
       duration: 3000,
     });
     onClose();
@@ -149,7 +150,7 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
         {/* Header mit Slider */}
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
           <h2 className="text-xl font-semibold">
-            {isEditMode ? (mode === 'channel' ? 'Edit Channel' : 'Edit Playlist') : mode === 'channel' ? 'Add New Channel' : 'Add New Playlist'}
+            {isEditMode ? (type === 'channel' ? 'Edit Channel' : 'Edit Playlist') : type === 'channel' ? 'Add New Channel' : 'Add New Playlist'}
           </h2>
           <button
             onClick={onClose}
@@ -164,15 +165,15 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
           <div className="p-4 pb-0">
             <div className="flex space-x-4 justify-center">
               <button
-                onClick={() => setMode('channel')}
-                className={`px-4 py-2 rounded-lg border-2 ${mode === 'channel' ? 'border-blue-600' : 'border-transparent'
+                onClick={() => setType('channel')}
+                className={`px-4 py-2 rounded-lg border-2 ${type === 'channel' ? 'border-blue-600' : 'border-transparent'
                   } hover:border-blue-600 transition-colors`}
               >
                 Channel
               </button>
               <button
-                onClick={() => setMode('playlist')}
-                className={`px-4 py-2 rounded-lg border-2 ${mode === 'playlist' ? 'border-blue-600' : 'border-transparent'
+                onClick={() => setType('playlist')}
+                className={`px-4 py-2 rounded-lg border-2 ${type === 'playlist' ? 'border-blue-600' : 'border-transparent'
                   } hover:border-blue-600 transition-colors`}
               >
                 Playlist
@@ -183,7 +184,7 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
-          {mode === 'channel' && (
+          {type === 'channel' && (
             <>
               {/* Channel fields */}
               <div>
@@ -228,36 +229,52 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Restream through backend</label>
+                <label className="block text-sm font-medium mb-1">
+                  <span className="inline-flex items-center gap-2">
+                    Channel Mode
+                    <Tooltip content={<ModeTooltipContent />} />
+                  </span>
+                </label>
                 <div className="flex items-center space-x-4">
                   <label className="flex items-center">
                     <input
                       type="radio"
-                      name="restream"
-                      value="yes"
-                      checked={restream}
+                      name="mode"
+                      value="direct"
+                      checked={mode === 'direct'}
                       className="form-radio text-blue-600"
-                      onChange={() => setRestream(true)}
+                      onChange={() => setMode('direct')}
                     />
-                    <span className="ml-2">Yes</span>
+                    <span className="ml-2">Direct</span>
                   </label>
                   <label className="flex items-center">
                     <input
                       type="radio"
-                      name="restream"
-                      value="no"
+                      name="mode"
+                      value="proxy"
                       className="form-radio text-blue-600"
-                      checked={!restream}
-                      onChange={() => setRestream(false)}
+                      checked={mode === 'proxy'}
+                      onChange={() => setMode('proxy')}
                     />
-                    <span className="ml-2">No</span>
+                    <span className="ml-2">Proxy</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="mode"
+                      value="restream"
+                      className="form-radio text-blue-600"
+                      checked={mode === 'restream'}
+                      onChange={() => setMode('restream')}
+                    />
+                    <span className="ml-2">Restream</span>
                   </label>
                 </div>
               </div>
             </>
           )}
 
-          {mode === 'playlist' && (
+          {type === 'playlist' && (
             <>
               {/* Playlist fields */}
               <div>
@@ -275,29 +292,45 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Restream through backend</label>
+                <label className="block text-sm font-medium mb-1">
+                  <span className="inline-flex items-center gap-2">
+                    Channel Mode
+                    <Tooltip content={<ModeTooltipContent />} />
+                  </span>
+                </label>
                 <div className="flex items-center space-x-4">
-                  <label className="flex items-center">
+                <label className="flex items-center">
                     <input
                       type="radio"
-                      name="restream"
-                      value="yes"
-                      checked={restream}
+                      name="mode"
+                      value="direct"
+                      checked={mode === 'direct'}
                       className="form-radio text-blue-600"
-                      onChange={() => setRestream(true)}
+                      onChange={() => setMode('direct')}
                     />
-                    <span className="ml-2">Yes</span>
+                    <span className="ml-2">Direct</span>
                   </label>
                   <label className="flex items-center">
                     <input
                       type="radio"
-                      name="restream"
-                      value="no"
+                      name="mode"
+                      value="proxy"
                       className="form-radio text-blue-600"
-                      checked={!restream}
-                      onChange={() => setRestream(false)}
+                      checked={mode === 'proxy'}
+                      onChange={() => setMode('proxy')}
                     />
-                    <span className="ml-2">No</span>
+                    <span className="ml-2">Proxy</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="mode"
+                      value="restream"
+                      className="form-radio text-blue-600"
+                      checked={mode === 'restream'}
+                      onChange={() => setMode('restream')}
+                    />
+                    <span className="ml-2">Restream</span>
                   </label>
                 </div>
               </div>
@@ -305,7 +338,7 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
           )}
 
           {/* Custom Headers */}
-          {restream && (
+          {mode !== 'direct' && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <label className="block text-sm font-medium">

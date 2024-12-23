@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef } from 'react';
 import Hls from 'hls.js';
-import { Channel } from '../types';
+import { Channel, ChannelMode } from '../types';
 import { ToastContext } from './notifications/ToastContext';
 
 interface VideoPlayerProps {
@@ -49,15 +49,15 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
           },
         },
       });
-      
+
+      const sourceLinks: Record<ChannelMode, string> = {
+        direct: channel.url,
+        proxy: import.meta.env.VITE_BACKEND_URL + '/proxy/channel', //TODO: needs update for multi-channel streaming
+        restream: import.meta.env.VITE_BACKEND_URL + '/streams/' + channel.id + "/" + channel.id + ".m3u8", //e.g. http://backend:3000/streams/1/1.m3u8
+      };    
 
       hlsRef.current = hls;
-      hls.loadSource(
-        channel.restream ? 
-          //e.g. http://backend:3000/streams/1/1.m3u8
-          import.meta.env.VITE_BACKEND_URL + import.meta.env.VITE_BACKEND_STREAMS_PATH + channel.id + "/" + channel.id + ".m3u8" 
-          : channel.url
-      );
+      hls.loadSource(sourceLinks[channel.mode]);
       hls.attachMedia(video);
 
       if(!syncEnabled) return;
@@ -66,7 +66,7 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
       let toastStartId = null;
       toastStartId = addToast({
         type: 'loading',
-        title: channel.restream ? 'Starting Restream': 'Starting Stream',
+        title: 'Starting Stream',
         message: 'This might take a few moments...',
         duration: 0,
       });
@@ -74,9 +74,9 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
       const tolerance = import.meta.env.VITE_SYNCHRONIZATION_TOLERANCE || 0.8;
       const maxDeviation = import.meta.env.VITE_SYNCHRONIZATION_MAX_DEVIATION || 4;
 
-      var toastDurationSet = false;
+      let toastDurationSet = false;
       hls.on(Hls.Events.MANIFEST_PARSED, (_event, _data) => {
-        if (channel.restream) {
+        if (channel.mode === 'restream') {
           const now = new Date().getTime();
       
           const fragments = hls.levels[0]?.details?.fragments;
@@ -111,7 +111,7 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
       
             // Reload manifest
             setTimeout(() => {
-              hls.loadSource(import.meta.env.VITE_BACKEND_URL + import.meta.env.VITE_BACKEND_STREAMS_PATH + channel.id + "/" + channel.id + ".m3u8");
+              hls.loadSource(import.meta.env.VITE_BACKEND_URL + '/streams/' + channel.id + "/" + channel.id + ".m3u8");
             }, 1000); 
           }
         } else {
@@ -125,13 +125,25 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
       });
       
       
-
+      let timeMissingErrorShown = false;
       hls.on(Hls.Events.FRAG_LOADED, (_event, data) => {
 
         const now = new Date().getTime();
         const newFrag = data.frag;
 
-        if(!newFrag.programDateTime) return;
+        if(!newFrag.programDateTime) {
+          if(!timeMissingErrorShown) {
+            addToast({
+              type: 'error',
+              title: 'Synchronization Error',
+              message: `Playback can't be synchonized for this channel in ${channel.mode}. Change this channel to restream mode and try again.`,
+              duration: 5000,
+            });
+            console.warn("No program date time found in fragment. Cannot synchronize.");
+            timeMissingErrorShown = true;
+          }
+          return;
+        }
         const timeDiff = (now - newFrag.programDateTime) / 1000;
         const videoDiff = newFrag.end - video.currentTime;
         //console.log("Time Diff: ", timeDiff, "Video Diff: ", videoDiff);
@@ -163,13 +175,17 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
           if (toastStartId) {
             removeToast(toastStartId);
           }
+
+          const messages: Record<ChannelMode, string> = {
+            direct: 'The stream is not working. Try with proxy/restream option enabled for this channel.',
+            proxy: 'The stream is not working. Try with restream option enabled for this channel.',
+            restream: `The stream is not working. Check the source. ${data.response?.text}`,
+          };
           
           addToast({
             type: 'error',
             title: 'Stream Error',
-            message: !channel.restream
-              ? 'The stream is not working. Try with restream option enabled for this channel.'
-              : `The stream is not working. Check the source. ${data.response?.text}`,
+            message: messages[channel.mode],
             duration: 5000,
           });
           return;
@@ -183,7 +199,7 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
         hlsRef.current.destroy();
       }
     };
-  }, [channel?.url, channel?.restream, syncEnabled]);
+  }, [channel?.url, channel?.mode, syncEnabled]);
 
   const handleVideoClick = (event: React.MouseEvent<HTMLVideoElement>) => {
     if (videoRef.current?.muted) {
