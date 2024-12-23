@@ -62,7 +62,7 @@ Directly uses the source stream. Won't work with most of the streams, because of
 The stream requests are proxied through the backend. Allows to set custom headers and bypass CORS. This mode is preffered. Only switch to restream mode, if proxy mode won't work for your stream or if you have synchronization issues.
 
 #### `Restream`
-The backend service caches the source stream (with ffmpeg) and restreams it. Can help with hard device restrictions of your provider. But it can lead to long initial loading times and performance issues after time.
+The backend service caches the source stream (with ffmpeg) and restreams it. Can help with hard device restrictions of your provider or synchroization problems. But it can lead to longer initial loading times and performance issues after time.
 
 ## FAQ & Common Mistakes
 

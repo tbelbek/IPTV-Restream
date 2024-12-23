@@ -149,8 +149,8 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
         //console.log("Time Diff: ", timeDiff, "Video Diff: ", videoDiff);
         const delay = timeDiff + videoDiff;
         
-        const targetDelay = import.meta.env.VITE_STREAM_DELAY;
-        //console.log("Delay: ", delay, "Target Delay: ", targetDelay);
+        const targetDelay = channel.mode == 'restream' ? import.meta.env.VITE_STREAM_DELAY : import.meta.env.VITE_STREAM_PROXY_DELAY;
+       // console.log("Delay: ", delay, "Target Delay: ", targetDelay);
 
         const deviation = delay - targetDelay;
 
@@ -158,6 +158,21 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
           video.currentTime += deviation;
           video.playbackRate = 1.0;
           console.log("Significant deviation detected. Adjusting current time.");
+
+          // TODO
+          // console.log("New Time: ", video.currentTime, "New Frag: ", newFrag.end);
+          // if(video.paused) {
+          //   console.warn("[Synchronization Issue] Video stopped. Switch to Restream Mode for this channel");
+          //   deviationErrorCount++;
+          //   if(deviationErrorCount > 2) {
+          //     addToast({
+          //       type: 'error',
+          //       title: 'Synchronization Error',
+          //       message: `Having problems synchronizing playback for the channel in mode: ${channel.mode}. Try to change to restream mode or turn off synchronization.`,
+          //       duration: 5000,
+          //     });
+          //   }
+          // }
         } else if (Math.abs(deviation) > tolerance) {
           const adjustmentFactor = import.meta.env.VITE_SYNCHRONIZATION_ADJUSTMENT || 0.06;
           const speedAdjustment = 1 +  Math.sign(deviation) * Math.min(Math.abs(adjustmentFactor * deviation), import.meta.env.VITE_SYNCHRONIZATION_MAX_ADJUSTMENT || 0.16);

@@ -20,7 +20,6 @@ module.exports = {
                 headers = Buffer.from(JSON.stringify(channel.headers)).toString('base64');
             }
         }
-
         
         request(ProxyHelperService.getRequestOptions(targetUrl, headers), (error, response, body) => {
             if (error) {
@@ -28,7 +27,7 @@ module.exports = {
                 return;
             }
 
-            const proxyBaseUrl = `${req.protocol}://${req.get('host')}/proxy/`;
+            const proxyBaseUrl = `${req.headers['x-forwarded-proto'] ?? req.protocol}://${req.get('host')}/proxy/`;
             const rewrittenBody = ProxyHelperService.rewriteUrls(body, proxyBaseUrl, headers, targetUrl).join('\n');
 
             //res.set('Content-Type', 'application/vnd.apple.mpegurl');
