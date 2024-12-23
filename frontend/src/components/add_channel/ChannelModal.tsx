@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Plus, Trash2, X } from 'lucide-react';
+import { Info, Plus, Trash2, X } from 'lucide-react';
 import socketService from '../../services/SocketService';
 import { CustomHeader, Channel, ChannelMode } from '../../types';
 import CustomHeaderInput from './CustomHeaderInput';
 import { ToastContext } from '../notifications/ToastContext';
+import { ModeTooltipContent, Tooltip } from '../Tooltip';
 
 interface ChannelModalProps {
   isOpen: boolean;
@@ -228,7 +229,12 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Channel Mode</label>
+                <label className="block text-sm font-medium mb-1">
+                  <span className="inline-flex items-center gap-2">
+                    Channel Mode
+                    <Tooltip content={<ModeTooltipContent />} />
+                  </span>
+                </label>
                 <div className="flex items-center space-x-4">
                   <label className="flex items-center">
                     <input
@@ -286,7 +292,12 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Channel Mode</label>
+                <label className="block text-sm font-medium mb-1">
+                  <span className="inline-flex items-center gap-2">
+                    Channel Mode
+                    <Tooltip content={<ModeTooltipContent />} />
+                  </span>
+                </label>
                 <div className="flex items-center space-x-4">
                 <label className="flex items-center">
                     <input

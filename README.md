@@ -1,33 +1,21 @@
 # IPTV StreamHub
 
-A simple IPTV `restream` and `synchronization` (watch2gether) application with web frontend. Share your iptv playlist and watch it together with your friends.
-
-## ✨ Features 
-**Restreaming** - Proxy your iptv streams through the backend.
-
-**Synchronization** - The playback of the stream is perfectly synchronized for all viewers.
-
-**Channels** - Add multiple iptv streams, you can switch between.
-
-**Live chat** - chat with other viewers with randomized profile.
-
+> [!INFO]  
+>A simple IPTV `restream` and `synchronization` (watch2gether) application with `web` frontend. Share your iptv playlist and watch it together with your friends.
+> Actively in devlopment and open your ideas! [Test it out](ante.is-a.dev) (Free channels for testing, use your own channels for production)
 
 ## 💡Use Cases
-- Connect with multiple Devices to 1 IPTV Stream, if your provider limits current devices.
-- Proxy all Requests through one IP.
-  - Helps with CORS issues.
-- Synchronize IPTV streaming with multiple devices: Synchronized playback and channel selection.
-- Share your iptv and watch together with your friends.
-  - The actual iptv stream-url is unvisible to them if you restream [upcomming feature]
+- [x] Connect with **multiple Devices** to 1 IPTV Stream, if your provider limits current streaming devices.
+- [x] Proxy all Requests through **one IP**.
+  - [x] Helps with CORS issues.
+- [x] **Synchronize** IPTV streaming with multiple devices: Synchronized playback and channel selection for perfect Watch2Gether.
+- [x] **Share your iptv access** without revealing your actual stream-url (privacy-mode) and watch together with your friends.
 
-## 🛠️ Architecture
-
-### `Frontend`
-A simple React webpage that can stream iptv streams in hls-format. Provides synchronized playback by using a constant delay. Also supports multiple IPTV streams (channel selection) and a chat if using together with the backend.
-
-### `Backend`
-A simple NodeJS web server that retrieves your IPTV stream, caches it, and converts it into an HLS stream, making it accessible via the web. Also supports multiple IPTV streams (channel selection).
-
+## ✨ Features 
+**Restream / Proxy** - Proxy your iptv streams through the backend. <br>
+**Synchronization** - The selection and playback of the stream is perfectly synchronized for all viewers. <br>
+**Channels** - Add multiple iptv streams and playlists, you can switch between. <br>
+**Live chat** - chat with other viewers with a randomized profile.
 
 ## 🚀 Run
 
@@ -58,11 +46,27 @@ If you only need the **synchronization** functionality, you may only run the [fr
 
 Be aware, that this'll require additional configuration/adaption and won't be officially supported. It is recommended to [run the whole project as once](#run-with-docker).
 
-## Preview
+## 🖼️ Preview
 ![Frontend Preview](/frontend/ressources/frontend-preview.png)
 ![Add channel](/frontend/ressources/add-channel.png)
 
+## ⚙️ Settings
+
+### Channel Mode
+#### `Direct`
+Directly uses the source stream. Won't work with most of the streams, because of CORS, IP/Device restrictions. Is also incompatible with custom headers and privacy mode.
+
+#### `Proxy` (Preffered)
+The stream requests are proxied through the backend. Allows to set custom headers and bypass CORS. This mode is preffered. Only switch to restream mode, if proxy mode won't work for your stream or if you have synchronization issues.
+
+#### `Restream`
+The backend service caches the source stream (with ffmpeg) and restreams it. Can help with hard device restrictions of your provider. But it can lead to long initial loading times and performance issues after time.
+
 ## FAQ & Common Mistakes
+
+> Which streaming mode should I choose for the channel?
+
+You should try with direct mode first, switch to proxy mode if it doesn't work and switch to restream mode if this also doesn't work.
 
 > Error: `Bind for 0.0.0.0:80 failed: port is already allocated`
 
