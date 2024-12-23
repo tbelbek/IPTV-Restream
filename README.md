@@ -2,7 +2,9 @@
 
 > [!NOTE]  
 >A simple IPTV `restream` and `synchronization` (watch2gether) application with `web` frontend. Share your iptv playlist and watch it together with your friends.
-> Actively in devlopment and open your ideas! [Test it out](ante.is-a.dev) (Only for testing, used channels are free and not reliable)
+> 
+>Actively in devlopment and open your ideas! <br>
+> [Test it out](ante.is-a.dev) (Only for testing, used channels are free and not reliable)
 
 ## 💡Use Cases
 - [x] Connect with **multiple Devices** to 1 IPTV Stream, if your provider limits current streaming devices.
