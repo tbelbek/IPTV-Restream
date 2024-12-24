@@ -62,13 +62,15 @@ Directly uses the source stream. Won't work with most of the streams, because of
 The stream requests are proxied through the backend. Allows to set custom headers and bypass CORS. This mode is preffered. Only switch to restream mode, if proxy mode won't work for your stream or if you have synchronization issues.
 
 #### `Restream`
-The backend service caches the source stream (with ffmpeg) and restreams it. Can help with hard device restrictions of your provider or synchroization problems. But it can lead to longer initial loading times and performance issues after time.
+The backend service caches the source stream (with ffmpeg) and restreams it. Can help with hard device restrictions of your provider or synchroization problems (when your iptv channels have no programDateTime). But it can lead to longer initial loading times and performance issues after time.
 
 ## FAQ & Common Mistakes
 
 > Which streaming mode should I choose for the channel?
 
-You should try with direct mode first, switch to proxy mode if it doesn't work and switch to restream mode if this also doesn't work.
+Generally: You should try with direct mode first, switch to proxy mode if it doesn't work and switch to restream mode if this also doesn't work.
+
+Proxy mode is most likely the mode, you will use! You will need restream mode especially when your iptv playlist has no programDateTime set and you want to have playback synchronization.
 
 > Error: `Bind for 0.0.0.0:80 failed: port is already allocated`
 
