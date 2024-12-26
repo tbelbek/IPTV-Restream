@@ -38,7 +38,7 @@ const PORT = 5000;
 const server = app.listen(PORT, () => {
   console.log(`Server listening on Port ${PORT}`);
   if (ChannelService.getCurrentChannel().restream()) {
-    streamController.start(process.env.DEFAULT_CHANNEL_URL);
+    streamController.start(ChannelService.getCurrentChannel());
   }
 });
 

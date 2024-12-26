@@ -13,6 +13,13 @@ function startFFmpeg(nextChannel) {
     }
 
     const channelUrl = nextChannel.url;
+
+    if(nextChannel.sessionProvider) {
+        const sessionQuery = nextChannel.sessionProvider.getSessionQuery();
+        const querySeparator = channelUrl.includes('?') ? '&' : '?';
+        channelUrl += `${querySeparator}${sessionQuery}`;
+    }
+
     currentChannelId = nextChannel.id;
     const headers = nextChannel.headers;
 

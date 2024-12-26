@@ -55,11 +55,11 @@ class ChannelService {
 
         if (this.currentChannel !== nextChannel) {
             if (nextChannel.restream()) {
-                streamController.stop(this.currentChannel.id);
-                streamController.stop(nextChannel.id);
+                streamController.stop(this.currentChannel);
+                streamController.stop(nextChannel);
                 streamController.start(nextChannel);
             } else {
-                streamController.stop(this.currentChannel.id);
+                streamController.stop(this.currentChannel);
             }
             this.currentChannel = nextChannel;
         }
@@ -84,7 +84,7 @@ class ChannelService {
 
         if (this.currentChannel.id === id) {
             if (deletedChannel.restream()) {
-                streamController.stop(deletedChannel.id);
+                streamController.stop(deletedChannel);
             }
 
             this.currentChannel = this.channels.length > 0 ? this.channels[0] : null;
@@ -112,7 +112,7 @@ class ChannelService {
 
         if (this.currentChannel.id == id) {
             if (streamChanged) {
-                streamController.stop(channel.id);
+                streamController.stop(channel);
                 if (channel.restream()) {
                     streamController.start(channel);
                 }

@@ -4,6 +4,7 @@ class Channel {
         this.id = Channel.nextId++;
         this.name = name;
         this.url = url;
+        this.sessionProvider = null;
         this.avatar = avatar;
         this.mode = mode;
         this.headers = headers;
