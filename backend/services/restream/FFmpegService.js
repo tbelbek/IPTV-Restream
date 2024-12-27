@@ -7,12 +7,12 @@ const STORAGE_PATH = process.env.STORAGE_PATH;
 
 function startFFmpeg(nextChannel) {
     console.log('Starting FFmpeg process with channel:', nextChannel.id);
-    if (currentFFmpegProcess) {
-        console.log('Gracefully terminate previous ffmpeg-Prozess...');
-        currentFFmpegProcess.kill('SIGTERM');
-    }
+    // if (currentFFmpegProcess) {
+    //     console.log('Gracefully terminate previous ffmpeg-Prozess...');
+    //     await stopFFmpeg();
+    // }
 
-    const channelUrl = nextChannel.url;
+    let channelUrl = nextChannel.url;
 
     if(nextChannel.sessionProvider) {
         const sessionQuery = nextChannel.sessionProvider.getSessionQuery();
@@ -48,25 +48,36 @@ function startFFmpeg(nextChannel) {
         console.error(`stderr: ${data}`);
     });
 
-    currentFFmpegProcess.on('close', (code) => {
-        console.log(`ffmpeg-Process terminated with code: ${code}`);
+    // currentFFmpegProcess.on('close', (code) => {
+    //     console.log(`ffmpeg-Process terminated with code: ${code}`);
 
-        // currentFFmpegProcess = null;
-        // //Restart if crashed
-        // if (code !== null && code !== 255) {
-        //     console.log(`Restarting FFmpeg process with channel: ${nextChannel.id}`);
-        //     //wait 1 second before restarting
-        //     setTimeout(() => startFFmpeg(nextChannel), 2000);
-        // }
-    });
+    //     // currentFFmpegProcess = null;
+    //     // //Restart if crashed
+    //     // if (code !== null && code !== 255) {
+    //     //     console.log(`Restarting FFmpeg process with channel: ${nextChannel.id}`);
+    //     //     //wait 1 second before restarting
+    //     //     setTimeout(() => startFFmpeg(nextChannel), 2000);
+    //     // }
+    // });
 }
 
 function stopFFmpeg() {
-    if (currentFFmpegProcess) {
-        console.log('Gracefully terminate ffmpeg-Process...');
-        currentFFmpegProcess.kill('SIGTERM');
-        currentFFmpegProcess = null;
-    }
+    return new Promise((resolve, reject) => {
+        if (currentFFmpegProcess) {
+            console.log('Gracefully terminate ffmpeg-Process...');
+            
+            currentFFmpegProcess.on('close', (code) => {
+                console.log(`ffmpeg-Process terminated with code: ${code}`);
+                currentFFmpegProcess = null;
+                resolve(); 
+            });
+
+            currentFFmpegProcess.kill('SIGTERM');
+        } else {
+            console.log('No ffmpeg process is running.');
+            resolve(); 
+        }
+    });
 }
 
 function isFFmpegRunning() {

@@ -15,6 +15,15 @@ class Channel {
     restream() {
         return this.mode === 'restream';
     }
+
+    toFrontendJson() {
+        if(!this.sessionProvider) {
+            return this;
+        }
+        //Remove sessionProvider
+        const { sessionProvider, ...sanitizedObject } = this;
+        return sanitizedObject;
+    }
 }
 
 module.exports = Channel;

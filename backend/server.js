@@ -35,10 +35,10 @@ proxyRouter.get('/key', proxyController.key);
 app.use('/proxy', proxyRouter);
 
 const PORT = 5000;
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   console.log(`Server listening on Port ${PORT}`);
   if (ChannelService.getCurrentChannel().restream()) {
-    streamController.start(ChannelService.getCurrentChannel());
+    await streamController.start(ChannelService.getCurrentChannel());
   }
 });
 

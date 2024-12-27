@@ -1,3 +1,5 @@
+const StreamedSuSession = require('./StreamedSuSession');
+
 class SessionFactory {
     static getSessionProvider(channelDomain) {
         switch (true) {
@@ -9,4 +11,4 @@ class SessionFactory {
     }
 }
   
-module.exports = new SessionFactory;
+module.exports = SessionFactory;

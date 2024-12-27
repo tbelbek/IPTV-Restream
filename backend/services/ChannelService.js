@@ -1,5 +1,6 @@
 const streamController = require('./restream/StreamController');
 const Channel = require('../models/Channel');
+const storageService = require('./restream/StorageService');
 
 class ChannelService {
     constructor() {
@@ -47,7 +48,7 @@ class ChannelService {
         return newChannel;
     }
 
-    setCurrentChannel(id) {
+    async setCurrentChannel(id) {
         const nextChannel = this.channels.find(channel => channel.id === id);
         if (!nextChannel) {
             throw new Error('Channel does not exist');
@@ -56,8 +57,8 @@ class ChannelService {
         if (this.currentChannel !== nextChannel) {
             if (nextChannel.restream()) {
                 streamController.stop(this.currentChannel);
-                streamController.stop(nextChannel);
-                streamController.start(nextChannel);
+                storageService.deleteChannelStorage(nextChannel.id);
+                await streamController.start(nextChannel);
             } else {
                 streamController.stop(this.currentChannel);
             }
@@ -74,7 +75,7 @@ class ChannelService {
         return this.channels.find(channel => channel.id === id);
     }
 
-    deleteChannel(id) {
+    async deleteChannel(id) {
         const channelIndex = this.channels.findIndex(channel => channel.id === id);
         if (channelIndex === -1) {
             throw new Error('Channel does not exist');
@@ -89,7 +90,7 @@ class ChannelService {
 
             this.currentChannel = this.channels.length > 0 ? this.channels[0] : null;
             if (this.currentChannel?.restream()) {
-                streamController.start(this.currentChannel);
+                await streamController.start(this.currentChannel);
             }
         }
 
@@ -97,7 +98,7 @@ class ChannelService {
         return this.currentChannel;
     }
 
-    updateChannel(id, updatedAttributes) {
+    async updateChannel(id, updatedAttributes) {
         const channelIndex = this.channels.findIndex(channel => channel.id === id);
         if (channelIndex === -1) {
             throw new Error('Channel does not exist');
@@ -114,7 +115,7 @@ class ChannelService {
             if (streamChanged) {
                 streamController.stop(channel);
                 if (channel.restream()) {
-                    streamController.start(channel);
+                    await streamController.start(channel);
                 }
             }
         }

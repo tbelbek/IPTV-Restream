@@ -1,3 +1,5 @@
+const SessionHandler = require('./SessionHandler');
+
 class StreamedSuSession extends SessionHandler {
     constructor(baseUrl) {
         super();
@@ -7,6 +9,8 @@ class StreamedSuSession extends SessionHandler {
     }
 
     async #initSession(url) {
+
+        console.log('Creating session:', url);
         try {
             const response = await fetch(`${this.baseUrl}/init-session`, {
                 method: "POST",
@@ -35,6 +39,7 @@ class StreamedSuSession extends SessionHandler {
             return false;
         }
 
+        console.log('Checking session:', this.sessionData.id);
         try {
             const response = await fetch(`${this.baseUrl}/check/${this.sessionData.id}`);
             return response.status === 200;
@@ -52,7 +57,8 @@ class StreamedSuSession extends SessionHandler {
         this.checkInterval = setInterval(async () => {
             const isValid = await this.#checkSession();
             if (!isValid) {
-                window.location.reload();
+                console.log('Session aborted');
+                this.destroySession();
             }
         }, interval);
     }
@@ -90,4 +96,4 @@ class StreamedSuSession extends SessionHandler {
     }
 }
 
-module.exports = new StreamedSuSession();
+module.exports = StreamedSuSession;
