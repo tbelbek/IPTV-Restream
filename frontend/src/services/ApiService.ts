@@ -7,6 +7,7 @@ const apiService = {
    * Execute API request
    * @param path - Path (e.g. "/channels/")
    * @param method - HTTP-Method (GET, POST, etc.)
+   * @param api_url - The API URL (default: API_BASE_URL + '/api')
    * @param body - The request body (e.g. POST)
    * @returns Ein Promise with the parsed JSON response to class T
    */

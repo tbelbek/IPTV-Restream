@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef } from 'react';
 import Hls from 'hls.js';
 import { Channel, ChannelMode } from '../types';
 import { ToastContext } from './notifications/ToastContext';
+import SessionFactory from '../services/session/SessionFactory';
 
 interface VideoPlayerProps {
   channel: Channel | null;
@@ -12,8 +13,10 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const { addToast, removeToast, clearToasts, editToast } = useContext(ToastContext);
+  const sessionProvider = channel ? SessionFactory.getSessionProvider(channel.url) : null;
 
   useEffect(() => {
+    const setupVideoPlayer = async () => {
     if (!videoRef.current || !channel?.url) return;
     const video = videoRef.current;
 
@@ -50,9 +53,19 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
         },
       });
 
+      let sessionQuery = null;
+      if(channel.mode !== 'restream' && sessionProvider && SessionFactory.checkSessionProvider(channel.url)) {
+        await sessionProvider.createSession();
+        sessionQuery = sessionProvider.getSessionQuery();
+      } else {
+        sessionProvider?.destroySession();
+      }
+
+      const querySeparator = channel.url.includes('?') ? '&' : '?';
       const sourceLinks: Record<ChannelMode, string> = {
-        direct: channel.url,
-        proxy: import.meta.env.VITE_BACKEND_URL + '/proxy/channel', //TODO: needs update for multi-channel streaming
+        direct: sessionQuery ? channel.url + querySeparator + sessionQuery : channel.url,
+        //TODO: needs update for multi-channel streaming
+        proxy: sessionQuery ? import.meta.env.VITE_BACKEND_URL + '/proxy/channel?' + sessionQuery : import.meta.env.VITE_BACKEND_URL + '/proxy/channel', 
         restream: import.meta.env.VITE_BACKEND_URL + '/streams/' + channel.id + "/" + channel.id + ".m3u8", //e.g. http://backend:3000/streams/1/1.m3u8
       };    
 
@@ -214,7 +227,9 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
         hlsRef.current.destroy();
       }
     };
-  }, [channel?.url, channel?.mode, syncEnabled]);
+  }
+  setupVideoPlayer();
+  }, [channel?.url, channel?.mode, syncEnabled, sessionProvider?.getSessionQuery()]);
 
   const handleVideoClick = (event: React.MouseEvent<HTMLVideoElement>) => {
     if (videoRef.current?.muted) {

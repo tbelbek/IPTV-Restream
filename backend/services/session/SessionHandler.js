@@ -1,3 +1,4 @@
+//Implement this interface for your specific session provider
 class SessionHandler {
     constructor() {
         if (this.constructor === SessionHandler) {

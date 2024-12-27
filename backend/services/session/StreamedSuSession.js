@@ -1,16 +1,17 @@
 const SessionHandler = require('./SessionHandler');
 
 class StreamedSuSession extends SessionHandler {
-    constructor(baseUrl) {
+    constructor(channelUrl, baseUrl) {
         super();
+        this.channelUrl = channelUrl;
         this.baseUrl = baseUrl;
         this.checkInterval = null;
         this.sessionData = null;
     }
 
-    async #initSession(url) {
+    async #initSession() {
 
-        console.log('Creating session:', url);
+        console.log('Creating session:', this.channelUrl);
         try {
             const response = await fetch(`${this.baseUrl}/init-session`, {
                 method: "POST",
@@ -18,7 +19,7 @@ class StreamedSuSession extends SessionHandler {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    path: new URL(url).pathname,
+                    path: new URL(this.channelUrl).pathname,
                 })
             });
 
@@ -58,7 +59,7 @@ class StreamedSuSession extends SessionHandler {
             const isValid = await this.#checkSession();
             if (!isValid) {
                 console.log('Session aborted');
-                this.destroySession();
+                this.#initSession();
             }
         }, interval);
     }
@@ -74,11 +75,11 @@ class StreamedSuSession extends SessionHandler {
 
 // Public Methods
 
-    async createSession(url, interval = 15000) {
+    async createSession(interval = 15000) {
         if (!this.sessionData) {
-            await this.#initSession(url);
+            await this.#initSession();
+            this.#startAutoCheck(interval);
         }
-        this.#startAutoCheck(interval);
         return this.getSessionQuery();
     }
 
@@ -90,7 +91,7 @@ class StreamedSuSession extends SessionHandler {
 
     getSessionQuery() {
         if (!this.sessionData?.id) {
-            throw new Error('No active session');
+            return '';
         }
         return `id=${this.sessionData.id}`;
     }

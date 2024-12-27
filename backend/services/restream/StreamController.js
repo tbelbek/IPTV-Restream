@@ -8,7 +8,7 @@ async function start(nextChannel) {
 
     nextChannel.sessionProvider = SessionFactory.getSessionProvider(nextChannel.url);
     if(nextChannel.sessionProvider) {
-        await nextChannel.sessionProvider.createSession(nextChannel.url);
+        await nextChannel.sessionProvider.createSession();
     }
 
     ffmpegService.startFFmpeg(nextChannel);

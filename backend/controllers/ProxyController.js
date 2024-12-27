@@ -4,7 +4,7 @@ const ProxyHelperService = require('../services/proxy/ProxyHelperService');
 
 module.exports = {
     channel(req, res) {
-        let { url: targetUrl, channelId, headers } = req.query;
+        let { url: targetUrl, channelId, headers, id } = req.query;
 
         if(!targetUrl) {
             const channel = channelId ? 
@@ -16,6 +16,11 @@ module.exports = {
                 return;
             }
             targetUrl = channel.url;
+
+            if(id) {
+                targetUrl += `?id=${id}`;
+            }
+
             if(channel.headers && channel.headers.length > 0) {
                 headers = Buffer.from(JSON.stringify(channel.headers)).toString('base64');
             }
