@@ -34,6 +34,17 @@ class ChannelService {
         return this.channels;
     }
 
+    getFilteredChannels({ playlist, group }) {
+        let filtered = this.channels;
+        if (playlist) {
+            filtered = filtered.filter(ch => ch.playlist && ch.playlist == playlist);
+        }
+        if (group) {
+            filtered = filtered.filter(ch => ch.group && ch.group.toLowerCase() === group.toLowerCase());
+        }
+        return filtered;
+    }
+
     addChannel({ name, url, avatar, mode, headersJson, group = false, playlist = false }) {
         const existing = this.channels.find(channel => channel.url === url);
 

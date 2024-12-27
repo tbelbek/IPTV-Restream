@@ -1,8 +1,10 @@
 const ChannelService = require('../services/ChannelService');
 
 module.exports = {
+
     getChannels(req, res) {
-        res.json(ChannelService.getChannels());
+        const channels = ChannelService.getFilteredChannels(req.query);
+        res.json(channels); 
     },
 
     getCurrentChannel(req, res) {
