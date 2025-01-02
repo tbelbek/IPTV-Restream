@@ -20,6 +20,8 @@ module.exports = {
                 headers = Buffer.from(JSON.stringify(channel.headers)).toString('base64');
             }
         }
+
+        console.log('Proxy playlist request to:', targetUrl);
         
         request(ProxyHelperService.getRequestOptions(targetUrl, headers), (error, response, body) => {
             if (error) {
@@ -27,11 +29,14 @@ module.exports = {
                 return;
             }
 
-            const proxyBaseUrl = `${req.headers['x-forwarded-proto'] ?? req.protocol}://${req.get('host')}/proxy/`;
+            const proxyBaseUrl = '/proxy/';
             const rewrittenBody = ProxyHelperService.rewriteUrls(body, proxyBaseUrl, headers, targetUrl).join('\n');
 
             //res.set('Content-Type', 'application/vnd.apple.mpegurl');
             res.send(rewrittenBody);
+        }).on('error', (err) => {
+            console.error('Unhandled error:', err);
+            res.status(500).send('Proxy request failed');
         });
     },
 
@@ -45,7 +50,13 @@ module.exports = {
 
         console.log('Proxy request to:', targetUrl);
 
-        req.pipe(request(ProxyHelperService.getRequestOptions(targetUrl, headers))).pipe(res);
+        req.pipe(
+            request(ProxyHelperService.getRequestOptions(targetUrl, headers))
+                .on('error', (err) => {
+                    console.error('Unhandled error:', err);
+                    res.status(500).send('Proxy request failed');
+                })
+        ).pipe(res);
     },
 
     key(req, res) {
