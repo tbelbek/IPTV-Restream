@@ -29,7 +29,7 @@ module.exports = {
                 return;
             }
 
-            const proxyBaseUrl = `${req.headers['x-forwarded-proto'] ?? req.protocol}://${req.get('host')}/proxy/`;
+            const proxyBaseUrl = '/proxy/';
             const rewrittenBody = ProxyHelperService.rewriteUrls(body, proxyBaseUrl, headers, targetUrl).join('\n');
 
             //res.set('Content-Type', 'application/vnd.apple.mpegurl');
