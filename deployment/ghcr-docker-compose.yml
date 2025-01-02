@@ -1,11 +1,11 @@
 version: "3.9"
 services:
-  frontend:
+  iptv_restream_frontend:
     image: ghcr.io/antebrl/iptv-restream/frontend:v2
     networks:
       - app-network
 
-  backend:
+  iptv_restream_backend:
     image: ghcr.io/antebrl/iptv-restream/backend:v2
     volumes:
       - streams_data:/streams
@@ -16,7 +16,7 @@ services:
       - app-network
 
   # Nginx Reverse Proxy
-  nginx:
+  iptv_restream_nginx:
     image: ghcr.io/antebrl/iptv-restream/nginx:v2
     volumes:
       - streams_data:/streams
