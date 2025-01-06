@@ -7,12 +7,11 @@ import { ToastContext } from '../notifications/ToastContext';
 import { ModeTooltipContent, Tooltip } from '../Tooltip';
 
 interface ChannelModalProps {
-  isOpen: boolean;
   onClose: () => void;
   channel?: Channel | null;
 }
 
-function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
+function ChannelModal({ onClose, channel }: ChannelModalProps) {
   const [type, setType] = useState<'channel' | 'playlist'>('channel');
   const [isEditMode, setIsEditMode] = useState(false);
 
@@ -38,6 +37,7 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
       setPlaylistUrl(channel.playlist);
       setIsEditMode(true);
       setType('channel'); // Default to "channel" if a channel object exists
+      console.log("NOT");
     } else {
       setName('');
       setUrl('');
@@ -47,6 +47,7 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
       setPlaylistName('');
       setPlaylistUrl('');
       setIsEditMode(false);
+      console.log("CLEAR");
       setType('channel'); // Default to "channel" if a channel object exists
     }
   }, [channel]);
@@ -145,8 +146,6 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
     });
     onClose();
   };
-
-  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
