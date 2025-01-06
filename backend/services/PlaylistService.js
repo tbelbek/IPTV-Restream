@@ -3,7 +3,7 @@ const ChannelService = require('./ChannelService');
 
 class PlaylistService {
 
-    async addPlaylist(playlistUrl, mode, headersJson) {
+    async addPlaylist(playlistUrl, playlistName, mode, headersJson) {
 
         const response = await fetch(playlistUrl);
         const content = await response.text();
@@ -21,7 +21,8 @@ class PlaylistService {
                     mode: mode,
                     headersJson: headersJson,
                     group: channel.group.title,
-                    playlist: playlistUrl
+                    playlist: playlistUrl,
+                    playlistName: playlistName
                 });
             } catch (error) {
                 console.error(error);
@@ -42,7 +43,7 @@ class PlaylistService {
         for(let channel of channels) {
             channel = await ChannelService.updateChannel(channel.id, updatedAttributes);
         }
-
+        
         return channels;
     }
 

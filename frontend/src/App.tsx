@@ -34,14 +34,14 @@ function App() {
 
   // Get unique playlists from channels
   const playlists = useMemo(() => {
-    const uniquePlaylists = new Set(channels.map(channel => channel.playlist).filter(playlist => playlist !== null));
+    const uniquePlaylists = new Set(channels.map(channel => channel.playlistName).filter(playlistName => playlistName !== null));
     return ['All Channels', ...Array.from(uniquePlaylists)];
   }, [channels]);
 
   const filteredChannels = useMemo(() => {
     //Filter by playlist
     const filteredByPlaylist = selectedPlaylist === 'All Channels' ? channels : channels.filter(channel => 
-      channel.playlist === selectedPlaylist
+      channel.playlistName === selectedPlaylist
     );
 
     //Filter by group

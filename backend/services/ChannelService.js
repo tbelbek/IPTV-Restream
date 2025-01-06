@@ -34,10 +34,10 @@ class ChannelService {
         return this.channels;
     }
 
-    getFilteredChannels({ playlist, group }) {
+    getFilteredChannels({ playlistName, group }) {
         let filtered = this.channels;
-        if (playlist) {
-            filtered = filtered.filter(ch => ch.playlist && ch.playlist == playlist);
+        if (playlistName) {
+            filtered = filtered.filter(ch => ch.playlistName && ch.playlistName.toLowerCase() == playlistName.toLowerCase());
         }
         if (group) {
             filtered = filtered.filter(ch => ch.group && ch.group.toLowerCase() === group.toLowerCase());
@@ -45,7 +45,7 @@ class ChannelService {
         return filtered;
     }
 
-    addChannel({ name, url, avatar, mode, headersJson, group = false, playlist = false }) {
+    addChannel({ name, url, avatar, mode, headersJson, group = null, playlist = null, playlistName = null }) {
         const existing = this.channels.find(channel => channel.url === url);
 
         if (existing) {
@@ -53,7 +53,7 @@ class ChannelService {
         }
 
         const headers = JSON.parse(headersJson);
-        const newChannel = new Channel(name, url, avatar, mode, headers, group, playlist);
+        const newChannel = new Channel(name, url, avatar, mode, headers, group, playlist, playlistName);
         this.channels.push(newChannel);
 
         return newChannel;

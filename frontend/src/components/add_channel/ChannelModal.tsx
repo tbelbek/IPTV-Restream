@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Info, Plus, Trash2, X } from 'lucide-react';
+import { Plus, Trash2, X } from 'lucide-react';
 import socketService from '../../services/SocketService';
 import { CustomHeader, Channel, ChannelMode } from '../../types';
 import CustomHeaderInput from './CustomHeaderInput';
@@ -22,6 +22,7 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
   const [mode, setMode] = useState<ChannelMode>('proxy');
   const [headers, setHeaders] = useState<CustomHeader[]>([]);
 
+  const [playlistName, setPlaylistName] = useState('');
   const [playlistUrl, setPlaylistUrl] = useState('');
 
   const { addToast } = useContext(ToastContext);
@@ -33,6 +34,7 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
       setAvatar(channel.avatar);
       setMode(channel.mode);
       setHeaders(channel.headers);
+      setPlaylistName(channel.playlistName);
       setPlaylistUrl(channel.playlist);
       setIsEditMode(true);
       setType('channel'); // Default to "channel" if a channel object exists
@@ -42,6 +44,7 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
       setAvatar('');
       setMode('proxy');
       setHeaders([]);
+      setPlaylistName('');
       setPlaylistUrl('');
       setIsEditMode(false);
       setType('channel'); // Default to "channel" if a channel object exists
@@ -81,7 +84,7 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
       );
     } else if (type === 'playlist') {
       if (!playlistUrl.trim()) return;
-      socketService.addPlaylist(playlistUrl.trim(), mode, JSON.stringify(headers));
+      socketService.addPlaylist(playlistUrl.trim(), playlistName.trim(), mode, JSON.stringify(headers));
     }
 
     addToast({
@@ -107,10 +110,11 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
       if(channel!.playlist !== playlistUrl.trim()) {
         // If the playlist URL has changed, we need to reload the playlist (delete old channels and fetch again)
         socketService.deletePlaylist(channel!.playlist);
-        socketService.addPlaylist(playlistUrl.trim(), mode, JSON.stringify(headers));
+        socketService.addPlaylist(playlistUrl.trim(), playlistName.trim(), mode, JSON.stringify(headers));
       } else {
         socketService.updatePlaylist(playlistUrl.trim(), {
           playlist: playlistUrl.trim(),
+          playlistName: playlistName.trim(),
           mode: mode,
           headers: headers,
         });
@@ -277,6 +281,20 @@ function ChannelModal({ isOpen, onClose, channel }: ChannelModalProps) {
           {type === 'playlist' && (
             <>
               {/* Playlist fields */}
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium mb-1">
+                  Playlist Name
+                </label>
+                <input
+                  type="text"
+                  id="playlistName"
+                  value={playlistName}
+                  onChange={(e) => setPlaylistName(e.target.value)}
+                  className="w-full bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter playlist name"
+                  required
+                />
+              </div>
               <div>
                 <label htmlFor="playlistUrl" className="block text-sm font-medium mb-1">
                   M3U Playlist URL

@@ -4,9 +4,10 @@ const Channel = require('../models/Channel');
 
 module.exports = (io, socket) => {
 
-    socket.on('add-playlist', async ({ playlist, mode, headersJson }) => {
+    socket.on('add-playlist', async ({ playlist, playlistName, mode, headersJson }) => {
         try {
-            const channels = await PlaylistService.addPlaylist(playlist, mode, headersJson);
+            const channels = await PlaylistService.addPlaylist(playlist, playlistName, mode, headersJson);
+
             if (channels) {
                 channels.forEach(channel => {
                     io.emit('channel-added', channel);
@@ -21,7 +22,8 @@ module.exports = (io, socket) => {
 
     socket.on('update-playlist', async ({ playlist, updatedAttributes }) => {
         try {
-            const channels =  PlaylistService.updatePlaylist(playlist, updatedAttributes);
+            const channels =  await PlaylistService.updatePlaylist(playlist, updatedAttributes);
+
             channels.forEach(channel => {
                 io.emit('channel-updated', channel.toFrontendJson());
             });
@@ -34,7 +36,7 @@ module.exports = (io, socket) => {
 
     socket.on('delete-playlist', async (playlist) => {
         try {
-            const channels = PlaylistService.deletePlaylist(playlist);
+            const channels = await PlaylistService.deletePlaylist(playlist);
             channels.forEach(channel => {
                 io.emit('channel-deleted', channel.id);
             });

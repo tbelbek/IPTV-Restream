@@ -29,6 +29,7 @@ export interface Channel {
   headers: CustomHeader[];
   group: string;
   playlist: string;
+  playlistName: string;
 }
 
 export interface ChatMessage {
