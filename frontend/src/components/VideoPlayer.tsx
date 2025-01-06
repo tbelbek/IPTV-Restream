@@ -2,21 +2,19 @@ import React, { useContext, useEffect, useRef } from 'react';
 import Hls from 'hls.js';
 import { Channel, ChannelMode } from '../types';
 import { ToastContext } from './notifications/ToastContext';
-import SessionFactory from '../services/session/SessionFactory';
 
 interface VideoPlayerProps {
   channel: Channel | null;
+  sessionQuery: string | undefined;
   syncEnabled: boolean;
 }
 
-function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
+function VideoPlayer({ channel, sessionQuery, syncEnabled }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const { addToast, removeToast, clearToasts, editToast } = useContext(ToastContext);
-  const sessionProvider = channel ? SessionFactory.getSessionProvider(channel.url) : null;
 
   useEffect(() => {
-    const setupVideoPlayer = async () => {
     if (!videoRef.current || !channel?.url) return;
     const video = videoRef.current;
 
@@ -52,14 +50,6 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
           },
         },
       });
-
-      let sessionQuery = null;
-      if(channel.mode !== 'restream' && sessionProvider && SessionFactory.checkSessionProvider(channel.url)) {
-        await sessionProvider.createSession();
-        sessionQuery = sessionProvider.getSessionQuery();
-      } else {
-        sessionProvider?.destroySession();
-      }
 
       const querySeparator = channel.url.includes('?') ? '&' : '?';
       const sourceLinks: Record<ChannelMode, string> = {
@@ -227,9 +217,8 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
         hlsRef.current.destroy();
       }
     };
-  }
-  setupVideoPlayer();
-  }, [channel?.url, channel?.mode, syncEnabled, sessionProvider?.getSessionQuery()]);
+
+  }, [channel?.url, channel?.mode, syncEnabled, sessionQuery]);
 
   const handleVideoClick = (event: React.MouseEvent<HTMLVideoElement>) => {
     if (videoRef.current?.muted) {

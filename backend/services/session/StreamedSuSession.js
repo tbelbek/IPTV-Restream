@@ -24,6 +24,7 @@ class StreamedSuSession extends SessionHandler {
             });
 
             if (!response.ok) {
+                console.log('Failed to initialize session: ', response);
                 throw new Error('Failed to initialize session');
             }
 

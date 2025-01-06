@@ -5,12 +5,14 @@ class StreamedSuSession implements SessionHandler {
     private channelUrl: string;
     private checkInterval: number | null;
     private sessionId: string | null;
+    private setSessionQuery: React.Dispatch<React.SetStateAction<string | undefined>>;
 
-    constructor(channelUrl: string, baseUrl: string) {
+    constructor(channelUrl: string, baseUrl: string, setSessionQuery: React.Dispatch<React.SetStateAction<string | undefined>>) {
         this.channelUrl = channelUrl;
         this.baseUrl = baseUrl;
         this.checkInterval = null;
         this.sessionId = null;
+        this.setSessionQuery = setSessionQuery;
     }
 
     private async initSession(): Promise<any> {
@@ -32,6 +34,7 @@ class StreamedSuSession implements SessionHandler {
 
             const sessionData = await response.json();
             this.sessionId = sessionData.id;
+            this.setSessionQuery(`id=${this.sessionId}`);
             return sessionData.id;
         } catch (error) {
             console.error('Session initialization failed:', error);
@@ -76,27 +79,31 @@ class StreamedSuSession implements SessionHandler {
     }
 
     // Public Methods
-    async createSession(interval: number = 15000): Promise<string> {
+    async createSession(interval: number = 15000): Promise<void> {
         if (!this.sessionId) {
             await this.initSession();
             this.startAutoCheck(interval);
         }
-        return this.getSessionQuery();
     }
 
     destroySession(): boolean {
         console.log('Destroying session:', this.sessionId);
         this.stopAutoCheck();
         this.sessionId = null;
+        this.setSessionQuery(undefined);
         return true;
     }
 
-    getSessionQuery(): string {
-        console.log('Session ID:', this.sessionId);
-        if (!this.sessionId) {
-            return '';
-        }
-        return `id=${this.sessionId}`;
+    // getSessionQuery(): string {
+    //     console.log('Session ID:', this.sessionId);
+    //     if (!this.sessionId) {
+    //         return '';
+    //     }
+    //     return `id=${this.sessionId}`;
+    // }
+
+    type(): string {
+        return 'streamed-su';
     }
 }
 
