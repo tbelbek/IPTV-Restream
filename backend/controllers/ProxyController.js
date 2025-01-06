@@ -30,7 +30,10 @@ module.exports = {
         
         request(ProxyHelperService.getRequestOptions(targetUrl, headers), (error, response, body) => {
             if (error) {
-                res.status(500).json({ error: 'Failed to fetch m3u8 file' });
+                if (!res.headersSent) {
+                    return res.status(500).json({ error: 'Failed to fetch m3u8 file' });
+                }
+                console.error('Request error:', error);
                 return;
             }
 
@@ -41,7 +44,9 @@ module.exports = {
             res.send(rewrittenBody);
         }).on('error', (err) => {
             console.error('Unhandled error:', err);
-            res.status(500).send('Proxy request failed');
+            if (!res.headersSent) {
+                res.status(500).json({ error: 'Proxy request failed' });
+            }
         });
     },
 
@@ -56,12 +61,18 @@ module.exports = {
         console.log('Proxy request to:', targetUrl);
 
         req.pipe(
-            request(ProxyHelperService.getRequestOptions(targetUrl, headers))
+            request(ProxyHelperService.getRequestOptions(targetUrl, headers)) 
                 .on('error', (err) => {
-                    console.error('Unhandled error:', err);
-                    res.status(500).send('Proxy request failed');
+                    console.error('Proxy request error:', err);
+                    if (!res.headersSent) {
+                        res.status(500).json({ error: 'Proxy request failed' });
+                    }
+                    return;
                 })
-        ).pipe(res);
+        ).pipe(res)
+            .on('error', (err) => {
+                console.error('Response stream error:', err);
+            });
     },
 
     key(req, res) {
