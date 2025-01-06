@@ -34,25 +34,25 @@ class PlaylistService {
     }
 
 
-    updatePlaylist(playlistUrl, updatedAttributes) {
+    async updatePlaylist(playlistUrl, updatedAttributes) {
         const channels = ChannelService
                             .getChannels()
                             .filter(channel => channel.playlist === playlistUrl);
 
         for(let channel of channels) {
-            channel = ChannelService.updateChannel(channel.id, updatedAttributes);
+            channel = await ChannelService.updateChannel(channel.id, updatedAttributes);
         }
 
         return channels;
     }
 
-    deletePlaylist(playlistUrl) {
+    async deletePlaylist(playlistUrl) {
         const channels = ChannelService
                             .getChannels()
                             .filter(channel => channel.playlist === playlistUrl);
                             
         for(const channel of channels) {
-            ChannelService.deleteChannel(channel.id);
+            await ChannelService.deleteChannel(channel.id);
         }
 
         return channels;

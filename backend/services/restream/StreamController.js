@@ -1,19 +1,32 @@
 const ffmpegService = require('./FFmpegService');
 const storageService = require('./StorageService');
+const SessionFactory = require('../session/SessionFactory');
 
-function start(nextChannel) {
+async function start(nextChannel) {
+    console.log('Starting channel', nextChannel.id);
     storageService.createChannelStorage(nextChannel.id);
-    if (!ffmpegService.isFFmpegRunning()) {
-        ffmpegService.startFFmpeg(nextChannel);
+
+    nextChannel.sessionProvider = SessionFactory.getSessionProvider(nextChannel.url);
+    if(nextChannel.sessionProvider) {
+        await nextChannel.sessionProvider.createSession();
     }
+
+    ffmpegService.startFFmpeg(nextChannel);
 }
 
 
-function stop(channelId) {
+async function stop(channel) {
+    console.log('Stopping channel', channel.id);
     if (ffmpegService.isFFmpegRunning()) {
-        ffmpegService.stopFFmpeg();
+        await ffmpegService.stopFFmpeg();
     }
-    storageService.deleteChannelStorage(channelId);
+
+    if (channel.sessionProvider) {
+        channel.sessionProvider.destroySession();
+        channel.sessionProvider = null;
+    }
+
+    storageService.deleteChannelStorage(channel.id);
 }
 
 module.exports = {

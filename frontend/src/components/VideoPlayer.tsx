@@ -5,10 +5,11 @@ import { ToastContext } from './notifications/ToastContext';
 
 interface VideoPlayerProps {
   channel: Channel | null;
+  sessionQuery: string | undefined;
   syncEnabled: boolean;
 }
 
-function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
+function VideoPlayer({ channel, sessionQuery, syncEnabled }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const { addToast, removeToast, clearToasts, editToast } = useContext(ToastContext);
@@ -50,9 +51,11 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
         },
       });
 
+      const querySeparator = channel.url.includes('?') ? '&' : '?';
       const sourceLinks: Record<ChannelMode, string> = {
-        direct: channel.url,
-        proxy: import.meta.env.VITE_BACKEND_URL + '/proxy/channel', //TODO: needs update for multi-channel streaming
+        direct: sessionQuery ? channel.url + querySeparator + sessionQuery : channel.url,
+        //TODO: needs update for multi-channel streaming
+        proxy: sessionQuery ? import.meta.env.VITE_BACKEND_URL + '/proxy/channel?' + sessionQuery : import.meta.env.VITE_BACKEND_URL + '/proxy/channel', 
         restream: import.meta.env.VITE_BACKEND_URL + '/streams/' + channel.id + "/" + channel.id + ".m3u8", //e.g. http://backend:3000/streams/1/1.m3u8
       };    
 
@@ -214,7 +217,8 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
         hlsRef.current.destroy();
       }
     };
-  }, [channel?.url, channel?.mode, syncEnabled]);
+
+  }, [channel?.url, channel?.mode, syncEnabled, sessionQuery]);
 
   const handleVideoClick = (event: React.MouseEvent<HTMLVideoElement>) => {
     if (videoRef.current?.muted) {

@@ -11,31 +11,31 @@ module.exports = (io, socket) => {
         }
     });
 
-    socket.on('set-current-channel', (id) => {
+    socket.on('set-current-channel', async (id) => {
         try {
-            const nextChannel = ChannelService.setCurrentChannel(id);
-            io.emit('channel-selected', nextChannel); // Broadcast to all clients
+            const nextChannel = await ChannelService.setCurrentChannel(id);
+            io.emit('channel-selected', nextChannel.toFrontendJson()); // Broadcast to all clients
         } catch (err) {
             console.error(err);
             socket.emit('app-error', { message: err.message });
         }
     });
 
-    socket.on('delete-channel', (id) => {
+    socket.on('delete-channel', async (id) => {
         try {
-            const current = ChannelService.deleteChannel(id);
+            const current = await ChannelService.deleteChannel(id);
             io.emit('channel-deleted', id); // Broadcast to all clients
-            io.emit('channel-selected', current);
+            io.emit('channel-selected', current.toFrontendJson());
         } catch (err) {
             console.error(err);
             socket.emit('app-error', { message: err.message });
         }
     });
 
-    socket.on('update-channel', ({ id, updatedAttributes }) => {
+    socket.on('update-channel', async ({ id, updatedAttributes }) => {
         try {
-            const updatedChannel = ChannelService.updateChannel(id, updatedAttributes);
-            io.emit('channel-updated', updatedChannel); // Broadcast to all clients
+            const updatedChannel = await ChannelService.updateChannel(id, updatedAttributes);
+            io.emit('channel-updated', updatedChannel.toFrontendJson()); // Broadcast to all clients
         } catch (err) {
             console.error(err);
             socket.emit('app-error', { message: err.message });

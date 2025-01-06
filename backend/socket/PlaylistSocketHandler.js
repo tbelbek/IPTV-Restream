@@ -19,11 +19,11 @@ module.exports = (io, socket) => {
     });
 
 
-    socket.on('update-playlist', ({ playlist, updatedAttributes }) => {
+    socket.on('update-playlist', async ({ playlist, updatedAttributes }) => {
         try {
             const channels =  PlaylistService.updatePlaylist(playlist, updatedAttributes);
             channels.forEach(channel => {
-                io.emit('channel-updated', channel);
+                io.emit('channel-updated', channel.toFrontendJson());
             });
         } catch (err) {
             console.error(err);
@@ -32,13 +32,13 @@ module.exports = (io, socket) => {
     });
 
 
-    socket.on('delete-playlist', (playlist) => {
+    socket.on('delete-playlist', async (playlist) => {
         try {
             const channels = PlaylistService.deletePlaylist(playlist);
             channels.forEach(channel => {
                 io.emit('channel-deleted', channel.id);
             });
-            io.emit('channel-selected', ChannelService.getCurrentChannel());
+            io.emit('channel-selected', ChannelService.getCurrentChannel().toFrontendJson());
         } catch (err) {
             console.error(err);
             socket.emit('app-error', { message: err.message });
