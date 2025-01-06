@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Search, Plus, Settings, Users, Radio, Tv2 } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Search, Plus, Settings, Users, Radio, Tv2, ChevronDown } from 'lucide-react';
 import VideoPlayer from './components/VideoPlayer';
 import ChannelList from './components/ChannelList';
 import Chat from './components/chat/Chat';
@@ -27,6 +27,45 @@ function App() {
 
   const [sessionProvider, setSessionProvider] = useState<SessionHandler | null>(null);
   const [sessionQuery, setSessionQuery] = useState<string | undefined>(undefined);
+
+
+  const [selectedPlaylist, setSelectedPlaylist] = useState<string>('All Channels');
+  const [selectedGroup, setSelectedGroup] = useState<string>('Category');
+  const [isPlaylistDropdownOpen, setIsPlaylistDropdownOpen] = useState(false);
+  const [isGroupDropdownOpen, setIsGroupDropdownOpen] = useState(false);
+
+  // Get unique playlists from channels
+  const playlists = useMemo(() => {
+    const uniquePlaylists = new Set(channels.map(channel => channel.playlistName).filter(playlistName => playlistName !== null));
+    return ['All Channels', ...Array.from(uniquePlaylists)];
+  }, [channels]);
+
+  const filteredChannels = useMemo(() => {
+    //Filter by playlist
+    let filteredByPlaylist = selectedPlaylist === 'All Channels' ? channels : channels.filter(channel => 
+      channel.playlistName === selectedPlaylist
+    );
+
+    //Filter by group
+    filteredByPlaylist = selectedGroup === 'Category' ? filteredByPlaylist : filteredByPlaylist.filter(channel => 
+      channel.group === selectedGroup
+    );
+
+    //Filter by name search
+    return filteredByPlaylist.filter(channel =>
+      channel.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [channels, selectedPlaylist, selectedGroup, searchQuery]);
+
+  const groups = useMemo(() => {
+    let uniqueGroups;
+    if(selectedPlaylist === 'All Channels') {
+      uniqueGroups = new Set(channels.map(channel => channel.group).filter(group => group !== null));
+    } else {
+      uniqueGroups = new Set(channels.filter(channel => channel.group !== null && channel.playlistName === selectedPlaylist).map(channel => channel.group));
+    }
+    return ['Category', ...Array.from(uniqueGroups)];
+  }, [selectedPlaylist, channels]);
 
   useEffect(() => {
     apiService
@@ -115,9 +154,6 @@ function App() {
     };
   }, []);
 
-  const filteredChannels = channels.filter((channel) =>
-    channel.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const handleEditChannel = (channel: Channel) => {
     setEditChannel(channel);
@@ -158,12 +194,103 @@ function App() {
             <div className="col-span-12 lg:col-span-8 space-y-4">
               <div className="bg-gray-800 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-2">
-                    <Tv2 className="w-5 h-5 text-blue-500" />
-                    <h2 className="text-xl font-semibold">Live Channels</h2>
+                  <div className="flex items-center space-x-4">
+                    <div className="relative">
+                      <button
+                        onClick={() => {
+                          setIsPlaylistDropdownOpen(!isPlaylistDropdownOpen);
+                          setIsGroupDropdownOpen(false);
+                        }}
+                        className="flex items-center space-x-2 group"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <Tv2 className="w-5 h-5 text-blue-500" />
+                          <h2 className="text-xl font-semibold group-hover:text-blue-400 transition-colors">
+                            {selectedPlaylist}
+                          </h2>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isPlaylistDropdownOpen ? 'rotate-180' : ''}`} />
+                      </button>
+
+                      {isPlaylistDropdownOpen && (
+                        <div className="absolute top-full left-0 mt-1 w-48 bg-gray-800 rounded-lg shadow-xl border border-gray-700 z-50 overflow-hidden">
+                          <div className="max-h-72 overflow-y-auto scroll-container">
+                            {playlists.map((playlist) => (
+                              <button
+                                key={playlist}
+                                onClick={() => {
+                                  setSelectedPlaylist(playlist);
+                                  setSelectedGroup('Category');
+                                  setIsPlaylistDropdownOpen(false);
+                                }}
+                                className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-gray-700 ${
+                                  selectedPlaylist === playlist ? 'text-blue-400 text-base font-semibold' : 'text-gray-200'
+                                }`}
+                                style={{
+                                  whiteSpace: 'normal',
+                                  wordWrap: 'break-word', 
+                                  overflowWrap: 'anywhere', 
+                                }}
+                              >
+                                {playlist}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Group Dropdown */}
+                    <div className="relative">
+                      <button
+                        onClick={() => {
+                          setIsGroupDropdownOpen(!isGroupDropdownOpen);
+                          setIsPlaylistDropdownOpen(false);
+                        }}
+                        className="flex items-center space-x-2 group py-0.5 px-1.5 rounded-lg transition-all bg-white bg-opacity-10"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <h4 className="text-base text-gray-300 group-hover:text-blue-400 transition-colors">
+                            {selectedGroup}
+                          </h4>
+                        </div>
+                        <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform duration-200 ${isGroupDropdownOpen ? 'rotate-180' : ''}`} />
+                      </button>
+
+                      {isGroupDropdownOpen && (
+                        <div className="absolute top-full left-0 mt-1 w-48 bg-gray-800 rounded-lg shadow-xl border border-gray-700 z-50 overflow-hidden">
+                          <div className="max-h-72 overflow-y-auto scroll-container">
+                            {groups.map((group) => (
+                              <button
+                                key={group}
+                                onClick={() => {
+                                  setSelectedGroup(group);
+                                  setIsGroupDropdownOpen(false);
+                                }}
+                                className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-gray-700 ${
+                                  selectedGroup === group ? 'text-blue-400 text-base font-semibold' : 'text-gray-200'
+                                }`}
+                                style={{
+                                  whiteSpace: 'normal',
+                                  wordWrap: 'break-word', 
+                                  overflowWrap: 'anywhere', 
+                                }}
+                              >
+                                {group === 'Category' ? 'All Categories' : group}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
+
                   <button
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => {
+                      setIsModalOpen(true);
+                      setIsGroupDropdownOpen(false);
+                      setIsPlaylistDropdownOpen(false);
+                    }}
                     className="p-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     <Plus className="w-5 h-5" />
@@ -187,14 +314,15 @@ function App() {
           </div>
         </div>
 
-        <ChannelModal
-          isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false)
-            setEditChannel(null);
-          }}
-          channel={editChannel}
-        />
+        {isModalOpen && (
+          <ChannelModal
+            onClose={() => {
+              setIsModalOpen(false);
+              setEditChannel(null);
+            }}
+            channel={editChannel}
+          />
+        )}
 
         <SettingsModal
           isOpen={isSettingsOpen}

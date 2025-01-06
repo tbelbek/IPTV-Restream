@@ -98,10 +98,10 @@ class SocketService {
   }
 
   // Add playlist
-  addPlaylist(playlist: string, mode: ChannelMode, headersJson: string) {
+  addPlaylist(playlist: string, playlistName: string, mode: ChannelMode, headersJson: string) {
     if (!this.socket) throw new Error('Socket is not connected.');
 
-    this.socket.emit('add-playlist', { playlist, mode, headersJson });
+    this.socket.emit('add-playlist', { playlist, playlistName, mode, headersJson });
   }
 
   // Update playlist
