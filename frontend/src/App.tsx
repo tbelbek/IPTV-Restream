@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Search, Plus, Settings, Users, Radio, Tv2 } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Search, Plus, Settings, Users, Radio, Tv2, ChevronDown } from 'lucide-react';
 import VideoPlayer from './components/VideoPlayer';
 import ChannelList from './components/ChannelList';
 import Chat from './components/chat/Chat';
@@ -27,6 +27,31 @@ function App() {
 
   const [sessionProvider, setSessionProvider] = useState<SessionHandler | null>(null);
   const [sessionQuery, setSessionQuery] = useState<string | undefined>(undefined);
+
+
+  const [selectedPlaylist, setSelectedPlaylist] = useState<string>('All Channels');
+  const [isPlaylistDropdownOpen, setIsPlaylistDropdownOpen] = useState(false);
+
+  // Get unique playlists from channels
+  const playlists = useMemo(() => {
+    const uniquePlaylists = new Set(channels.map(channel => channel.playlist).filter(playlist => playlist !== null));
+    return ['All Channels', ...Array.from(uniquePlaylists)];
+  }, [channels]);
+
+  const filteredChannels = useMemo(() => {
+    //Filter by playlist
+    const filteredByPlaylist = selectedPlaylist === 'All Channels' ? channels : channels.filter(channel => 
+      channel.playlist === selectedPlaylist
+    );
+
+    //Filter by group
+
+
+    //Filter by name search
+    return filteredByPlaylist.filter(channel =>
+      channel.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [channels, selectedPlaylist, searchQuery]);
 
   useEffect(() => {
     apiService
@@ -115,9 +140,6 @@ function App() {
     };
   }, []);
 
-  const filteredChannels = channels.filter((channel) =>
-    channel.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const handleEditChannel = (channel: Channel) => {
     setEditChannel(channel);
@@ -158,10 +180,41 @@ function App() {
             <div className="col-span-12 lg:col-span-8 space-y-4">
               <div className="bg-gray-800 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-2">
-                    <Tv2 className="w-5 h-5 text-blue-500" />
-                    <h2 className="text-xl font-semibold">Live Channels</h2>
+
+                <div className="relative">
+                    <button
+                      onClick={() => setIsPlaylistDropdownOpen(!isPlaylistDropdownOpen)}
+                      className="flex items-center space-x-2 group"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <Tv2 className="w-5 h-5 text-blue-500" />
+                        <h2 className="text-xl font-semibold group-hover:text-blue-400 transition-colors">
+                          {selectedPlaylist}
+                        </h2>
+                      </div>
+                      <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isPlaylistDropdownOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {isPlaylistDropdownOpen && (
+                      <div className="absolute top-full left-0 mt-1 w-48 bg-gray-800 rounded-lg shadow-xl border border-gray-700 z-50 overflow-hidden">
+                        {playlists.map((playlist) => (
+                          <button
+                            key={playlist}
+                            onClick={() => {
+                              setSelectedPlaylist(playlist);
+                              setIsPlaylistDropdownOpen(false);
+                            }}
+                            className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-gray-700 ${
+                              selectedPlaylist === playlist ? 'text-blue-400 text-base font-semibold' : 'text-gray-200'
+                            }`}
+                          >
+                            {playlist}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
+
                   <button
                     onClick={() => setIsModalOpen(true)}
                     className="p-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
