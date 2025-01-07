@@ -48,7 +48,7 @@ These are some tested playlists as an example. Use your own iptv playlist for th
 - [Streamed SU Sports playlist](https://github.com/dtankdempse/streamed-su-sports): Sport live-events
 - [Daddylive playlist](https://github.com/dtankdempse/daddylive-m3u): Various tv-channels including sport
 
-> [!IMPORTANT]
+> [!CAUTION]
 > Make sure to set the required headers for the playlist (Origin, Referer, User-Agent)! <br>
 > You don't need the m3u-playlist-proxy! Just use proxy or restream mode. 
 
