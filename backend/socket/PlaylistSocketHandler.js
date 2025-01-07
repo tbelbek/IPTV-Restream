@@ -25,7 +25,7 @@ module.exports = (io, socket) => {
             const channels =  await PlaylistService.updatePlaylist(playlist, updatedAttributes);
 
             channels.forEach(channel => {
-                io.emit('channel-updated', channel.toFrontendJson());
+                io.emit('channel-updated', channel);
             });
         } catch (err) {
             console.error(err);
@@ -40,7 +40,7 @@ module.exports = (io, socket) => {
             channels.forEach(channel => {
                 io.emit('channel-deleted', channel.id);
             });
-            io.emit('channel-selected', ChannelService.getCurrentChannel().toFrontendJson());
+            io.emit('channel-selected', ChannelService.getCurrentChannel());
         } catch (err) {
             console.error(err);
             socket.emit('app-error', { message: err.message });

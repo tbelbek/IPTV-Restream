@@ -6,17 +6,17 @@ class SessionHandler {
         }
     }
 
-    async createSession(url, interval) {
+    async createSession() {
         throw new Error("Method 'startSession()' must be implemented");
     }
 
-    destroySession() {
-        throw new Error("Method 'destroySession()' must be implemented");
-    }
+    // destroySession() {
+    //     throw new Error("Method 'destroySession()' must be implemented");
+    // }
 
-    getSessionQuery() {
-        throw new Error("Method 'getSessionQuery()' must be implemented");
-    }
+    // getSessionQuery() {
+    //     throw new Error("Method 'getSessionQuery()' must be implemented");
+    // }
 }
 
 module.exports = SessionHandler;

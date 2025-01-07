@@ -6,9 +6,10 @@ async function start(nextChannel) {
     console.log('Starting channel', nextChannel.id);
     storageService.createChannelStorage(nextChannel.id);
 
-    nextChannel.sessionProvider = SessionFactory.getSessionProvider(nextChannel.url);
-    if(nextChannel.sessionProvider) {
-        await nextChannel.sessionProvider.createSession();
+    const sessionProvider = SessionFactory.getSessionProvider(nextChannel);
+    if(sessionProvider) {
+        await sessionProvider.createSession();
+        console.log('Session URL:', nextChannel.sessionUrl);
     }
 
     ffmpegService.startFFmpeg(nextChannel);
@@ -21,10 +22,7 @@ async function stop(channel) {
         await ffmpegService.stopFFmpeg();
     }
 
-    if (channel.sessionProvider) {
-        channel.sessionProvider.destroySession();
-        channel.sessionProvider = null;
-    }
+    channel.sessionUrl = null;
 
     storageService.deleteChannelStorage(channel.id);
 }

@@ -1,10 +1,10 @@
 const StreamedSuSession = require('./StreamedSuSession');
 
 class SessionFactory {
-    static getSessionProvider(channelUrl) {
+    static getSessionProvider(channel) {
         switch (true) {
-            case channelUrl.includes('vipstreams.in'): //StreamedSU
-                return new StreamedSuSession(channelUrl, 'https://secure.embedme.top');
+            case channel.url.includes('vipstreams.in'): //StreamedSU
+                return new StreamedSuSession(channel);
             default:
                 return null;
         }

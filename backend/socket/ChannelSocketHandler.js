@@ -14,7 +14,7 @@ module.exports = (io, socket) => {
     socket.on('set-current-channel', async (id) => {
         try {
             const nextChannel = await ChannelService.setCurrentChannel(id);
-            io.emit('channel-selected', nextChannel.toFrontendJson()); // Broadcast to all clients
+            io.emit('channel-selected', nextChannel); // Broadcast to all clients
         } catch (err) {
             console.error(err);
             socket.emit('app-error', { message: err.message });
@@ -25,7 +25,7 @@ module.exports = (io, socket) => {
         try {
             const current = await ChannelService.deleteChannel(id);
             io.emit('channel-deleted', id); // Broadcast to all clients
-            io.emit('channel-selected', current.toFrontendJson());
+            io.emit('channel-selected', current);
         } catch (err) {
             console.error(err);
             socket.emit('app-error', { message: err.message });
@@ -35,7 +35,7 @@ module.exports = (io, socket) => {
     socket.on('update-channel', async ({ id, updatedAttributes }) => {
         try {
             const updatedChannel = await ChannelService.updateChannel(id, updatedAttributes);
-            io.emit('channel-updated', updatedChannel.toFrontendJson()); // Broadcast to all clients
+            io.emit('channel-updated', updatedChannel); // Broadcast to all clients
         } catch (err) {
             console.error(err);
             socket.emit('app-error', { message: err.message });

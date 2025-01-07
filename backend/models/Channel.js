@@ -4,7 +4,7 @@ class Channel {
         this.id = Channel.nextId++;
         this.name = name;
         this.url = url;
-        this.sessionProvider = null;
+        this.sessionUrl = null;
         this.avatar = avatar;
         this.mode = mode;
         this.headers = headers;
@@ -15,15 +15,6 @@ class Channel {
 
     restream() {
         return this.mode === 'restream';
-    }
-
-    toFrontendJson() {
-        if(!this.sessionProvider) {
-            return this;
-        }
-        //Remove sessionProvider
-        const { sessionProvider, ...sanitizedObject } = this;
-        return sanitizedObject;
     }
 }
 
