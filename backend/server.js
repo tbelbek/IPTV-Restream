@@ -20,6 +20,7 @@ const apiRouter = express.Router();
 
 apiRouter.get('/', channelController.getChannels);
 apiRouter.get('/current', channelController.getCurrentChannel);
+apiRouter.get('/:channelId', channelController.getChannel);
 apiRouter.delete('/:channelId', channelController.deleteChannel);
 apiRouter.put('/:channelId', channelController.updateChannel);
 apiRouter.post('/', channelController.addChannel);

@@ -5,6 +5,8 @@ class PlaylistService {
 
     async addPlaylist(playlistUrl, playlistName, mode, headersJson) {
 
+        console.log('Adding playlist', playlistUrl);
+
         const response = await fetch(playlistUrl);
         const content = await response.text();
 

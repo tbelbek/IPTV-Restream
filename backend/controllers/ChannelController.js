@@ -7,6 +7,17 @@ module.exports = {
         res.json(channels); 
     },
 
+    getChannel(req, res) {
+        const { channelId } = req.params;
+        const channelIdInt = parseInt(channelId, 10);
+        const channel = ChannelService.getChannelById(channelIdInt);
+        if (channel) {
+            res.json(channel);
+        } else {
+            res.status(404).json({ error: 'Channel not found' });
+        }
+    },
+
     getCurrentChannel(req, res) {
         res.json(ChannelService.getCurrentChannel());
     },
@@ -14,17 +25,19 @@ module.exports = {
     deleteChannel(req, res) {
         try {
             const { channelId } = req.params;
-            ChannelService.deleteChannel(channelId);
+            const channelIdInt = parseInt(channelId, 10);
+            ChannelService.deleteChannel(channelIdInt);
             res.status(204).send();
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
     },
 
-    updateChannel(req, res) {
+    async updateChannel(req, res) {
         try {
             const { channelId } = req.params;
-            const updatedChannel = ChannelService.updateChannel(channelId, req.body);
+            const channelIdInt = parseInt(channelId, 10);
+            const updatedChannel = await ChannelService.updateChannel(channelIdInt, req.body);
             res.json(updatedChannel);
         } catch (error) {
             res.status(500).json({ error: error.message });

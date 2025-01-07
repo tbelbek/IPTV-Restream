@@ -34,6 +34,10 @@ class ChannelService {
         return this.channels;
     }
 
+    getChannelById(id) {
+        return this.channels.find(channel => channel.id === id);
+    }
+
     getFilteredChannels({ playlistName, group }) {
         let filtered = this.channels;
         if (playlistName) {
@@ -110,6 +114,7 @@ class ChannelService {
     }
 
     async updateChannel(id, updatedAttributes) {
+        console.log(id);
         const channelIndex = this.channels.findIndex(channel => channel.id === id);
         if (channelIndex === -1) {
             throw new Error('Channel does not exist');
