@@ -1,10 +1,11 @@
 const request = require('request');
 const ChannelService = require('../services/ChannelService');
 const ProxyHelperService = require('../services/proxy/ProxyHelperService');
+const SessionFactory = require('../services/session/SessionFactory');
 
 module.exports = {
-    channel(req, res) {
-        let { url: targetUrl, channelId, headers, id } = req.query;
+    async channel(req, res) {
+        let { url: targetUrl, channelId, headers } = req.query;
 
         if(!targetUrl) {
             const channel = channelId ? 
@@ -15,10 +16,13 @@ module.exports = {
                 res.status(404).json({ error: 'Channel not found' });
                 return;
             }
+
             targetUrl = channel.url;
 
-            if(id) {
-                targetUrl += `?id=${id}`;
+            const sessionProvider = SessionFactory.getSessionProvider(channel);
+            if(sessionProvider) {
+                await sessionProvider.createSession();
+                targetUrl = channel.sessionUrl;
             }
 
             if(channel.headers && channel.headers.length > 0) {

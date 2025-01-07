@@ -25,7 +25,6 @@ services:
     volumes:
       - streams_data:/streams
     environment:
-      DEFAULT_CHANNEL_URL: https://mcdn.daserste.de/daserste/de/master.m3u8
       STORAGE_PATH: /streams/
     networks:
       - app-network

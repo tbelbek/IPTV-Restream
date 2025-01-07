@@ -7,7 +7,6 @@ A simple NodeJS web server that retrieves your IPTV stream, caches it, and conve
 Setup a `.env` file or 
 equivalent environment variables:
 ```env
-DEFAULT_CHANNEL_URL=https://mcdn.daserste.de/daserste/de/master.m3u8
 STORAGE_PATH=/mnt/streams/recordings
 ```
 

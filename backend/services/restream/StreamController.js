@@ -9,7 +9,6 @@ async function start(nextChannel) {
     const sessionProvider = SessionFactory.getSessionProvider(nextChannel);
     if(sessionProvider) {
         await sessionProvider.createSession();
-        console.log('Session URL:', nextChannel.sessionUrl);
     }
 
     ffmpegService.startFFmpeg(nextChannel);
