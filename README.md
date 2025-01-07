@@ -3,8 +3,8 @@
 > [!NOTE]  
 >A simple IPTV `restream` and `synchronization` (watch2gether) application with `web` frontend. Share your iptv playlist and watch it together with your friends.
 > 
->Actively in devlopment and open your ideas! <br>
-> [Test it out](https://ante.is-a.dev) (Only for testing, used channels are free and not reliable)
+>Actively in devlopment and open for your ideas! <br>
+> [TEST HERE](https://ante.is-a.dev) (Only for testing, the used channels are free and not reliable)
 
 ## 💡Use Cases
 - [x] Connect with **multiple Devices** to 1 IPTV Stream, if your provider limits current streaming devices.
@@ -36,17 +36,25 @@ docker compose up -d
 Open http://localhost
 
 > [!IMPORTANT]  
-> If a channel/playlist won't work, please try with `restream through backend` option enabled. This fixes most of the problems! It leads to longer initial loading times. If you don't need synchronization, turn it off in the ⚙️ or set the delay in the [config](docker-compose.yml).
+> If a channel/playlist won't work, please try with `proxy` or `restream` mode. This fixes most of the problems! See also [Channel Mode](#channel-mode).
 
+There is also [documentation for advanced deployment](/deployment/README.md):
+- Deploy from container registry and without cloning and building.
+- Deploy together with nginx proxy manager for automatic ssl handling.
 
-### Run components seperately
+## 🆓 Free compatible playlists
 
-If you only need the **restream** functionality and want to use another iptv player (e.g. VLC), you may only run the [backend](/backend/README.md).
-<br>
-If you only need the **synchronization** functionality, you may only run the [frontend](/frontend/README.md).
+These are some tested playlists as an example. Use your own iptv playlist for the best quality!
+- [Free TV Channels](https://github.com/iptv-org/iptv): Huge collection of free tv-channels. One playlist for every country.
 
+---
 
-Be aware, that this'll require additional configuration/adaption and won't be officially supported. It is recommended to [run the whole project as once](#run-with-docker).
+- [Streamed SU Sports playlist](https://github.com/dtankdempse/streamed-su-sports): Sport live-events
+- [Daddylive playlist](https://github.com/dtankdempse/daddylive-m3u): Various tv-channels including sport
+
+> [!CAUTION]
+> Make sure to set the required headers for the playlist (Origin, Referer, User-Agent)! <br>
+> You don't need the m3u-playlist-proxy! Just use proxy or restream mode. 
 
 ## 🖼️ Preview
 ![Frontend Preview](/frontend/ressources/frontend-preview.png)
@@ -66,15 +74,28 @@ The backend service caches the source stream (with ffmpeg) and restreams it. Can
 
 ## FAQ & Common Mistakes
 
-> Which streaming mode should I choose for the channel?
+Which streaming mode should I choose for the channel?
 
-Generally: You should try with direct mode first, switch to proxy mode if it doesn't work and switch to restream mode if this also doesn't work.
+> Generally: You should try with direct mode first, switch to proxy mode if it doesn't work and switch to restream mode if this also doesn't work.
+>
+> Proxy mode is most likely the mode, you will use! You will need restream mode especially when your iptv playlist has no programDateTime set and you want to have playback synchronization.
+---
 
-Proxy mode is most likely the mode, you will use! You will need restream mode especially when your iptv playlist has no programDateTime set and you want to have playback synchronization.
+My playlist only supports xtream codes api!
 
-> Error: `Bind for 0.0.0.0:80 failed: port is already allocated`
+> [IPTV playlist browser](https://github.com/PhunkyBob/iptv_playlist_browser) allows you to export a m3u playlist from your xtream codes account, and let's you select single channels or the whole playlist. Official xstreams-code integration is planned!
+---
+Error: `Bind for 0.0.0.0:80 failed: port is already allocated`
 
-To fix this, change the [port mapping in the docker-compose](docker-compose.yml#L40) to `X:80` e.g. `8080:80`. Make also sure that port X is open in the firewall configuration if you want to expose the application.
+> To fix this, change the [port mapping in the docker-compose](docker-compose.yml#L40) to `X:80` e.g. `8080:80`. Make also sure that port X is open in the firewall configuration if you want to expose the application.
+---
+Is it possible to run components seperately, if I only need the frontend OR backend?
+
+> If you only need the **restream** functionality and want to use another iptv player (e.g. VLC), you may only run the [backend](/backend/README.md).
+> <br>
+> If you only need the **synchronization** functionality, you may only run the [frontend](/frontend/README.md).
+>
+> Be aware, that this'll require additional configuration/adaption and won't be officially supported. It is recommended to [run the whole project as once](#run-with-docker-preferred).
 
 ## Contribute & Contact
 Feel free to open discussions and issues for any type of requests. Don't hesitate to contact me, if you have any problems with the setup.
