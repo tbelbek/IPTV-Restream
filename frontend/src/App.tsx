@@ -10,8 +10,6 @@ import apiService from './services/ApiService';
 import SettingsModal from './components/SettingsModal';
 import { ToastProvider } from './components/notifications/ToastContext';
 import ToastContainer from './components/notifications/ToastContainer';
-import SessionFactory from './services/session/SessionFactory';
-import { SessionHandler } from './services/session/SessionHandler';
 
 function App() {
   const [channels, setChannels] = useState<Channel[]>([]);
@@ -24,9 +22,6 @@ function App() {
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [editChannel, setEditChannel] = useState<Channel | null>(null);
-
-  const [sessionProvider, setSessionProvider] = useState<SessionHandler | null>(null);
-  const [sessionQuery, setSessionQuery] = useState<string | undefined>(undefined);
 
 
   const [selectedPlaylist, setSelectedPlaylist] = useState<string>('All Channels');
@@ -84,7 +79,6 @@ function App() {
     };
 
     const channelSelectedListener = (nextChannel: Channel) => {
-      checkSession(nextChannel, selectedChannel?.url != nextChannel.url);
       setSelectedChannel(nextChannel);
     };
 
@@ -125,24 +119,6 @@ function App() {
     socketService.subscribeToEvent('channel-deleted', channelDeletedListener);
 
     socketService.connect();
-
-    const checkSession = (channel : Channel, urlHasChanged : boolean | undefined) => {
-      const newProvider = SessionFactory.getSessionProvider(channel.url, setSessionQuery);
-
-      if(!newProvider || channel.mode === 'restream') {
-        sessionProvider?.destroySession();
-        setSessionProvider(null);
-        return;
-      }
-
-       if(newProvider?.type() != sessionProvider?.type() || urlHasChanged) {
-          sessionProvider?.destroySession();
-          setSessionProvider(null);
-
-          setSessionProvider(newProvider);
-          sessionProvider?.createSession();
-       }
-    };
 
     return () => {
       socketService.unsubscribeFromEvent('channel-added', channelAddedListener);
@@ -305,7 +281,7 @@ function App() {
                 />
               </div>
 
-              <VideoPlayer channel={selectedChannel} sessionQuery={sessionQuery} syncEnabled={syncEnabled} />
+              <VideoPlayer channel={selectedChannel} syncEnabled={syncEnabled} />
             </div>
 
             <div className="col-span-12 lg:col-span-4">
