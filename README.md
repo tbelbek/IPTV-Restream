@@ -36,7 +36,11 @@ docker compose up -d
 Open http://localhost
 
 > [!IMPORTANT]  
-> If a channel/playlist won't work, please try with `restream through backend` option enabled. This fixes most of the problems! It leads to longer initial loading times. If you don't need synchronization, turn it off in the ⚙️ or set the delay in the [config](docker-compose.yml).
+> If a channel/playlist won't work, please try with `proxy` or `restream` mode. This fixes most of the problems! See also [Channel Mode](#channel-mode).
+
+There is also [documentation for advanced deployment](/deployment/README.md):
+- Deploy from container registry and without cloning and building.
+- Deploy together with nginx proxy manager for automatic ssl handling.
 
 ## 🆓 Free compatible playlists
 
