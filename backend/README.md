@@ -4,6 +4,11 @@ A simple NodeJS web server that is able to proxy and restream your any iptv stre
 
 ## 🚀 Run
 
+It is strongly advised to [use the frontend together with the backend](../deployment/README.md). 
+
+
+If you still want to use it standalone, consider these options:
+
 ### With Docker (Preferred)
 
 In this directory:
