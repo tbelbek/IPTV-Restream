@@ -25,14 +25,20 @@ jobs:
       - name: Build and Push Backend Image
         run: |
           docker build -t ghcr.io/antebrl/iptv-restream/backend:${{ github.event.release.tag_name }} ./backend
+          docker tag ghcr.io/antebrl/iptv-restream/backend:${{ github.event.release.tag_name }} ghcr.io/antebrl/iptv-restream/backend:latest
           docker push ghcr.io/antebrl/iptv-restream/backend:${{ github.event.release.tag_name }}
+          docker push ghcr.io/antebrl/iptv-restream/backend:latest
 
       - name: Build and Push Frontend Image
         run: |
           docker build --build-arg VITE_BACKEND_STREAMS_PATH=/streams/ --build-arg VITE_STREAM_DELAY=18 -t ghcr.io/antebrl/iptv-restream/frontend:${{ github.event.release.tag_name }} ./frontend
+          docker tag ghcr.io/antebrl/iptv-restream/frontend:${{ github.event.release.tag_name }} ghcr.io/antebrl/iptv-restream/frontend:latest
           docker push ghcr.io/antebrl/iptv-restream/frontend:${{ github.event.release.tag_name }}
+          docker push ghcr.io/antebrl/iptv-restream/frontend:latest
 
       - name: Build and Push Nginx Image
         run: |
           docker build -t ghcr.io/antebrl/iptv-restream/nginx:${{ github.event.release.tag_name }} ./deployment/nginx
+          docker tag ghcr.io/antebrl/iptv-restream/nginx:${{ github.event.release.tag_name }} ghcr.io/antebrl/iptv-restream/nginx:latest
           docker push ghcr.io/antebrl/iptv-restream/nginx:${{ github.event.release.tag_name }}
+          docker push ghcr.io/antebrl/iptv-restream/nginx:latest
