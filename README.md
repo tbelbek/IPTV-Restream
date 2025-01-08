@@ -7,6 +7,7 @@
 > [TEST HERE](https://ante.is-a.dev) (Only for testing, the used channels are free and not reliable)
 
 ## 💡Use Cases
+- [x] IPTV Web player supporting multiple playlists at once.
 - [x] Connect with **multiple Devices** to 1 IPTV Stream, if your provider limits current streaming devices.
 - [x] Proxy all Requests through **one IP**.
   - [x] Helps with CORS issues.
