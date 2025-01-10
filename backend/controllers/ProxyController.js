@@ -41,11 +41,16 @@ module.exports = {
                 return;
             }
 
-            const proxyBaseUrl = '/proxy/';
-            const rewrittenBody = ProxyHelperService.rewriteUrls(body, proxyBaseUrl, headers, targetUrl).join('\n');
+            try {
+                const proxyBaseUrl = '/proxy/';
+                const rewrittenBody = ProxyHelperService.rewriteUrls(body, proxyBaseUrl, headers, targetUrl).join('\n');
+                res.send(rewrittenBody);
+            } catch (e) {
+                console.error('Failed to rewrite URLs:', e);
+                res.status(500).json({ error: 'Failed to parse m3uo file. Not a valid HLS stream.' });
+            }
 
             //res.set('Content-Type', 'application/vnd.apple.mpegurl');
-            res.send(rewrittenBody);
         }).on('error', (err) => {
             console.error('Unhandled error:', err);
             if (!res.headersSent) {

@@ -37,7 +37,6 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
       setPlaylistUrl(channel.playlist);
       setIsEditMode(true);
       setType('channel'); // Default to "channel" if a channel object exists
-      console.log("NOT");
     } else {
       setName('');
       setUrl('');
@@ -47,7 +46,6 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
       setPlaylistName('');
       setPlaylistUrl('');
       setIsEditMode(false);
-      console.log("CLEAR");
       setType('channel'); // Default to "channel" if a channel object exists
     }
   }, [channel]);
