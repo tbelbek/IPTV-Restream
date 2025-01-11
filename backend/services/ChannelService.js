@@ -100,14 +100,7 @@ class ChannelService {
         const [deletedChannel] = this.channels.splice(channelIndex, 1);
 
         if (this.currentChannel.id === id) {
-            if (deletedChannel.restream()) {
-                streamController.stop(deletedChannel);
-            }
-
-            this.currentChannel = this.channels.length > 0 ? this.channels[0] : null;
-            if (this.currentChannel?.restream()) {
-                await streamController.start(this.currentChannel);
-            }
+            await this.setCurrentChannel(0);
         }
 
 
