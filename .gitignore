@@ -3,6 +3,7 @@ node_modules/
 
 deployment/data/
 deployment/letsencrypt/
+deployment/darmstadt-localplayer/
 
 /build/
 /dist/

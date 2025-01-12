@@ -14,7 +14,6 @@ services:
         #VITE_SYNCHRONIZATION_MAX_DEVIATION: 4
         #VITE_SYNCHRONIZATION_ADJUSTMENT: 0.06
         #VITE_SYNCHRONIZATION_MAX_ADJUSTMENT: 0.16
-
     networks:
       - app-network
 
