@@ -9,6 +9,7 @@ services:
     image: ghcr.io/antebrl/iptv-restream/backend:v2.1
     volumes:
       - streams_data:/streams
+      - channels:/channels
     environment:
       STORAGE_PATH: /streams/
     networks:
@@ -30,6 +31,7 @@ volumes:
     driver_opts:
       type: tmpfs
       device: tmpfs
+  channels:
 
 # Internal docker network
 networks:
