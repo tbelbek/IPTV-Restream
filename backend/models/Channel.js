@@ -16,6 +16,10 @@ class Channel {
     restream() {
         return this.mode === 'restream';
     }
+
+    static from(json){
+        return Object.assign(new Channel(), json);
+    }
 }
 
 module.exports = Channel;

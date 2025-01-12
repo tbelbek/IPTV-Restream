@@ -25,6 +25,7 @@ function VideoPlayer({ channel, syncEnabled }: VideoPlayerProps) {
       const hls = new Hls({
         autoStartLoad: syncEnabled ? false : true,
         liveDurationInfinity: true,
+        //debug: true,
         manifestLoadPolicy: {
           default: {
             maxTimeToFirstByteMs: Infinity,

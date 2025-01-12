@@ -24,6 +24,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - streams_data:/streams
+      - channels:/channels
     environment:
       STORAGE_PATH: /streams/
     networks:
@@ -46,6 +47,7 @@ volumes:
     driver_opts:
       type: tmpfs
       device: tmpfs
+  channels:
 
 # Internal docker network
 networks:
