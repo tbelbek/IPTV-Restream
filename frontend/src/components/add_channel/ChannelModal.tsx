@@ -14,6 +14,7 @@ interface ChannelModalProps {
 function ChannelModal({ onClose, channel }: ChannelModalProps) {
   const [type, setType] = useState<'channel' | 'playlist'>('channel');
   const [isEditMode, setIsEditMode] = useState(false);
+  const [inputMethod, setInputMethod] = useState<'url' | 'text'>('url');
 
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
@@ -23,6 +24,7 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
 
   const [playlistName, setPlaylistName] = useState('');
   const [playlistUrl, setPlaylistUrl] = useState('');
+  const [playlistText, setPlaylistText] = useState('');
 
   const { addToast } = useContext(ToastContext);
 
@@ -36,7 +38,7 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
       setPlaylistName(channel.playlistName);
       setPlaylistUrl(channel.playlist);
       setIsEditMode(true);
-      setType('channel'); // Default to "channel" if a channel object exists
+      setType('channel');
     } else {
       setName('');
       setUrl('');
@@ -45,24 +47,25 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
       setHeaders([]);
       setPlaylistName('');
       setPlaylistUrl('');
+      setPlaylistText('');
       setIsEditMode(false);
-      setType('channel'); // Default to "channel" if a channel object exists
+      setType('channel');
     }
   }, [channel]);
-
 
   const addHeader = () => {
     setHeaders([...headers, { key: '', value: '' }]);
   };
+  
   const removeHeader = (index: number) => {
     setHeaders(headers.filter((_, i) => i !== index));
   };
+  
   const updateHeader = (index: number, field: 'key' | 'value', value: string) => {
     const newHeaders = [...headers];
     newHeaders[index] = { ...newHeaders[index], [field]: value };
     setHeaders(newHeaders);
   };
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,8 +85,16 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
         JSON.stringify(headers)
       );
     } else if (type === 'playlist') {
-      if (!playlistUrl.trim()) return;
-      socketService.addPlaylist(playlistUrl.trim(), playlistName.trim(), mode, JSON.stringify(headers));
+      if (inputMethod === 'url' && !playlistUrl.trim()) return;
+      if (inputMethod === 'text' && !playlistText.trim()) return;
+      
+      socketService.addPlaylist(
+        inputMethod === 'url' ? playlistUrl.trim() : playlistText.trim(),
+        playlistName.trim(),
+        mode,
+        JSON.stringify(headers),
+        inputMethod === 'text'
+      );
     }
 
     addToast({
@@ -104,12 +115,16 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
         mode: mode,
         headers: headers,
       });
-
     } else if (type === 'playlist') {
       if(channel!.playlist !== playlistUrl.trim()) {
-        // If the playlist URL has changed, we need to reload the playlist (delete old channels and fetch again)
         socketService.deletePlaylist(channel!.playlist);
-        socketService.addPlaylist(playlistUrl.trim(), playlistName.trim(), mode, JSON.stringify(headers));
+        socketService.addPlaylist(
+          inputMethod === 'url' ? playlistUrl.trim() : playlistText.trim(),
+          playlistName.trim(),
+          mode,
+          JSON.stringify(headers),
+          inputMethod === 'text'
+        );
       } else {
         socketService.updatePlaylist(playlistUrl.trim(), {
           playlist: playlistUrl.trim(),
@@ -148,7 +163,6 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
       <div className="bg-gray-800 rounded-lg w-full max-w-md">
-        {/* Header mit Slider */}
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
           <h2 className="text-xl font-semibold">
             {isEditMode ? (type === 'channel' ? 'Edit Channel' : 'Edit Playlist') : type === 'channel' ? 'Add New Channel' : 'Add New Playlist'}
@@ -161,21 +175,18 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
           </button>
         </div>
 
-        {/* Slider */}
         {(!isEditMode || channel?.playlist) && (
           <div className="p-4 pb-0">
             <div className="flex space-x-4 justify-center">
               <button
                 onClick={() => setType('channel')}
-                className={`px-4 py-2 rounded-lg border-2 ${type === 'channel' ? 'border-blue-600' : 'border-transparent'
-                  } hover:border-blue-600 transition-colors`}
+                className={`px-4 py-2 rounded-lg border-2 ${type === 'channel' ? 'border-blue-600' : 'border-transparent'} hover:border-blue-600 transition-colors`}
               >
                 Channel
               </button>
               <button
                 onClick={() => setType('playlist')}
-                className={`px-4 py-2 rounded-lg border-2 ${type === 'playlist' ? 'border-blue-600' : 'border-transparent'
-                  } hover:border-blue-600 transition-colors`}
+                className={`px-4 py-2 rounded-lg border-2 ${type === 'playlist' ? 'border-blue-600' : 'border-transparent'} hover:border-blue-600 transition-colors`}
               >
                 Playlist
               </button>
@@ -183,11 +194,9 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
           {type === 'channel' && (
             <>
-              {/* Channel fields */}
               <div>
                 <label htmlFor="name" className="block text-sm font-medium mb-1">
                   Channel Name
@@ -277,7 +286,6 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
 
           {type === 'playlist' && (
             <>
-              {/* Playlist fields */}
               <div>
                 <label htmlFor="name" className="block text-sm font-medium mb-1">
                   Playlist Name
@@ -292,20 +300,70 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
                   required
                 />
               </div>
-              <div>
-                <label htmlFor="playlistUrl" className="block text-sm font-medium mb-1">
-                  M3U Playlist URL
-                </label>
-                <input
-                  type="url"
-                  id="playlistUrl"
-                  value={playlistUrl}
-                  onChange={(e) => setPlaylistUrl(e.target.value)}
-                  className="w-full bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter M3U playlist URL"
-                  required
-                />
-              </div>
+
+              {inputMethod === 'url' ? (
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label htmlFor="playlistUrl" className="block text-sm font-medium">
+                      <button
+                        type="button"
+                        onClick={() => setInputMethod('url')}
+                        className="font-bold text-white"
+                      >
+                        M3U Playlist URL
+                      </button>
+                      <span className="mx-2 text-gray-400">/</span>
+                      <button
+                        type="button"
+                        onClick={() => setInputMethod('text')}
+                        className="text-gray-400 hover:text-gray-200"
+                      >
+                        M3U Text
+                      </button>
+                    </label>
+                  </div>
+                  <input
+                    type="url"
+                    id="playlistUrl"
+                    value={playlistUrl}
+                    onChange={(e) => setPlaylistUrl(e.target.value)}
+                    className="w-full bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter M3U playlist URL"
+                    required={inputMethod === 'url'}
+                  />
+                </div>
+              ) : (
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label htmlFor="playlistText" className="block text-sm font-medium">
+                      <button
+                        type="button"
+                        onClick={() => setInputMethod('url')}
+                        className="text-gray-400 hover:text-gray-200"
+                      >
+                        M3U Playlist URL
+                      </button>
+                      <span className="mx-2 text-gray-400">/</span>
+                      <button
+                        type="button"
+                        onClick={() => setInputMethod('text')}
+                        className="font-bold text-white"
+                      >
+                        M3U Text
+                      </button>
+                    </label>
+                  </div>
+                  <textarea
+                    id="playlistText"
+                    value={playlistText}
+                    onChange={(e) => setPlaylistText(e.target.value)}
+                    className="w-full bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[200px]"
+                    placeholder="#EXTM3U..."
+                    required={inputMethod === 'text'}
+                  />
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium mb-1">
                   <span className="inline-flex items-center gap-2">
@@ -314,7 +372,7 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
                   </span>
                 </label>
                 <div className="flex items-center space-x-4">
-                <label className="flex items-center">
+                  <label className="flex items-center">
                     <input
                       type="radio"
                       name="mode"
@@ -352,7 +410,6 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
             </>
           )}
 
-          {/* Custom Headers */}
           {mode !== 'direct' && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -389,7 +446,6 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
             </div>
           )}
 
-          {/* Buttons */}
           <div className="flex justify-end space-x-3">
             {isEditMode && (
               <button
