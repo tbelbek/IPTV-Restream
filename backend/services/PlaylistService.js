@@ -3,12 +3,17 @@ const ChannelService = require('./ChannelService');
 
 class PlaylistService {
 
-    async addPlaylist(playlistUrl, playlistName, mode, headersJson) {
+    async addPlaylist(playlist, playlistName, mode, headersJson) {
 
-        console.log('Adding playlist', playlistUrl);
+        console.log('Adding playlist', playlist);
 
-        const response = await fetch(playlistUrl);
-        const content = await response.text();
+        let content = "";
+        if(playlist.startsWith("http")) {
+            const response = await fetch(playlist);
+            content = await response.text();
+        } else {
+            content = playlist;
+        }
 
         const parsedPlaylist = m3uParser.parse(content);
 
@@ -23,7 +28,7 @@ class PlaylistService {
                     mode: mode,
                     headersJson: headersJson,
                     group: channel.group.title,
-                    playlist: playlistUrl,
+                    playlist: playlist,
                     playlistName: playlistName
                 });
             } catch (error) {

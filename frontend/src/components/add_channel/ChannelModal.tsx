@@ -36,9 +36,19 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
       setMode(channel.mode);
       setHeaders(channel.headers);
       setPlaylistName(channel.playlistName);
-      setPlaylistUrl(channel.playlist);
       setIsEditMode(true);
       setType('channel');
+
+      if(channel.playlist.startsWith("http")) {
+        setInputMethod('url');
+        setPlaylistUrl(channel.playlist);
+        setPlaylistText('');
+      } else {
+        setInputMethod('text');
+        setPlaylistUrl('');
+        setPlaylistText(channel.playlist);
+      }
+
     } else {
       setName('');
       setUrl('');
@@ -50,6 +60,7 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
       setPlaylistText('');
       setIsEditMode(false);
       setType('channel');
+      setInputMethod('url');
     }
   }, [channel]);
 
@@ -92,8 +103,7 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
         inputMethod === 'url' ? playlistUrl.trim() : playlistText.trim(),
         playlistName.trim(),
         mode,
-        JSON.stringify(headers),
-        inputMethod === 'text'
+        JSON.stringify(headers)
       );
     }
 
@@ -116,18 +126,17 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
         headers: headers,
       });
     } else if (type === 'playlist') {
-      if(channel!.playlist !== playlistUrl.trim()) {
+      const newPlaylist = inputMethod === 'url' ? playlistUrl.trim() : playlistText.trim();
+      if(channel!.playlist !== newPlaylist) {
         socketService.deletePlaylist(channel!.playlist);
         socketService.addPlaylist(
           inputMethod === 'url' ? playlistUrl.trim() : playlistText.trim(),
           playlistName.trim(),
           mode,
-          JSON.stringify(headers),
-          inputMethod === 'text'
+          JSON.stringify(headers)
         );
       } else {
-        socketService.updatePlaylist(playlistUrl.trim(), {
-          playlist: playlistUrl.trim(),
+        socketService.updatePlaylist(channel!.playlist, {
           playlistName: playlistName.trim(),
           mode: mode,
           headers: headers,

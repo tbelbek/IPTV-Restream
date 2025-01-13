@@ -41,7 +41,7 @@ module.exports = {
                 return channelsJson.map(channelJson => Channel.from(channelJson));
             } catch (err) {
                 console.error('Error loading data from storage:', err);
-                return [];
+                return channels;
             }
         }
         this.save(channels);

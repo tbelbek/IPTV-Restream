@@ -30,11 +30,10 @@ class ChannelService {
     }
 
     addChannel({ name, url, avatar, mode, headersJson, group = null, playlist = null, playlistName = null }) {
-        const existing = this.channels.find(channel => channel.url === url);
-
-        if (existing) {
-            throw new Error('Channel already exists');
-        }
+        // const existing = this.channels.find(channel => channel.url === url);
+        // if (existing) {
+        //     throw new Error('Channel already exists');
+        // }
 
         const headers = JSON.parse(headersJson);
         const newChannel = new Channel(name, url, avatar, mode, headers, group, playlist, playlistName);
