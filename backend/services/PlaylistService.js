@@ -47,20 +47,6 @@ class PlaylistService {
 
     async updatePlaylist(playlistUrl, updatedAttributes) {
 
-        if(playlistUrl !== updatedAttributes.playlist) {
-            // Playlist URL has changed - delete channels and fetch again
-            await this.deletePlaylist(playlistUrl);
-            const channels = await this.addPlaylist(
-                updatedAttributes.playlist, 
-                updatedAttributes.playlistName, 
-                updatedAttributes.mode, 
-                updatedAttributes.headers
-            );
-
-            ChannelStorage.save(ChannelService.getChannels());
-            return channels;
-        }
-
         // Update channels attributes
         const channels = ChannelService
                             .getChannels()
@@ -76,7 +62,7 @@ class PlaylistService {
 
     async deletePlaylist(playlistUrl) {
 
-        console.log('Adding playlist', playlistUrl);
+        console.log('Deleting playlist', playlistUrl);
 
         const channels = ChannelService
                             .getChannels()

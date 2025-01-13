@@ -39,7 +39,11 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
       setIsEditMode(true);
       setType('channel');
 
-      if(channel.playlist.startsWith("http")) {
+      if(!channel.playlist) {
+        setInputMethod('url');
+        setPlaylistUrl('');
+        setPlaylistText('');
+      } else if(channel.playlist.startsWith("http")) {
         setInputMethod('url');
         setPlaylistUrl(channel.playlist);
         setPlaylistText('');
@@ -131,7 +135,7 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
         playlist: newPlaylist,
         playlistName: playlistName.trim(),
         mode: mode,
-        headers: JSON.stringify(headers),
+        headers: headers,
       });
     }
 

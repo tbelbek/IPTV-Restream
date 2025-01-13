@@ -35,7 +35,13 @@ class ChannelService {
         //     throw new Error('Channel already exists');
         // }
 
-        const headers = JSON.parse(headersJson);
+        let headers = headersJson;
+        try {
+            //Try to parse headers if not already parsed
+            headers = JSON.parse(headersJson);
+        } catch (error) {
+        }
+
         const newChannel = new Channel(name, url, avatar, mode, headers, group, playlist, playlistName);
         this.channels.push(newChannel);
         if(save) ChannelStorage.save(this.channels);
@@ -88,7 +94,7 @@ class ChannelService {
     }
 
     async updateChannel(id, updatedAttributes, save = true) {
-        console.log(id);
+
         const channelIndex = this.channels.findIndex(channel => channel.id === id);
         if (channelIndex === -1) {
             throw new Error('Channel does not exist');
