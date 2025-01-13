@@ -42,10 +42,12 @@ class StreamedSuSession extends SessionHandler {
 
             const sessionDecrypted = await decryptRes.json();
             this.channel.sessionUrl = sessionDecrypted.ok;
+            console.log('Session URL:', this.channel.sessionUrl);
             return sessionDecrypted.ok;
 
         } catch (error) {
             console.error('Session initialization failed:', error);
+            this.channel.sessionUrl = null;
         }
     }
 
