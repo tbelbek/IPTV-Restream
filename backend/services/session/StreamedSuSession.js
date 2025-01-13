@@ -46,7 +46,6 @@ class StreamedSuSession extends SessionHandler {
 
         } catch (error) {
             console.error('Session initialization failed:', error);
-            throw error;
         }
     }
 
