@@ -31,32 +31,39 @@ module.exports = {
         }
 
         console.log('Proxy playlist request to:', targetUrl);
-        
-        request(ProxyHelperService.getRequestOptions(targetUrl, headers), (error, response, body) => {
-            if (error) {
-                if (!res.headersSent) {
-                    return res.status(500).json({ error: 'Failed to fetch m3u8 file' });
+
+        try {
+            request(ProxyHelperService.getRequestOptions(targetUrl, headers), (error, response, body) => {
+                if (error) {
+                    if (!res.headersSent) {
+                        return res.status(500).json({ error: 'Failed to fetch m3u8 file' });
+                    }
+                    console.error('Request error:', error);
+                    return;
                 }
-                console.error('Request error:', error);
-                return;
-            }
 
-            try {
-                const proxyBaseUrl = '/proxy/';
-                const rewrittenBody = ProxyHelperService.rewriteUrls(body, proxyBaseUrl, headers, targetUrl).join('\n');
-                res.send(rewrittenBody);
-            } catch (e) {
-                console.error('Failed to rewrite URLs:', e);
-                res.status(500).json({ error: 'Failed to parse m3uo file. Not a valid HLS stream.' });
-            }
+                try {
+                    const proxyBaseUrl = '/proxy/';
+                    const rewrittenBody = ProxyHelperService.rewriteUrls(body, proxyBaseUrl, headers, targetUrl).join('\n');
+                    res.send(rewrittenBody);
+                } catch (e) {
+                    console.error('Failed to rewrite URLs:', e);
+                    res.status(500).json({ error: 'Failed to parse m3uo file. Not a valid HLS stream.' });
+                }
 
-            //res.set('Content-Type', 'application/vnd.apple.mpegurl');
-        }).on('error', (err) => {
-            console.error('Unhandled error:', err);
+                //res.set('Content-Type', 'application/vnd.apple.mpegurl');
+            }).on('error', (err) => {
+                console.error('Unhandled error:', err);
+                if (!res.headersSent) {
+                    res.status(500).json({ error: 'Proxy request failed' });
+                }
+            });
+        } catch (e) {
+            console.error('Failed to proxy request:', e);
             if (!res.headersSent) {
                 res.status(500).json({ error: 'Proxy request failed' });
             }
-        });
+        }
     },
 
     segment(req, res) {

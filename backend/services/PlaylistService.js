@@ -1,14 +1,20 @@
 const m3uParser = require('iptv-playlist-parser');
 const ChannelService = require('./ChannelService');
+const ChannelStorage = require('./ChannelStorage');
 
 class PlaylistService {
 
-    async addPlaylist(playlistUrl, playlistName, mode, headersJson) {
+    async addPlaylist(playlist, playlistName, mode, headersJson) {
 
-        console.log('Adding playlist', playlistUrl);
+        console.log('Adding playlist', playlist);
 
-        const response = await fetch(playlistUrl);
-        const content = await response.text();
+        let content = "";
+        if(playlist.startsWith("http")) {
+            const response = await fetch(playlist);
+            content = await response.text();
+        } else {
+            content = playlist;
+        }
 
         const parsedPlaylist = m3uParser.parse(content);
 
@@ -23,9 +29,9 @@ class PlaylistService {
                     mode: mode,
                     headersJson: headersJson,
                     group: channel.group.title,
-                    playlist: playlistUrl,
+                    playlist: playlist,
                     playlistName: playlistName
-                });
+                }, false);
             } catch (error) {
                 console.error(error);
                 return null;
@@ -33,30 +39,39 @@ class PlaylistService {
         })
         .filter(result => result !== null);
 
+        ChannelStorage.save(ChannelService.getChannels());
+
         return channels;
     }
 
 
     async updatePlaylist(playlistUrl, updatedAttributes) {
+
+        // Update channels attributes
         const channels = ChannelService
                             .getChannels()
                             .filter(channel => channel.playlist === playlistUrl);
 
         for(let channel of channels) {
-            channel = await ChannelService.updateChannel(channel.id, updatedAttributes);
+            channel = await ChannelService.updateChannel(channel.id, updatedAttributes, false);
         }
+        ChannelStorage.save(ChannelService.getChannels());
         
         return channels;
     }
 
     async deletePlaylist(playlistUrl) {
+
+        console.log('Deleting playlist', playlistUrl);
+
         const channels = ChannelService
                             .getChannels()
                             .filter(channel => channel.playlist === playlistUrl);
                             
         for(const channel of channels) {
-            await ChannelService.deleteChannel(channel.id);
+            await ChannelService.deleteChannel(channel.id, false);
         }
+        ChannelStorage.save(ChannelService.getChannels());
 
         return channels;
     }
