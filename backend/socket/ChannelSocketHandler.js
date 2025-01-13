@@ -23,9 +23,10 @@ module.exports = (io, socket) => {
 
     socket.on('delete-channel', async (id) => {
         try {
+            const lastChannel = ChannelService.getCurrentChannel();
             const current = await ChannelService.deleteChannel(id);
             io.emit('channel-deleted', id); // Broadcast to all clients
-            io.emit('channel-selected', current);
+            if(lastChannel.id != current.id) io.emit('channel-selected', current);
         } catch (err) {
             console.error(err);
             socket.emit('app-error', { message: err.message });

@@ -127,21 +127,12 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
       });
     } else if (type === 'playlist') {
       const newPlaylist = inputMethod === 'url' ? playlistUrl.trim() : playlistText.trim();
-      if(channel!.playlist !== newPlaylist) {
-        socketService.deletePlaylist(channel!.playlist);
-        socketService.addPlaylist(
-          inputMethod === 'url' ? playlistUrl.trim() : playlistText.trim(),
-          playlistName.trim(),
-          mode,
-          JSON.stringify(headers)
-        );
-      } else {
-        socketService.updatePlaylist(channel!.playlist, {
-          playlistName: playlistName.trim(),
-          mode: mode,
-          headers: headers,
-        });
-      }
+      socketService.updatePlaylist(channel!.playlist, {
+        playlist: newPlaylist,
+        playlistName: playlistName.trim(),
+        mode: mode,
+        headers: JSON.stringify(headers),
+      });
     }
 
     addToast({

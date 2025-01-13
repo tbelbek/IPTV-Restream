@@ -29,7 +29,7 @@ class ChannelService {
         return filtered;
     }
 
-    addChannel({ name, url, avatar, mode, headersJson, group = null, playlist = null, playlistName = null }) {
+    addChannel({ name, url, avatar, mode, headersJson, group = null, playlist = null, playlistName = null }, save = true) {
         // const existing = this.channels.find(channel => channel.url === url);
         // if (existing) {
         //     throw new Error('Channel already exists');
@@ -38,7 +38,7 @@ class ChannelService {
         const headers = JSON.parse(headersJson);
         const newChannel = new Channel(name, url, avatar, mode, headers, group, playlist, playlistName);
         this.channels.push(newChannel);
-        ChannelStorage.save(this.channels);
+        if(save) ChannelStorage.save(this.channels);
 
         return newChannel;
     }
@@ -70,7 +70,7 @@ class ChannelService {
         return this.channels.find(channel => channel.id === id);
     }
 
-    async deleteChannel(id) {
+    async deleteChannel(id, save = true) {
         const channelIndex = this.channels.findIndex(channel => channel.id === id);
         if (channelIndex === -1) {
             throw new Error('Channel does not exist');
@@ -82,12 +82,12 @@ class ChannelService {
             await this.setCurrentChannel(0);
         }
 
-        ChannelStorage.save(this.channels);
+        if(save) ChannelStorage.save(this.channels);
 
         return this.currentChannel;
     }
 
-    async updateChannel(id, updatedAttributes) {
+    async updateChannel(id, updatedAttributes, save = true) {
         console.log(id);
         const channelIndex = this.channels.findIndex(channel => channel.id === id);
         if (channelIndex === -1) {
@@ -110,7 +110,7 @@ class ChannelService {
             }
         }
 
-        ChannelStorage.save(this.channels);
+        if(save) ChannelStorage.save(this.channels);
 
         return channel;
     }

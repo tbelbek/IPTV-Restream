@@ -22,6 +22,10 @@ module.exports = (io, socket) => {
 
     socket.on('update-playlist', async ({ playlist, updatedAttributes }) => {
         try {
+            if(playlist !== updatedAttributes.playlist) {
+                //call delete-playlist
+            }
+
             const channels =  await PlaylistService.updatePlaylist(playlist, updatedAttributes);
 
             channels.forEach(channel => {
