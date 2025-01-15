@@ -32,7 +32,7 @@ class StreamedSuSession extends SessionHandler {
 
             const encryptedData = await response.text();
 
-            const decryptUrl = `https://streamed-decrypter.vercel.app/api/decrypt?data=${encodeURIComponent(encryptedData)}`;
+            const decryptUrl = `https://streamed-su-decrypt-api.vercel.app/api/decrypt?data=${encodeURIComponent(encryptedData)}`;
 
             const decryptRes = await fetch(decryptUrl, { method: "GET" });
             if (!decryptRes.ok) {
@@ -41,7 +41,7 @@ class StreamedSuSession extends SessionHandler {
             }
 
             const sessionDecrypted = await decryptRes.json();
-            this.channel.sessionUrl = sessionDecrypted.ok;
+            this.channel.sessionUrl = "https://rr.vipstreams.in" + sessionDecrypted.ok;
             console.log('Session URL:', this.channel.sessionUrl);
             return sessionDecrypted.ok;
 
