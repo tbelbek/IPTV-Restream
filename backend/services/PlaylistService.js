@@ -17,13 +17,13 @@ class PlaylistService {
             //check for streamedSu here and add channel for every source
             if(playlist.includes('streamed.su')) {
                 console.log('Fetching StreamedSu API channels');
-                const channels = await StreamedSuSession.fetchApiChannels(playlist, mode, headersJson, playlistName);
-                channels.forEach(channel => {
-                    ChannelService.addChannel(channel, false);
+                const channels = await StreamedSuSession.fetchApiChannels(playlist, mode, playlistName);
+                const data = channels.map(channel => {
+                    return ChannelService.addChannel(channel, false);
                 });
 
                 ChannelStorage.save(ChannelService.getChannels());
-                return channels;
+                return data;
             }
         } else {
             content = playlist;

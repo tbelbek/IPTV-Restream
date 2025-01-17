@@ -6,7 +6,13 @@ class StreamedSuSession extends SessionHandler {
         this.channel = channel;
     }
 
-    static async fetchApiChannels(apiUrl, mode, headersJson, playlistName) {
+    static streamedSuHeaders = [
+        { "key": "Origin", "value": "https://embedme.top" },
+        { "key": "User-Agent", "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0" },
+        { "key": "Referer", "value": "https://embedme.top/" }
+    ];
+
+    static async fetchApiChannels(apiUrl, mode, playlistName) {
         try {
             const response = await fetch(apiUrl);
             if (!response.ok) {
@@ -28,7 +34,7 @@ class StreamedSuSession extends SessionHandler {
                         url: channelUrl,
                         avatar: channelAvatar,
                         mode: mode,
-                        headersJson: headersJson,
+                        headersJson: this.streamedSuHeaders,
                         group: category,
                         playlist: apiUrl,
                         playlistName: playlistName
