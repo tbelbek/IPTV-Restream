@@ -430,7 +430,7 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
                 </button>
               </div>
               <div className="space-y-2">
-                {headers.map((header, index) => (
+                {headers && headers.map((header, index) => (
                   <div key={index} className="flex items-center space-x-2">
                     <CustomHeaderInput
                       header={header}

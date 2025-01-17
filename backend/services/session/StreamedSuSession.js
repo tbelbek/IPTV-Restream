@@ -5,6 +5,44 @@ class StreamedSuSession extends SessionHandler {
         super();
         this.channel = channel;
     }
+
+    static async fetchApiChannels(apiUrl, mode, headersJson, playlistName) {
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                throw new Error(response);
+            }
+
+            const data = await response.json();
+
+            let channels = [];
+            data.forEach(stream => {
+                const { title, category, poster, sources } = stream;
+
+                for(const source of sources) {
+                    const channelUrl = `https://rr.vipstreams.in/${source.source}/js/${source.id}/1/playlist.m3u8`;
+                    const channelAvatar = `https://streamed.su${poster ?? '/api/images/poster/fallback.webp'}`;
+
+                    channels.push({
+                        name: title,
+                        url: channelUrl,
+                        avatar: channelAvatar,
+                        mode: mode,
+                        headersJson: headersJson,
+                        group: category,
+                        playlist: apiUrl,
+                        playlistName: playlistName
+                    });
+                }
+            });
+            return channels;
+        } catch (error) {
+            console.error('Fetch StreamedSu API failed:', error);
+            return [];
+        }
+    }
+
+
     
     async createSession() {
 
