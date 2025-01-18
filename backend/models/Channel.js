@@ -11,7 +11,7 @@ class Channel {
         this.group = group;
         this.playlist = playlist;
         this.playlistName = playlistName;
-        this.playlistUpdate = this.playlistUpdate;
+        this.playlistUpdate = playlistUpdate;
     }
 
     restream() {
