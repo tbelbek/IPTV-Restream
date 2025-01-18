@@ -43,6 +43,7 @@ const server = app.listen(PORT, async () => {
     await streamController.start(ChannelService.getCurrentChannel());
   }
   PlaylistUpdater.startScheduler();
+  PlaylistUpdater.registerChannelsPlaylist(ChannelService.getChannels());
 });
 
 

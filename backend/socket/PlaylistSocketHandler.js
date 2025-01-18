@@ -13,7 +13,7 @@ async function handleAddPlaylist({ playlist, playlistName, mode, playlistUpdate,
             });
         }
 
-        if(playlistUpdate && !PlaylistUpdater.contains(playlist)) {
+        if(playlistUpdate) {
             PlaylistUpdater.register(new Playlist(playlist, playlistName, mode, playlistUpdate, headers));
         }
 
@@ -38,9 +38,7 @@ async function handleUpdatePlaylist({ playlist, updatedAttributes }, io, socket)
             io.emit('channel-updated', channel);
         });
 
-        if(PlaylistUpdater.contains(playlist)) {
-            PlaylistUpdater.delete(playlist);
-        }
+        PlaylistUpdater.delete(playlist);
         if(updatedAttributes.playlistUpdate) {
             PlaylistUpdater.register(new Playlist(playlist, updatedAttributes.playlistName, updatedAttributes.mode, updatedAttributes.playlistUpdate, updatedAttributes.headers));
         }
@@ -60,9 +58,8 @@ async function handleDeletePlaylist(playlist, io, socket) {
         });
         io.emit('channel-selected', ChannelService.getCurrentChannel());
 
-        if(PlaylistUpdater.contains(playlist)) {
-            PlaylistUpdater.delete(playlist);
-        }
+        PlaylistUpdater.delete(playlist);
+
     } catch (err) {
         console.error(err);
         socket.emit('app-error', { message: err.message });

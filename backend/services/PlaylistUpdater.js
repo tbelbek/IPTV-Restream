@@ -1,53 +1,70 @@
 const cron = require('node-cron');
 const PlaylistService = require('./PlaylistService');
+const Playlist = require('../models/Playlist');
 
 class PlaylistUpdater {
   constructor() {
-    this.playlists = new Set();
+    this.playlists = new Map();
   }
 
-  contains(playlist) {
-    for (const existingPlaylist of this.playlists) {
-        if (existingPlaylist.playlist === playlist) {
-          return true;
-        }
-      }
-      return false;
+  #contains(playlistUrl) {
+    return this.playlists.has(playlistUrl);
   }
 
   register(playlist) {
-    console.log('Registering playlist:', playlist);
-    this.playlists.add(playlist);
+    if (this.#contains(playlist.playlist)) {
+      return; 
+    }
+
+    console.log('Registering playlist:', playlist.playlist);
+    this.playlists.set(playlist.playlist, playlist);
   }
 
-  delete(playlist) {
-    for (const existingPlaylist of this.playlists) {
-      if (existingPlaylist.playlist === playlist) {
-        this.playlists.delete(existingPlaylist);
-        break;
+  registerChannelsPlaylist(channels) {
+    for (const channel of channels) {
+      if (channel.playlist && channel.playlistUpdate) {
+        this.register(
+          new Playlist(
+            channel.playlist, 
+            channel.playlistName, 
+            channel.mode, 
+            channel.playlistUpdate, 
+            channel.headers
+          )
+        );
       }
     }
   }
 
-
+  delete(playlistUrl) {
+    if (this.#contains(playlistUrl)) {
+      this.playlists.delete(playlistUrl);
+      console.log(`Deleted playlist with URL: ${playlistUrl}`);
+    }
+  }
 
   startScheduler() {
-    // Cron-Job: "0 3 * * *" -> Every day at 3 am
+    // Cron-Job: "0 3 * * *" -> Every day at 3:00 AM
     cron.schedule('0 3 * * *', () => {
       this.updatePlaylists();
     });
   }
 
-
   updatePlaylists() {
     console.log('Updating playlists at:', new Date());
     this.playlists.forEach(async (playlist) => {
       try {
-        //Fetch playlist again
+        // Fetch and renew playlist
         await PlaylistService.deletePlaylist(playlist.playlist);
-        await PlaylistService.addPlaylist(playlist.playlist, playlist.playlistName, playlist.mode, playlist.playlistUpdate, playlist.headers);
+        await PlaylistService.addPlaylist(
+          playlist.playlist,
+          playlist.playlistName,
+          playlist.mode,
+          playlist.playlistUpdate,
+          playlist.headers
+        );
       } catch (error) {
-        console.error(`Error while updating playlist ${playlist.name}:`, error);
+        console.error(`Error while updating playlist ${playlist.playlistName}:`, error);
       }
     });
   }
