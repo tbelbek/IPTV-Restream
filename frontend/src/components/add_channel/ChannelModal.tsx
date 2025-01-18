@@ -12,7 +12,7 @@ interface ChannelModalProps {
 }
 
 function ChannelModal({ onClose, channel }: ChannelModalProps) {
-  const [type, setType] = useState<'channel' | 'playlist'>('channel');
+  const [type, setType] = useState<'channel' | 'playlist'>('playlist');
   const [isEditMode, setIsEditMode] = useState(false);
   const [inputMethod, setInputMethod] = useState<'url' | 'text'>('url');
 
@@ -25,6 +25,7 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
   const [playlistName, setPlaylistName] = useState('');
   const [playlistUrl, setPlaylistUrl] = useState('');
   const [playlistText, setPlaylistText] = useState('');
+  const [playlistUpdate, setPlaylistUpdate] = useState(false);
 
   const { addToast } = useContext(ToastContext);
 
@@ -36,6 +37,7 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
       setMode(channel.mode);
       setHeaders(channel.headers);
       setPlaylistName(channel.playlistName);
+      setPlaylistUpdate(channel.playlistUpdate);
       setIsEditMode(true);
       setType('channel');
 
@@ -62,8 +64,9 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
       setPlaylistName('');
       setPlaylistUrl('');
       setPlaylistText('');
+      setPlaylistUpdate(false);
       setIsEditMode(false);
-      setType('channel');
+      setType('playlist');
       setInputMethod('url');
     }
   }, [channel]);
@@ -107,6 +110,7 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
         inputMethod === 'url' ? playlistUrl.trim() : playlistText.trim(),
         playlistName.trim(),
         mode,
+        playlistUpdate,
         JSON.stringify(headers)
       );
     }
@@ -134,6 +138,7 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
       socketService.updatePlaylist(channel!.playlist, {
         playlist: newPlaylist,
         playlistName: playlistName.trim(),
+        playlistUpdate: playlistUpdate,
         mode: mode,
         headers: headers,
       });
@@ -410,6 +415,23 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
                     <span className="ml-2">Restream</span>
                   </label>
                 </div>
+              </div>
+
+              {/* Playlist auto-update toggle */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="block text-sm font-medium">Playlist Auto Update</label>
+                  <p className="text-sm text-gray-400">Automatically update playlist once a day</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={playlistUpdate}
+                    onChange={(e) => setPlaylistUpdate(e.target.checked)}
+                  />
+                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                </label>
               </div>
             </>
           )}

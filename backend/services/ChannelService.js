@@ -29,7 +29,7 @@ class ChannelService {
         return filtered;
     }
 
-    addChannel({ name, url, avatar, mode, headersJson, group = null, playlist = null, playlistName = null }, save = true) {
+    addChannel({ name, url, avatar, mode, headersJson, group = null, playlist = null, playlistName = null, playlistUpdate = false }, save = true) {
         // const existing = this.channels.find(channel => channel.url === url);
         // if (existing) {
         //     throw new Error('Channel already exists');
@@ -42,7 +42,7 @@ class ChannelService {
         } catch (error) {
         }
 
-        const newChannel = new Channel(name, url, avatar, mode, headers, group, playlist, playlistName);
+        const newChannel = new Channel(name, url, avatar, mode, headers, group, playlist, playlistName, playlistUpdate);
         this.channels.push(newChannel);
         if(save) ChannelStorage.save(this.channels);
 

@@ -5,7 +5,7 @@ const StreamedSuSession = require('./session/StreamedSuSession');
 
 class PlaylistService {
 
-    async addPlaylist(playlist, playlistName, mode, headersJson) {
+    async addPlaylist(playlist, playlistName, mode, playlistUpdate, headersJson) {
 
         console.log('Adding playlist', playlist);
 
@@ -43,7 +43,8 @@ class PlaylistService {
                     headersJson: headersJson,
                     group: channel.group.title,
                     playlist: playlist,
-                    playlistName: playlistName
+                    playlistName: playlistName,
+                    playlistUpdate: playlistUpdate
                 }, false);
             } catch (error) {
                 console.error(error);

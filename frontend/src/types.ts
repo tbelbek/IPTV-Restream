@@ -30,6 +30,7 @@ export interface Channel {
   group: string;
   playlist: string;
   playlistName: string;
+  playlistUpdate: boolean;
 }
 
 export interface ChatMessage {

@@ -20,7 +20,7 @@ module.exports = {
             { "key": "Referer", "value": "https://embedme.top/" }
         ];
 
-        const channels = [
+        const defaultChannels = [
             //Some Test-channels to get started, remove this when using your own playlist
             //new Channel('Das Erste', "https://mcdn.daserste.de/daserste/de/master.m3u8", "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Das_Erste-Logo_klein.svg/768px-Das_Erste-Logo_klein.svg.png", 'direct'),
             new Channel('DAZN 1 DE', "https://xyzdddd.mizhls.ru/lb/premium426/index.m3u8", "https://upload.wikimedia.org/wikipedia/commons/4/49/DAZN_1.svg", 'proxy', daddyHeaders),
@@ -41,11 +41,11 @@ module.exports = {
                 return channelsJson.map(channelJson => Channel.from(channelJson));
             } catch (err) {
                 console.error('Error loading data from storage:', err);
-                return channels;
+                return defaultChannels;
             }
         }
-        this.save(channels);
-        return channels;
+        this.save(defaultChannels);
+        return defaultChannels;
     },
 
     save(data) {
