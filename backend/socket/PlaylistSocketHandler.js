@@ -1,16 +1,22 @@
 const PlaylistService = require('../services/PlaylistService');
 const ChannelService = require('../services/ChannelService');
-const Channel = require('../models/Channel');
+const PlaylistUpdater = require('../services/PlaylistUpdater');
+const Playlist = require('../models/Playlist');
 
-async function handleAddPlaylist({ playlist, playlistName, mode, headers }, io, socket) {
+async function handleAddPlaylist({ playlist, playlistName, mode, playlistUpdate, headers }, io, socket) {
     try {
-        const channels = await PlaylistService.addPlaylist(playlist, playlistName, mode, headers);
+        const channels = await PlaylistService.addPlaylist(playlist, playlistName, mode, playlistUpdate, headers);
 
         if (channels) {
             channels.forEach(channel => {
                 io.emit('channel-added', channel);
             });
         }
+
+        if(playlistUpdate && !PlaylistUpdater.contains(playlist)) {
+            PlaylistUpdater.register(new Playlist(playlist, playlistName, mode, playlistUpdate, headers));
+        }
+
     } catch (err) {
         console.error(err);
         socket.emit('app-error', { message: err.message });
@@ -31,6 +37,14 @@ async function handleUpdatePlaylist({ playlist, updatedAttributes }, io, socket)
         channels.forEach(channel => {
             io.emit('channel-updated', channel);
         });
+
+        if(PlaylistUpdater.contains(playlist)) {
+            PlaylistUpdater.delete(playlist);
+        }
+        if(updatedAttributes.playlistUpdate) {
+            PlaylistUpdater.register(new Playlist(playlist, updatedAttributes.playlistName, updatedAttributes.mode, updatedAttributes.playlistUpdate, updatedAttributes.headers));
+        }
+
     } catch (err) {
         console.error(err);
         socket.emit('app-error', { message: err.message });
@@ -45,6 +59,10 @@ async function handleDeletePlaylist(playlist, io, socket) {
             io.emit('channel-deleted', channel.id);
         });
         io.emit('channel-selected', ChannelService.getCurrentChannel());
+
+        if(PlaylistUpdater.contains(playlist)) {
+            PlaylistUpdater.delete(playlist);
+        }
     } catch (err) {
         console.error(err);
         socket.emit('app-error', { message: err.message });

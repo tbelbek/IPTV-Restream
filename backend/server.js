@@ -10,6 +10,7 @@ const channelController = require('./controllers/ChannelController');
 const streamController = require('./services/restream/StreamController');
 const ChannelService = require('./services/ChannelService');
 const PlaylistSocketHandler = require('./socket/PlaylistSocketHandler');
+const PlaylistUpdater = require('./services/PlaylistUpdater');
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ const server = app.listen(PORT, async () => {
   if (ChannelService.getCurrentChannel().restream()) {
     await streamController.start(ChannelService.getCurrentChannel());
   }
+  PlaylistUpdater.startScheduler();
 });
 
 
