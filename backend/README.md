@@ -72,15 +72,12 @@ To use together with the frontend, [run with docker](../README.md#run-with-docke
 - users: `user-connected` and `user-disconnected`
 
 ## ℹ️ Usage without the frontend (with other iptv player)
-If you want to watch the current stream in any other IPTV player e.g. on tv, there will be a central m3u link provided in the near future. Watch the [progress of this feature](https://github.com/antebrl/IPTV-Restream/issues/24).
+You can use all the channels with any other IPTV player. The backend exposes a **M3U Playlist** on `http://your-domain/api/channels/playlist`. You can also find it by clicking on the TV-button on the top right in the frontend!
+If this playlist does not work, please check if the base-url of the channels in the playlist is correct and set the `BACKEND_URL` in the `docker-compose.yml` if not.
 
+This playlist contains all your channels and one **CURRENT_CHANNEL**, which forwards the content of the currently played channel.
 
-If you can't wait, these are your options to watch from other IPTV players right now:
-- You can use the [ProxyController](#ProxyController) standalone. Just use `{baseUrl}/proxy/channel` in your iptv player. It is also possible to watch different channels simultaneously by setting the expected query parameters: `url` (and `headers` if needed).
-- Use `/streams/{currentChannelId}/{currentChannelId}.m3u` to watch the current playing restream!
-- [ChannelController](#ChannelController) endpoints should be used to manage the channels. If you just want to have static channels, you can also set them directly in the [ChannelService.js](./services/ChannelService.js).
-- [WebSocket](#WebSocket) is only used by the frontend for chat and channel updates. You likely won't need it!
+To modify the channel list, you can use the frontend or the [api](#channelcontroller).
 
 > [!NOTE]
-> These options are only tested with VLC media player as other iptv player. Use them at your own risk. Only for the usage together with the frontend will be support provided. <br>
-> Support for a central m3u link for other players will be provided soon!
+> These options are only tested with VLC media player as other iptv player. Use them at your own risk. Only for the usage together with the frontend will be support provided.

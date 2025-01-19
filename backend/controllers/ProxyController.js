@@ -32,6 +32,8 @@ module.exports = {
 
         console.log('Proxy playlist request to:', targetUrl);
 
+        res.set('Access-Control-Allow-Origin', '*');
+
         try {
             request(ProxyHelperService.getRequestOptions(targetUrl, headers), (error, response, body) => {
                 if (error) {
@@ -75,6 +77,8 @@ module.exports = {
         }
 
         console.log('Proxy request to:', targetUrl);
+
+        res.set('Access-Control-Allow-Origin', '*');
 
         req.pipe(
             request(ProxyHelperService.getRequestOptions(targetUrl, headers)) 

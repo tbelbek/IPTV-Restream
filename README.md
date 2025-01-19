@@ -15,6 +15,7 @@
 - [x] **Share your iptv access** without revealing your actual stream-url (privacy-mode) and watch together with your friends.
 
 ## ✨ Features 
+**IPTV Player** - IPTV web player with support for any other iptv players by exposing the playlist.
 **Restream / Proxy** - Proxy your iptv streams through the backend. <br>
 **Synchronization** - The selection and playback of the stream is perfectly synchronized for all viewers. <br>
 **Channels** - Add multiple iptv streams and playlists, you can switch between. <br>
@@ -82,6 +83,13 @@ Which streaming mode should I choose for the channel?
 > Generally: You should try with direct mode first, switch to proxy mode if it doesn't work and switch to restream mode if this also doesn't work.
 >
 > Proxy mode is most likely the mode, you will use! You will need restream mode especially when your iptv playlist has no programDateTime set and you want to have playback synchronization.
+---
+
+How can I use the channels on any other iptv player (e.g. on TV)?
+
+> Please click on the 📺 (TV-button) in the top-right in the frontend. There you'll find the playlist you have to use in any other iptv player.
+> This playlist contains all your channels and one **CURRENT_CHANNEL**, which forwards the content of the currently played channel.
+> If this playlist does not work, please check if the base-url of the channels in the playlist is correct and set the `BACKEND_URL` in the `docker-compose.yml` if not.
 ---
 
 My playlist only supports xtream codes api!

@@ -8,6 +8,7 @@ import { Channel } from './types';
 import socketService from './services/SocketService';
 import apiService from './services/ApiService';
 import SettingsModal from './components/SettingsModal';
+import TvPlaylistModal from './components/TvPlaylistModal';
 import { ToastProvider } from './components/notifications/ToastContext';
 import ToastContainer from './components/notifications/ToastContainer';
 
@@ -16,13 +17,13 @@ function App() {
   const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isTvPlaylistOpen, setIsTvPlaylistOpen] = useState(false);
   const [syncEnabled, setSyncEnabled] = useState(() => {
     const savedValue = localStorage.getItem('syncEnabled');
     return savedValue !== null ? JSON.parse(savedValue) : true;
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [editChannel, setEditChannel] = useState<Channel | null>(null);
-
 
   const [selectedPlaylist, setSelectedPlaylist] = useState<string>('All Channels');
   const [selectedGroup, setSelectedGroup] = useState<string>('Category');
@@ -130,7 +131,6 @@ function App() {
     };
   }, []);
 
-
   const handleEditChannel = (channel: Channel) => {
     setEditChannel(channel);
     setIsModalOpen(true);
@@ -157,6 +157,12 @@ function App() {
             </div>
             <div className="flex items-center space-x-4">
               <Users className="w-6 h-6 text-blue-500" />
+              <button
+                onClick={() => setIsTvPlaylistOpen(true)}
+                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                <Tv2 className="w-6 h-6 text-blue-500" />
+              </button>
               <button
                 onClick={() => setIsSettingsOpen(true)}
                 className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
@@ -308,6 +314,11 @@ function App() {
             setSyncEnabled(enabled);
             localStorage.setItem('syncEnabled', JSON.stringify(enabled));
           }}
+        />
+
+        <TvPlaylistModal
+          isOpen={isTvPlaylistOpen}
+          onClose={() => setIsTvPlaylistOpen(false)}
         />
 
         <ToastContainer />

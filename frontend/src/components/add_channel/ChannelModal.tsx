@@ -366,9 +366,10 @@ function ChannelModal({ onClose, channel }: ChannelModalProps) {
                     id="playlistText"
                     value={playlistText}
                     onChange={(e) => setPlaylistText(e.target.value)}
-                    className="w-full bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[200px]"
+                    className="w-full bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[200px] scroll-container overflow-y-auto"
                     placeholder="#EXTM3U..."
                     required={inputMethod === 'text'}
+                    style={{ resize: 'none' }}
                   />
                 </div>
               )}

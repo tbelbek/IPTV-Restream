@@ -27,6 +27,8 @@ services:
       - channels:/channels
     environment:
       STORAGE_PATH: /streams/
+      # If you have problems with the playlist, set the backend url manually here
+      #BACKEND_URL: http://localhost:5000
     networks:
       - app-network
 
