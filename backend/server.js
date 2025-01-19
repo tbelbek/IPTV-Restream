@@ -6,6 +6,7 @@ const ChatSocketHandler = require('./socket/ChatSocketHandler');
 const ChannelSocketHandler = require('./socket/ChannelSocketHandler');
 
 const proxyController = require('./controllers/ProxyController');
+const centralChannelController = require('./controllers/CentralChannelController');
 const channelController = require('./controllers/ChannelController');
 const streamController = require('./services/restream/StreamController');
 const ChannelService = require('./services/ChannelService');
@@ -18,23 +19,22 @@ const app = express();
 app.use(express.json());
 
 const apiRouter = express.Router();
-
 apiRouter.get('/', channelController.getChannels);
 apiRouter.get('/current', channelController.getCurrentChannel);
+apiRouter.get('/playlist', centralChannelController.playlist);
 apiRouter.get('/:channelId', channelController.getChannel);
 apiRouter.delete('/:channelId', channelController.deleteChannel);
 apiRouter.put('/:channelId', channelController.updateChannel);
 apiRouter.post('/', channelController.addChannel);
-
 app.use('/api/channels', apiRouter);
 
 const proxyRouter = express.Router();
-
 proxyRouter.get('/channel', proxyController.channel);
 proxyRouter.get('/segment', proxyController.segment);
 proxyRouter.get('/key', proxyController.key);
-
+proxyRouter.get('/current', centralChannelController.currentChannel);
 app.use('/proxy', proxyRouter);
+
 
 const PORT = 5000;
 const server = app.listen(PORT, async () => {
