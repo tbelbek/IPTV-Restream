@@ -6,6 +6,7 @@ const Path = require('path');
 const fs = require('fs');
 
 const STORAGE_PATH = process.env.STORAGE_PATH;
+const BACKEND_URL = process.env.BACKEND_URL;
 
 function fetchM3u8(res, targetUrl, headers) {
     console.log('Proxy playlist request to:', targetUrl);
@@ -115,12 +116,32 @@ module.exports = {
     },
 
     playlist(req, res) {
+        const backendBaseUrl = BACKEND_URL ? BACKEND_URL : `${req.headers['x-forwarded-proto'] ?? 'http'}://${req.get('Host')}:${req.headers['x-forwarded-port'] ?? ''}`;
 
-        const playlistStr = `#EXTM3U
+        let playlistStr = `#EXTM3U
 #EXTINF:-1 tvg-name="CURRENT RESTREAM" tvg-logo="https://cdn-icons-png.freepik.com/512/9294/9294560.png" group-title="DE",CURRENT RESTREAM
-${req.headers['x-forwarded-proto'] ?? 'http'}://${req.get('Host')}:${req.headers['x-forwarded-port'] ?? ''}/proxy/current`;
+${backendBaseUrl}/proxy/current`;
 
-        //TODO: dynamically add channels from ChannelService (only direct and proxy)
+        //TODO: dynamically add channels from ChannelService
+        const channels = ChannelService.getChannels();
+        for(const channel of channels) {
+            let restreamMode = undefined;
+            if(channel.restream()) {
+                restreamMode = channel.headers && channel.headers.length > 0 ? 'proxy' : 'direct';
+            }
+
+            playlistStr += `\n#EXTINF:-1 tvg-name="${channel.name}" tvg-logo="${channel.avatar}" group-title="${channel.group ?? ''}",${channel.name}\n`;
+
+            if(channel.mode === 'direct' || restreamMode === 'direct') {
+                playlistStr += channel.url;
+            } else {
+                let headers = undefined;
+                if(channel.headers && channel.headers.length > 0) {
+                    headers = Buffer.from(JSON.stringify(channel.headers)).toString('base64');
+                }
+                playlistStr += `${backendBaseUrl}/proxy/channel?url=${encodeURIComponent(channel.url)}${headers ? `&headers=${headers}` : ''}`;
+            }
+        }
 
         res.send(playlistStr);
     }
