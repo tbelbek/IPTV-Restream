@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const Channel = require('../models/Channel');
+const { clear } = require('console');
 
 const storageFilePath = path.resolve('/channels/channels.json');
 
@@ -54,6 +55,15 @@ module.exports = {
             console.log('Data saved successfully.');
         } catch (err) {
             console.error('Error saving data to storage:', err);
+        }
+    },
+
+    clear() {
+        try {
+            fs.unlinkSync(storageFilePath);
+            console.log('Data cleared successfully.');
+        } catch (err) {
+            console.error('Error clearing data from storage:', err);
         }
     }
 }

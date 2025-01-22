@@ -21,6 +21,7 @@ app.use(express.json());
 const apiRouter = express.Router();
 apiRouter.get('/', channelController.getChannels);
 apiRouter.get('/current', channelController.getCurrentChannel);
+apiRouter.delete('/clear', channelController.clearChannels);
 apiRouter.get('/playlist', centralChannelController.playlist);
 apiRouter.get('/:channelId', channelController.getChannel);
 apiRouter.delete('/:channelId', channelController.deleteChannel);

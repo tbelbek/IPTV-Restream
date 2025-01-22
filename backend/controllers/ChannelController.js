@@ -53,4 +53,9 @@ module.exports = {
             res.status(500).json({ error: error.message });
         }
     },
+
+    clearChannels(req, res) {
+        ChannelService.clearChannels();
+        res.status(204).send();
+    }
 };

@@ -4,6 +4,7 @@ module.exports = (io, socket) => {
 
     socket.on('add-channel', ({ name, url, avatar, mode, headersJson }) => {
         try {
+            console.log('Adding solo channel:', url);
             const newChannel = ChannelService.addChannel({ name: name, url: url, avatar: avatar, mode: mode, headersJson: headersJson });
             io.emit('channel-added', newChannel); // Broadcast to all clients
         } catch (err) {

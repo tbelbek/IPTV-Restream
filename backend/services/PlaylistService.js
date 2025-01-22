@@ -27,6 +27,9 @@ class PlaylistService {
             }
         } else {
             content = playlist;
+            const fs = require('fs');
+            fs.writeFileSync(`/channels/${playlistName}.txt`, playlist, { encoding: 'utf-8' }, (err) => err && console.error(err));
+            console.log('Adding playlist to playlist.m3u8');
         }
 
         const parsedPlaylist = m3uParser.parse(content);

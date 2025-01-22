@@ -10,6 +10,12 @@ class ChannelService {
         this.currentChannel = this.channels[0];
     }
 
+    clearChannels() {
+        ChannelStorage.clear();
+        this.channels = ChannelStorage.load();
+        this.currentChannel = this.channels[0];
+    }
+
     getChannels() {
         return this.channels;
     }

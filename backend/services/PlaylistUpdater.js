@@ -56,6 +56,7 @@ class PlaylistUpdater {
       try {
         // Fetch and renew playlist
         await PlaylistService.deletePlaylist(playlist.playlist);
+        console.log('Adding playlist with playlistUpdate:', playlist.playlistUpdate);
         await PlaylistService.addPlaylist(
           playlist.playlist,
           playlist.playlistName,
