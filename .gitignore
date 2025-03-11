@@ -5,6 +5,8 @@ deployment/data/
 deployment/letsencrypt/
 deployment/darmstadt-localplayer/
 
+daddylive-cloudflare/*
+
 /build/
 /dist/
 

@@ -10,6 +10,7 @@ services:
     volumes:
       - streams_data:/streams
       - channels:/channels
+    restart: unless-stopped
     environment:
       STORAGE_PATH: /streams/
       # If you have problems with the playlist, set the backend url manually here
