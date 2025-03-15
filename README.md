@@ -53,6 +53,7 @@ These are some tested playlists as an example. Use your own iptv playlist for th
 
 ---
 
+- [Move On Joy Playlist](https://raw.githubusercontent.com/pigzillaaaaa/iptv-scraper/refs/heads/main/moveonjoy.m3u8): A playlist with various channels, including sports and movies. Use the playlist or single channels (preferred) in proxy mode.
 - [Streamed SU Sports](https://streamed.su): Sport live-events <br>
   Just put any [matches api url](https://streamed.su/docs/matches) e.g. `https://streamed.su/api/matches/football/popular` as playlistUrl.
   
