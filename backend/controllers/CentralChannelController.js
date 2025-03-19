@@ -119,7 +119,7 @@ module.exports = {
         const backendBaseUrl = BACKEND_URL ? BACKEND_URL : `${req.headers['x-forwarded-proto'] ?? 'http'}://${req.get('Host')}:${req.headers['x-forwarded-port'] ?? ''}`;
 
         let playlistStr = `#EXTM3U
-#EXTINF:-1 tvg-name="CURRENT RESTREAM" tvg-logo="https://cdn-icons-png.freepik.com/512/9294/9294560.png" group-title="DE",CURRENT RESTREAM
+#EXTINF:-1 tvg-name="CURRENT RESTREAM" tvg-logo="https://cdn-icons-png.freepik.com/512/9294/9294560.png" group-title="StreamHub",CURRENT RESTREAM
 ${backendBaseUrl}/proxy/current`;
 
         //TODO: dynamically add channels from ChannelService
